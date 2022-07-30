@@ -1,13 +1,10 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@import url(./vendor/normalize.css);
+@import url(./vendor/jura_fonts.css);
+@import url(./blocks/root/root.css);
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+@import url(./blocks/authorization/authorization.css);
+@import url(./blocks/authorization/__header/authorization__header.css);
+@import url(./blocks/authorization/__email/authorization__email.css);
+@import url(./blocks/authorization/__pass/authorization__pass.css);
+@import url(./blocks/authorization/__submit/authorization__submit.css);
+@import url(./blocks/authorization/__fields-box/authorization__fields-box.css);

@@ -1,0 +1,65 @@
+/* jura-300 - cyrillic */
+@font-face {
+  font-family: 'Jura';
+  font-style: normal;
+  font-weight: 300;
+  src: url('assets/fonts/jura-v24-cyrillic-300.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('assets/fonts/jura-v24-cyrillic-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('assets/fonts/jura-v24-cyrillic-300.woff2') format('woff2'), /* Super Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-300.woff') format('woff'), /* Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-300.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('assets/fonts/jura-v24-cyrillic-300.svg#Jura') format('svg'); /* Legacy iOS */
+}
+/* jura-regular - cyrillic */
+@font-face {
+  font-family: 'Jura';
+  font-style: normal;
+  font-weight: 400;
+  src: url('assets/fonts/jura-v24-cyrillic-regular.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('assets/fonts/jura-v24-cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('assets/fonts/jura-v24-cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-regular.woff') format('woff'), /* Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('assets/fonts/jura-v24-cyrillic-regular.svg#Jura') format('svg'); /* Legacy iOS */
+}
+/* jura-500 - cyrillic */
+@font-face {
+  font-family: 'Jura';
+  font-style: normal;
+  font-weight: 500;
+  src: url('assets/fonts/jura-v24-cyrillic-500.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('assets/fonts/jura-v24-cyrillic-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('assets/fonts/jura-v24-cyrillic-500.woff2') format('woff2'), /* Super Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-500.woff') format('woff'), /* Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-500.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('assets/fonts/jura-v24-cyrillic-500.svg#Jura') format('svg'); /* Legacy iOS */
+}
+/* jura-600 - cyrillic */
+@font-face {
+  font-family: 'Jura';
+  font-style: normal;
+  font-weight: 600;
+  src: url('assets/fonts/jura-v24-cyrillic-600.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('assets/fonts/jura-v24-cyrillic-600.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('assets/fonts/jura-v24-cyrillic-600.woff2') format('woff2'), /* Super Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-600.woff') format('woff'), /* Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-600.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('assets/fonts/jura-v24-cyrillic-600.svg#Jura') format('svg'); /* Legacy iOS */
+}
+/* jura-700 - cyrillic */
+@font-face {
+  font-family: 'Jura';
+  font-style: normal;
+  font-weight: 700;
+  src: url('assets/fonts/jura-v24-cyrillic-700.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('assets/fonts/jura-v24-cyrillic-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('assets/fonts/jura-v24-cyrillic-700.woff2') format('woff2'), /* Super Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-700.woff') format('woff'), /* Modern Browsers */
+       url('assets/fonts/jura-v24-cyrillic-700.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('assets/fonts/jura-v24-cyrillic-700.svg#Jura') format('svg'); /* Legacy iOS */
+}

@@ -1,0 +1,36 @@
+.authorization__pass{
+
+	border: 0;
+	border-bottom: 2px solid #CCCCCC;
+	margin: 23px 0 0 0;
+
+	width: 100%;
+	/*max-width: 358px;*/
+	/*max-height: 27px;*/
+
+	font-style: normal;
+	font-weight: 500;
+	font-size: 22px;
+	line-height: 20px;
+
+	color: #FFFFFF;
+	background: transparent;
+
+}
+
+.authorization__pass:-webkit-autofill,
+.authorization__pass:-webkit-autofill:hover, 
+.authorization__pass:-webkit-autofill:focus, 
+.authorization__pass:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px rgba(47, 107, 89, 1) inset !important;
+    -webkit-text-fill-color: yellow !important;
+}
+.authorization__pass::placeholder{
+
+	color: #FFFFFF;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 20px;
+	line-height: 17px;
+
+}
