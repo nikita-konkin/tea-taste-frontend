@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Login(argument) {
 	return(
@@ -13,6 +14,11 @@ function Login(argument) {
 					type="password" name="password" 
 					placeholder="Пароль" required />
 				<button type="submit" className="authorization__submit">Войти</button>
+
+				<h2 className="authorization__check-text">Еще не зарегистрированы?</h2>
+				<Link 
+				className="authorization__check-text_link" to="/sign-up">Регистрация</Link>
+
 			</div>
 		</form>
 

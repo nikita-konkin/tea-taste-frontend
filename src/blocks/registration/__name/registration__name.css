@@ -1,12 +1,10 @@
-.authorization__email{
-
+.registration__name{
 	border: 0;
-	padding: 0;
 	border-bottom: 2px solid #CCCCCC;
 	margin: 23px 0 0 0;
 
 	width: 100%;
-	max-width: 320px;
+	/*max-width: 358px;*/
 	/*max-height: 27px;*/
 
 	font-style: normal;
@@ -16,17 +14,16 @@
 
 	color: #FFFFFF;
 	background: transparent;
-
 }
 
-.authorization__email:-webkit-autofill,
-.authorization__email:-webkit-autofill:hover, 
-.authorization__email:-webkit-autofill:focus, 
-.authorization__email:-webkit-autofill:active{
+.registration__name:-webkit-autofill,
+.registration__name:-webkit-autofill:hover, 
+.registration__name:-webkit-autofill:focus, 
+.registration__name:-webkit-autofill:active{
     -webkit-box-shadow: 0 0 0 30px rgba(47, 107, 89, 1) inset !important;
     -webkit-text-fill-color: yellow !important;
 }
-.authorization__email::placeholder{
+.registration__name::placeholder{
 
 	color: #FFFFFF;
 	font-style: normal;

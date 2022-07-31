@@ -1,0 +1,17 @@
+.authorization__check-text_link{
+	text-decoration: none;
+	margin: 0px 0px;
+	padding: 0px 0px 0px 0px;
+	/*max-width: 320px;*/
+
+	font-style: normal;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 18px;
+	/* identical to box height */
+
+	text-align: center;
+	/*text-transform: capitalize;*/
+
+	color: rgba(82, 255, 0, 1);
+}

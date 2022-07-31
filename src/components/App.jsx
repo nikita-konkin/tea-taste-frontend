@@ -11,11 +11,14 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import TeaForm from './Teaform.jsx'
 import Login from './Login.jsx'
+import Registration from './Registration.jsx'
 
 
 function App() {
   // const navigate = useNavigate();
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(true)
+
+  // setLoggedIn(true)
 
   return (
     <div className="root">
@@ -41,7 +44,11 @@ function App() {
           <Login/>
         }
         />
-
+        <Route path = "/sign-up"
+        element = {
+          <Registration/>
+        }
+        />
       </Routes>
     </div>
   );

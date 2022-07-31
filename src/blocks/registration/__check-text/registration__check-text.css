@@ -1,0 +1,17 @@
+.registration__check-text{
+	margin: 10px 0;
+	padding: 0px 0px 0px 0px;
+	/*max-width: 320px;*/
+
+	font-style: normal;
+	font-weight: 400;
+	font-size: 18px;
+	line-height: 18px;
+	/* identical to box height */
+
+	text-align: center;
+	/*text-transform: capitalize;*/
+
+	color: #FFFFFF;
+
+}
