@@ -1,0 +1,15 @@
+.header__navigation{
+
+	margin: 0 0px 6px 0;
+
+	font-style: normal;
+	font-weight: 400;
+	font-size: 13px;
+	line-height: 15px;
+	text-align: center;
+	text-transform: capitalize;
+
+	color: #FFFFFF;
+
+	align-self: end;
+}

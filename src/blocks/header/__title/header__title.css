@@ -1,0 +1,14 @@
+.header__title{
+
+	margin: 0 0px 0 0;
+	width: calc(100%*2);
+
+	font-style: normal;
+	font-weight: 400;
+	font-size: 40px;
+	line-height: 47px;
+	text-align: center;
+	text-transform: capitalize;
+
+	color: #FFFFFF;
+}

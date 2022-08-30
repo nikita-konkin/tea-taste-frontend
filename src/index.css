@@ -2,6 +2,10 @@
 @import url(./vendor/jura_fonts.css);
 @import url(./blocks/root/root.css);
 
+@import url(./blocks/test/test.css);
+
+@import url(./blocks/form/form.css);
+
 @import url(./blocks/authorization/authorization.css);
 @import url(./blocks/authorization/__header/authorization__header.css);
 @import url(./blocks/authorization/__email/authorization__email.css);
@@ -21,3 +25,11 @@
 @import url(./blocks/registration/__submit/registration__submit.css);
 @import url(./blocks/registration/__check-text/_link/registration__check-text_link.css);
 @import url(./blocks/registration/__check-text/registration__check-text.css);
+
+@import url(./blocks/header/header.css);
+@import url(./blocks/header/__title/header__title.css);
+@import url(./blocks/header/__navigation/header__navigation.css);
+@import url(./blocks/header/__menu/header__menu.css);
+
+@import url(./blocks/selectbox/__name/selectbox__name.css);
+@import url(./blocks/selectbox/selectbox.css);
