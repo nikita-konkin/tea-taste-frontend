@@ -6,6 +6,10 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import MuiInput from '@mui/material/Input';
 
+import { ThemeProvider , createTheme } from '@mui/material/styles';
+// import RalewayWoff2 from './fonts/Raleway-Regular.woff2';
+
+
 const Input = styled(MuiInput)`
   width: 42px;
 `;
@@ -36,6 +40,18 @@ function SliderBox(props) {
 	];
 
 
+	const theme = createTheme({
+	   typography: {
+	    "fontFamily": `jura`,
+	    "fontSize": 18,
+	    // "color": '#FFFFFF',
+	    // "fontWeightLight": 300,
+	    // "fontWeightRegular": 400,
+	    // "fontWeightMedium": 500
+	   }
+			});
+
+
 	const [value, setValue] = React.useState(5);
 
 	const handleInputChange = (event) => {
@@ -47,11 +63,12 @@ function SliderBox(props) {
   };
 
 	return(
-		<>
+		<><ThemeProvider  theme={theme}>
 			<Box sx={{ m: 3 }} />
-			<Typography gutterBottom>{props.sliderName}</Typography>
+			<Typography style={{color: 'white'}} gutterBottom>{props.sliderName}</Typography>
 				<Grid container spacing={2} alignItems="center">
-					<Grid item xs>
+					<Grid item sx={{ m: 1 }}  xs>
+						<Typography style={{color: 'white'}}>
 						<Slider
 						valueLabelDisplay="auto"
 						// aria-label="pretto slider"
@@ -63,8 +80,9 @@ function SliderBox(props) {
 			      max={50}
 			      step={1}
 		        sx={{
-						    width: '100%',
+						    width: '95%',
 						    color: '#FFFFFF',
+						    fontcolor: '#FFFFFF',
 						    '& .MuiSlider-thumb': {
 						      borderRadius: '8px',
 						    },
@@ -73,8 +91,18 @@ function SliderBox(props) {
 						    	color: '#FFFFFF',
 						    	backgroundColor: '#728A7C'
 						    },
+						    '& .MuiSlider-markLabel' :
+						    {
+						    	color: '#FFFFFF',
+						    },
+						    '& .MuiGrid-root' :
+						    {
+						    	padding : '0',
+						    	margin : '0',
+						    },
 						  }}
 					/>
+					</Typography>
 					</Grid>
 					<Grid item>
 						<Input
@@ -102,6 +130,7 @@ function SliderBox(props) {
 						/>
 					</Grid>
 				</Grid>
+				</ThemeProvider >
 			</>
 		)
 }
