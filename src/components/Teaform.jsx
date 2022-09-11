@@ -3,14 +3,18 @@ import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
 
+import {
+  SLIDER_WEIGHT_DATA,
+  SLIDER_WATER_DATA,
+  SLIDER_TEMPERATURE_DATA
+} from '../utils/utils.js'
 
 function Teaform(argument) {
 
 	const options = [
-  { label: "Test1", value: 1 },
-  { label: "Test2", value: 3 },
-  { label: "Test3", value: 2 },
-  { label: "Test4", value: 3 },
+	  { title: "The Shawshank Redemption", year: 1994 },
+	  { title: "The Godfather", year: 1972 },
+	  { title: "The Godfather: Part II", year: 1974 }
 	];
 
 
@@ -20,9 +24,29 @@ function Teaform(argument) {
 			<form className="form">
 				<h3>Шаг 1 основаня информация</h3>
 				<SelectBox boxName='Название чая' options={options}/>
-				<SliderBox sliderName='Вес чая при заваривании'/>
+				<SliderBox 
+					sliderName='Вес чая при заваривании'
+					maxValue={50}
+					defaultValue={5}
+					units='г'
+					marks = {SLIDER_WEIGHT_DATA}
+				/>
 				<SelectBox boxName='Тип чая' options={options}/>
 				<SelectBox boxName='Вода' options={options}/>
+				<SliderBox 
+					sliderName='Объем воды'
+					maxValue={1000}
+					defaultValue={100}
+					units='мл'
+					marks = {SLIDER_WATER_DATA}
+				/>
+				<SliderBox 
+					sliderName='Температура воды'
+					maxValue={100}
+					defaultValue={95}
+					units='°C'
+					marks = {SLIDER_TEMPERATURE_DATA}
+				/>
 				<SelectBox boxName='Посуда' options={options}/>
 				<SelectBox boxName='Метод заваривания' options={options}/>
 
