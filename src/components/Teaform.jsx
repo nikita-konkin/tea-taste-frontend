@@ -22,7 +22,7 @@ function Teaform(argument) {
 		<>
 			<Header />
 			<form className="form">
-				<h3>Шаг 1 основаня информация</h3>
+				<h3 className="form_header">Шаг 1 основаня информация</h3>
 				<SelectBox boxName='Название чая' options={options}/>
 				<SliderBox 
 					sliderName='Вес чая при заваривании'

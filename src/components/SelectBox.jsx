@@ -3,51 +3,77 @@ import Select from 'react-select';
 import PropTypes from "prop-types";
 import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
 // import TextField from "@mui/material/TextField";
-import { Popper, TextField} from "@mui/material";
+import { Popper, TextField, ListItem} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { ThemeProvider , createTheme } from '@mui/material/styles';
 
 
-const StyledPopper = styled(Popper)({
-  [`& .${autocompleteClasses.listbox}`]: {
-    boxSizing: 'border-box',
-    '& ul': {
-      padding: 0,
-      margin: 0,
-      color: 'red'
-    },
-  },
-});
 
+// const styledPopper = {
+// 	// color: 'red',
+// 	// backgroundColor: '#666666',
+// 	  "& .MuiAutocomplete-popper": {
+//     color: "red",
+//   }
+// }
 
+// const StyledPopper = styled(ListItem)`
+// 	// color: red;
+// 	// background-color: white;
+
+// 	& div.MuiAutocomplete-popper{
+// 		color: red;
+// 		border-radius: 10px;
+// 	}
+// 	`;
 
 const StyledTextField = styled(TextField)({
 	width: '100%',
   "& label, & label.Mui-focused": {
     color: "#ffffff",
-    '& .MuiInput-underline::before': {
-      // border: '8px solid',
-      // borderBottomColor: 'rgba(0, 0, 0, 0.42)',
-      // width: '28px',
-
-    },
   }
+});
+
+const StyledPopper = styled(Popper)({
+  [`& .${autocompleteClasses.listbox}`]: {
+    boxSizing: 'border-box',
+    backgroundColor: '#425E42',
+    color: '#ffffff',
+    '& ul': {
+      padding: 0,
+      margin: 0,
+    },
+  },
 });
 
 
 function SelectBox(props) {
-	// const classes = useStyles()
+
+	const theme = createTheme({
+	   typography: {
+	    "fontFamily": `jura`,
+	    "fontSize": 16,
+	    // "color": '#FFFFFF',
+	    // "fontWeightLight": 300,
+	    // "fontWeightRegular": 400,
+	    // "fontWeightMedium": 500
+	   }
+			}, []);
+
 	return(
 
 		// <div className="selectbox">
 		// 	<p className="selectbox__name">{props.boxName}</p>
 		// 	<Select	options={props.options} />
 		// </div>
-
+		<>
+		<ThemeProvider  theme={theme}>
     <Autocomplete
     // classes = {classes}
       options={props.options}
       getOptionLabel={(option) => option.title}
+      PopperComponent={StyledPopper}
       // style={{ width: 300 }}
       sx={{
       "& .MuiInputBase-root::before":
@@ -58,6 +84,8 @@ function SelectBox(props) {
           { borderBottomColor: "#00ffaf"},
       "& .MuiSvgIcon-root":
           { color: "white"},
+      "& .MuiAutocomplete-input":
+          { color: "white"},
     	}}
 			renderInput={(params) => (
 				<StyledTextField
@@ -66,13 +94,12 @@ function SelectBox(props) {
 					variant="standard"
 				/>
 			)}
-			// PopperComponent={StyledPopper}
-		  renderOption={(props, option, state) => {
-		    return (
-		      <StyledPopper>{`${option.title}`}</StyledPopper>
-		    ); //display value
-		  }}
+			// renderOption={(params, option) => 
+			// 	<StyledPopper {...params}>{option.title}</StyledPopper>
+			// }
     />
+    </ThemeProvider>
+    </>
 
 		)
 }
