@@ -76,6 +76,7 @@ function SelectBox(props) {
       PopperComponent={StyledPopper}
       // style={{ width: 300 }}
       sx={{
+      marginBottom: '20px',
       "& .MuiInputBase-root::before":
           { borderBottomColor: "white"},
       "& .MuiInputBase-root:hover:not(.Mui-disabled):before":

@@ -6,6 +6,7 @@
 
 @import url(./blocks/form/form.css);
 @import url(./blocks/form/_header/form_header.css);
+@import url(./blocks/form/_inputs/form_inputs.css);
 
 @import url(./blocks/authorization/authorization.css);
 @import url(./blocks/authorization/__header/authorization__header.css);

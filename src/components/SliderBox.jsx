@@ -59,7 +59,10 @@ function SliderBox(props) {
 	   }
 			}, []);
 
-
+	const sliderTitleStyle = {
+		color: 'white',
+		margin: '0',
+	}
 	const [value, setValue] = React.useState(defaultValue);
 
 	const handleInputChange = (event) => {
@@ -70,12 +73,18 @@ function SliderBox(props) {
     setValue(newValue);
   };
 
+  const test = {
+  	margin: '0px 0 0 -5px',
+  	padding : '0px',
+  	alignItems: 'top',
+  }
+
 	return(
 		<><ThemeProvider  theme={theme}>
-			<Box sx={{ m: 1 }} />
-			<Typography style={{color: 'white'}} gutterBottom>{props.sliderName}</Typography>
-				<Grid container spacing={1} alignItems="center">
-					<Grid item sx={{ m: 0 }}  xs>
+			<Box sx={{ mt: 3 }} />
+			<Typography style={sliderTitleStyle} gutterBottom>{props.sliderName}</Typography>
+				<Grid container spacing={1} style={test} >
+					<Grid item sx={{mt:-2}}  xs>
 						<Typography style={{color: 'white'}}>
 						<Slider
 						valueLabelDisplay="auto"
@@ -89,31 +98,37 @@ function SliderBox(props) {
 			      step={1}
 		        sx={{
 						    width: '95%',
+						    height: '15%',
 						    color: '#FFFFFF',
 						    fontcolor: '#FFFFFF',
+						    padding: '0px',
 						    '& .MuiSlider-thumb': {
 						      borderRadius: '8px',
 						    },
 						    '& .MuiSlider-valueLabelOpen' :
 						    {
 						    	color: '#FFFFFF',
-						    	backgroundColor: '#728A7C'
+						    	backgroundColor: '#728A7C',
 						    },
 						    '& .MuiSlider-markLabel' :
 						    {
 						    	color: '#FFFFFF',
 						    	fontSize: '12px',
+						    	margin: '0 0 0 7px',
 						    },
-						    '& .MuiGrid-root' :
-						    {
-						    	padding : '0',
-						    	margin : '0',
-						    },
+						    // '& .MuiSlider-marked' :
+						    // {
+						    // 	padding : '0px',
+						    // 	// margin : '10px',
+						    // },
 						    '& .MuiSlider-mark':{
 						    	backgroundColor : '#00ffaf',
 						    	width: '4px',
 						    	height: '6px',
-						    }
+						    },
+						    // '& .MuiGrid-root': {
+						    // 	padding: '22px 0',
+						    // }
 						  }}
 					/>
 					</Typography>
@@ -137,9 +152,11 @@ function SliderBox(props) {
 						    '&::before': {
 						      // border: '8px solid',
 						      borderBottom: '1px solid rgba(255, 255, 255, 0.42);',
-						      width: '28px',
-
+						      width: '45px',
 						    },
+						    '& .MuiInput-input': {
+						    	textAlign: 'right',
+						    }
 						  }}
 						/>
 					</Grid>
