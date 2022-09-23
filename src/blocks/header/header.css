@@ -1,0 +1,9 @@
+.header{
+	display: flex;
+	flex-direction: row;
+	width: 90%;
+	max-width: 500px;
+	/*margin: 0 15px 0 15px;*/
+	justify-content: space-between;
+
+}

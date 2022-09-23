@@ -1,0 +1,18 @@
+.registration__header{
+	margin: 0;
+	padding: 0px 0px 0px 0px;
+	/*max-width: 320px;*/
+
+	font-style: normal;
+	font-weight: 400;
+	font-size: 44px;
+	line-height: 46px;
+	/* identical to box height */
+
+	text-align: center;
+	text-transform: capitalize;
+
+	color: #FFFFFF;
+
+	/*border: 0.2px solid #FFFFFF;*/
+}

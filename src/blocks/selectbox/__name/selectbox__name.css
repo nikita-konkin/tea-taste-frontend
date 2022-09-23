@@ -1,0 +1,13 @@
+.selectbox__name{
+
+	align-self: flex-start;
+	margin: 0 0 3px 0;
+
+	font-style: normal;
+	font-weight: 400;
+	font-size: 13px;
+	line-height: 15px;
+	text-align: center;
+
+	color: #FFFFFF;
+}
