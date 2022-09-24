@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
+import NextButton from './ButtonNext.jsx';
+
 
 import {
   SLIDER_WEIGHT_DATA,
@@ -9,7 +11,7 @@ import {
   SLIDER_TEMPERATURE_DATA
 } from '../utils/utils.js'
 
-function Teaform(argument) {
+function TeaFormStage1(props) {
 
 	const options = [
 	  { title: "The Shawshank Redemption", year: 1994 },
@@ -50,9 +52,10 @@ function Teaform(argument) {
 				<SelectBox boxName='Посуда' options={options}/>
 				<SelectBox boxName='Метод заваривания' options={options}/>
 
+				<NextButton onClick={props.nextStage()}/>
 			</form>
 		</>
 		)
 }
 
-export default Teaform;
+export default TeaFormStage1;
