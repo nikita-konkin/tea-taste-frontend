@@ -36,17 +36,17 @@ const BootstrapButton = styled(Button)({
 });
 
 
-function NextButton(porps){
+function FormButton(porps){
 
 
 	return(
 
 		<>
-		<BootstrapButton variant="contained">Далее (проливы)</BootstrapButton>
+		<BootstrapButton onClick={porps.nextStage} variant="contained">{porps.buttonName}</BootstrapButton>
 		</>
 
 		)
 
 }
 
-export default NextButton;
+export default FormButton;

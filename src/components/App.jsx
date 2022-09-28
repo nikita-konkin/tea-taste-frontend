@@ -20,8 +20,8 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(true)
 
   // setLoggedIn(true)
-  function FormNavigateNextSatge() {
-    useEffect(()=>{navigate('/form_2')},[])
+  const FormNavigateNextSatge = () => {
+    navigate('/form_2')
   }
 
   return (

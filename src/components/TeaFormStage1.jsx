@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
-import NextButton from './ButtonNext.jsx';
+import FormButton from './FormButton.jsx';
+import {
+  useNavigate
+} from 'react-router-dom';
 
 
 import {
@@ -12,7 +15,7 @@ import {
 } from '../utils/utils.js'
 
 function TeaFormStage1(props) {
-
+	const navigate = useNavigate();
 	const options = [
 	  { title: "The Shawshank Redemption", year: 1994 },
 	  { title: "The Godfather", year: 1972 },
@@ -23,7 +26,7 @@ function TeaFormStage1(props) {
 	return(
 		<>
 			<Header />
-			<form className="form">
+			<form className="form" >
 				<h3 className="form_header">Шаг 1 основаня информация</h3>
 				<SelectBox boxName='Название чая' options={options}/>
 				<SliderBox 
@@ -52,7 +55,10 @@ function TeaFormStage1(props) {
 				<SelectBox boxName='Посуда' options={options}/>
 				<SelectBox boxName='Метод заваривания' options={options}/>
 
-				<NextButton onClick={props.nextStage()}/>
+				<FormButton 
+					nextStage={()=>{props.nextStage()}}
+					buttonName={'Далее (проливы)'}
+					/>
 			</form>
 		</>
 		)
