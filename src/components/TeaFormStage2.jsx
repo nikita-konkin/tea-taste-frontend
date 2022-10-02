@@ -3,6 +3,10 @@ import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
 import FormButton from './FormButton.jsx';
+import AromaStages from './AromaStages.jsx';
+import TasteStages from './TasteStages.jsx';
+import TeaTextField from './TeaTextField.jsx';
+import TeaRaiting from './TeaRaiting.jsx';
 
 
 import {
@@ -25,7 +29,15 @@ function TeaFormStage1(props) {
 			<Header />
 			<form className="form">
 				<h3 className="form_header">Шаг 2 основаня информация</h3>
-				
+
+				<div>
+
+						<AromaStages options={options}/>
+						<TasteStages options={options}/>
+						<TeaTextField />
+						<TeaRaiting />
+				</div>
+
 				<FormButton 
 					buttonName={'Добавить еще пролив'}
 				/>
