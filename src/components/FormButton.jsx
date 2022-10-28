@@ -42,7 +42,7 @@ function FormButton(porps){
 	return(
 
 		<>
-		<BootstrapButton onClick={porps.nextStage} variant="contained">{porps.buttonName}</BootstrapButton>
+		<BootstrapButton onClick={porps.onClick} variant="contained">{porps.buttonName}</BootstrapButton>
 		</>
 
 		)

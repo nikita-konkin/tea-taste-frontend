@@ -56,7 +56,7 @@ function TeaFormStage1(props) {
 				<SelectBox boxName='Метод заваривания' options={options}/>
 
 				<FormButton 
-					nextStage={()=>{props.nextStage()}}
+					onClick={()=>{props.nextStage()}}
 					buttonName={'Далее (проливы)'}
 					/>
 			</form>

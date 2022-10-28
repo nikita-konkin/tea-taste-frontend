@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
@@ -23,6 +23,35 @@ function TeaFormStage1(props) {
 	  { title: "The Godfather: Part II", year: 1974 }
 	];
 
+	const [straits, setStraits] = useState([])
+	let [stagesCount, setStagesCount] = useState(1)
+	const stagesArray = []
+
+
+	useEffect(() => {
+
+  	addStrait()
+  	setStraits(stagesArray)
+
+  }, [stagesCount]);
+
+
+	const addStrait = () => {
+    for (let i = 0; i < stagesCount; i++) {
+      stagesArray.push(renderStraits())
+    }
+	}
+
+	const renderStraits = () => {
+		return(
+			<div>
+					<AromaStages options={options}/>
+					<TasteStages options={options}/>
+					<TeaTextField />
+					<TeaRaiting />
+			</div>
+			)
+	}
 
 	return(
 		<>
@@ -30,22 +59,21 @@ function TeaFormStage1(props) {
 			<form className="form">
 				<h3 className="form_header">Шаг 2 основаня информация</h3>
 
-				<div>
-
-						<AromaStages options={options}/>
-						<TasteStages options={options}/>
-						<TeaTextField />
-						<TeaRaiting />
-				</div>
+				{straits}
 
 				<FormButton 
 					buttonName={'Добавить еще пролив'}
+					onClick={()=>{stagesCount != 5 ? setStagesCount(stagesCount+=1):setStagesCount(stagesCount)}}
+				/>
+				<FormButton 
+					buttonName={'Удалить последний пролив'}
+					onClick={()=>{stagesCount != 1 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)}}
 				/>
 				<FormButton 
 					buttonName={'Назад'}
 				/>
 				<FormButton 
-					nextStage={()=>{props.nextStage()}}
+					onClick={()=>{props.nextStage()}}
 					buttonName={'Далее (проверка формы)'}
 				/>
 			</form>
