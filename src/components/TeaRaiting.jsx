@@ -12,10 +12,11 @@ function TeaRaiting(props) {
   const StyledRaiting = styled(Rating)({
     display: 'flex',
     justifyContent: 'space-between',
+    alignSelf: 'normal',
     width: '100%',
     margin: '10px 0 0 0',
     color: "#ffffff",
-
+    
 
   });
 
@@ -23,6 +24,11 @@ function TeaRaiting(props) {
       color: "#FFFFFF",
       margin: '10px 0 0 0'
 
+    }
+
+  const boxStyle = {
+    width: '98%',
+    margin: '0px 0px 10px 5px',
     }
 
   const theme = createTheme({
@@ -38,7 +44,7 @@ function TeaRaiting(props) {
 
   const ActiveRaitingPial = (props) => (
     <svg
-      width={27}
+      width={30}
       height={18}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +67,7 @@ function TeaRaiting(props) {
 
   const DiactiveRaitingPial = (props) => (
     <svg
-      width={27}
+      width={30}
       height={18}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +91,7 @@ function TeaRaiting(props) {
   return(
     <>
       <ThemeProvider  theme={theme}>
-      <Box >
+      <Box style={boxStyle}>
       <Typography component="legend" style={legendStyle}>Общий рейтинг пролива</Typography>
       <StyledRaiting
         icon={<ActiveRaitingPial />}

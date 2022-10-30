@@ -25,7 +25,7 @@ function TeaFormStage1(props) {
 
 	return(
 		<>
-			<Header />
+			<Header navigation={props.navigation}/>
 			<form className="form" >
 				<h3 className="form_header">Шаг 1 основаня информация</h3>
 				<SelectBox boxName='Название чая' options={options}/>

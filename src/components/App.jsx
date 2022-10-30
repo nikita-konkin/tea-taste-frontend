@@ -13,6 +13,7 @@ import TeaFormStage1 from './TeaFormStage1.jsx'
 import TeaFormStage2 from './TeaFormStage2.jsx'
 import Login from './Login.jsx'
 import Registration from './Registration.jsx'
+import Navigation from './Navigation.jsx'
 
 
 function App() {
@@ -22,6 +23,9 @@ function App() {
   // setLoggedIn(true)
   const FormNavigateNextSatge = () => {
     navigate('/form_2')
+  }
+  const FormNavigatePrevSatge = () => {
+    navigate('/form_1')
   }
 
   return (
@@ -35,7 +39,7 @@ function App() {
           loggedIn = {loggedIn}
           component = {TeaFormStage1} 
           nextStage = {FormNavigateNextSatge}
-
+          navigation = {Navigation}
           />
         }
         />
@@ -46,9 +50,9 @@ function App() {
           ProtectedRoute loggedIn = {
             loggedIn
           }
-          component = {
-            TeaFormStage2
-          } 
+          component = {TeaFormStage2}
+          prevStage = {FormNavigatePrevSatge}
+          navigation = {Navigation}
           />
         }
         />

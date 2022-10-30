@@ -7,6 +7,14 @@
 @import url(./blocks/form/form.css);
 @import url(./blocks/form/_header/form_header.css);
 @import url(./blocks/form/_inputs/form_inputs.css);
+@import url(./blocks/form/_inputs/form_inputs.css);
+@import url(./blocks/form/_strait-header/form_strait-header.css);
+@import url(./blocks/form/_aroma-stages/form_aroma-stages.css);
+@import url(./blocks/form/_stages-header/form_stages-header.css);
+@import url(./blocks/form/_taste-stages/form_taste-stages.css);
+@import url(./blocks/form/_strait-stages/form_strait-stages.css);
+@import url(./blocks/form/_taste/form_taste.css);
+@import url(./blocks/form/_aroma/form_aroma.css);
 
 @import url(./blocks/authorization/authorization.css);
 @import url(./blocks/authorization/__header/authorization__header.css);
@@ -35,3 +43,12 @@
 
 @import url(./blocks/selectbox/__name/selectbox__name.css);
 @import url(./blocks/selectbox/selectbox.css);
+
+
+@import url(./blocks/navigation/navigation.css);
+@import url(./blocks/navigation/__hamburger/navigation__hamburger.css);
+@import url(./blocks/navigation/__side/navigation__side.css);
+@import url(./blocks/navigation/__background/navigation__background.css);
+@import url(./blocks/navigation/__link/navigation__link.css);
+@import url(./blocks/navigation/__link/_active/navigation__link_active.css);
+

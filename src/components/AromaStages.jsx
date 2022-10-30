@@ -20,10 +20,11 @@ function AromaStages(props) {
 	const aromaStages = (key) => {
 		
 		return(
-			<section className=''>
-				<SelectBox key={key + '1'} options={props.options}/>
-				<SelectBox key={key + '2'} options={props.options}/>
-				<SelectBox key={key + '3'} options={props.options}/>
+			<section className='form_aroma-stages'>
+				<h4 className="form_stages-header">Аромат</h4>
+				<SelectBox key={key + '1'} options={props.options} boxName='Этап №1'/>
+				<SelectBox key={key + '2'} options={props.options} boxName='Этап №2'/>
+				<SelectBox key={key + '3'} options={props.options} boxName='Этап №3'/>
 			</section>
 			)
 
@@ -38,7 +39,7 @@ function AromaStages(props) {
 	}
 
 	return(
-		<>
+		<div className="form_aroma">
 			{stages}
 			<FormButton 
 				buttonName={'Добавить еще оттенок аромата'}
@@ -48,7 +49,7 @@ function AromaStages(props) {
 				buttonName={'Удалить последний оттенок аромата'}
 				onClick={()=>{stagesCount != 1 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)}}
 			/>
-		</>
+		</div>
 		)
 }
 

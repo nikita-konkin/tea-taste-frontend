@@ -32,6 +32,7 @@ const StyledTextField = styled(TextField)({
 	width: '100%',
   "& label, & label.Mui-focused": {
     color: "#ffffff",
+    margin: '0 0 0 5px',
   }
 });
 
@@ -46,6 +47,7 @@ const StyledPopper = styled(Popper)({
     },
   },
 });
+
 
 
 function SelectBox(props) {
@@ -77,7 +79,7 @@ function SelectBox(props) {
       PopperComponent={StyledPopper}
       // style={{ width: 300 }}
       sx={{
-      marginBottom: '20px',
+      margin: '0 5px 5px 5px',
       "& .MuiInputBase-root::before":
           { borderBottomColor: "white"},
       "& .MuiInputBase-root:hover:not(.Mui-disabled):before":

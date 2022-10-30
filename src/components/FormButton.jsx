@@ -14,24 +14,24 @@ const BootstrapButton = styled(Button)({
   border: '1px solid',
   lineHeight: 1.5,
   color: '#000000',
-  backgroundColor: '#FFFFFF',
-  borderColor: '#C4C4C4',
+  backgroundColor: '#96B295',
+  borderColor: '#96B295',
   fontFamily: [
     'jura',
     '"Segoe UI Symbol"',
   ].join(','),
   '&:hover': {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#C4C4C4',
+    backgroundColor: '#96B295',
+    borderColor: '#96B295',
     boxShadow: 'none',
   },
   '&:active': {
     boxShadow: 'none',
     backgroundColor: '#FFFFFF',
-    borderColor: '#C4C4C4',
+    borderColor: '#FFFFFF',
   },
   '&:focus': {
-    boxShadow: '0 0 0 0.2rem rgba(196,196,196,.5)',
+    boxShadow: '0 0 0 0.2rem rgba(255,255,255,.8)',
   },
 });
 

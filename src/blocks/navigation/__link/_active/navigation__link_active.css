@@ -1,0 +1,17 @@
+.navigation__link_active{
+	font-weight: 600;
+	font-size: 26px;
+	line-height: 48px;
+
+	text-align: center;
+	text-transform: uppercase;
+	text-decoration: none;
+
+	color: #000000;
+	background-color: #ffffff;
+
+	border: solid #00ff16d9;;
+  border-radius: 6px;
+  width: 80%;
+  margin: 0 0 10px 0;
+}

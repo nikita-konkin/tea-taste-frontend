@@ -36,26 +36,27 @@ function TeaFormStage1(props) {
   }, [stagesCount]);
 
 
-	const addStrait = () => {
+	const addStrait = (i) => {
     for (let i = 0; i < stagesCount; i++) {
-      stagesArray.push(renderStraits())
+      stagesArray.push(renderStraits(i+1))
     }
 	}
 
-	const renderStraits = () => {
+	const renderStraits = (stageCount) => {
 		return(
-			<div>
-					<AromaStages options={options}/>
-					<TasteStages options={options}/>
-					<TeaTextField />
-					<TeaRaiting />
-			</div>
+			<section className="form_strait-stages">
+				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
+				<AromaStages options={options}/>
+				<TasteStages options={options}/>
+				<TeaTextField />
+				<TeaRaiting />
+			</section>
 			)
 	}
 
 	return(
 		<>
-			<Header />
+			<Header navigation={props.navigation}/>
 			<form className="form">
 				<h3 className="form_header">Шаг 2 основаня информация</h3>
 
@@ -70,6 +71,7 @@ function TeaFormStage1(props) {
 					onClick={()=>{stagesCount != 1 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)}}
 				/>
 				<FormButton 
+					onClick={()=>{props.prevStage()}}
 					buttonName={'Назад'}
 				/>
 				<FormButton 

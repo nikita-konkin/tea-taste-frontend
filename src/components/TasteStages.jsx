@@ -18,10 +18,11 @@ function TasteStages(props) {
 	const tasteStages = (key) => {
 		
 		return(
-			<div className=''>
-				<SelectBox key={key + '0'} options = {props.options}/>
-				<SelectBox key={key + '1'} options = {props.options}/>
-			</div>
+			<section className='form_taste-stages'>
+				<h4 className="form_stages-header">Вкус</h4>
+				<SelectBox key={key + '0'} options = {props.options} boxName='Этап №1'/>
+				<SelectBox key={key + '1'} options = {props.options} boxName='Этап №2'/>
+			</section>
 			)
 
 	}
@@ -36,7 +37,7 @@ function TasteStages(props) {
 
 
 	return(
-		<>
+		<div className="form_taste">
 
 			{stages}
 			<FormButton 
@@ -47,7 +48,7 @@ function TasteStages(props) {
 				buttonName={'Удалить последний оттенок вкуса'}
 				onClick={()=>{stagesCount != 1 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)}}
 			/>
-		</>
+		</div>
 		)
 }
 
