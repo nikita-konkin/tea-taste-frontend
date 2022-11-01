@@ -13,7 +13,9 @@ import TeaFormStage1 from './TeaFormStage1.jsx'
 import TeaFormStage2 from './TeaFormStage2.jsx'
 import Login from './Login.jsx'
 import Registration from './Registration.jsx'
+import Profile from './Profile.jsx'
 import Navigation from './Navigation.jsx'
+
 
 
 function App() {
@@ -47,12 +49,21 @@ function App() {
         <Route path = "/form_2"
         element = {
           < 
-          ProtectedRoute loggedIn = {
-            loggedIn
-          }
+          ProtectedRoute
+          loggedIn = {loggedIn}
           component = {TeaFormStage2}
           prevStage = {FormNavigatePrevSatge}
           navigation = {Navigation}
+          />
+        }
+        />
+
+        <Route path = "/profile"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {Profile}
           />
         }
         />

@@ -1,6 +1,7 @@
 import React, {
   useState,
-  useEffect
+  useEffect,
+  useRef
 } from 'react'
 import {
   NavLink,
@@ -8,7 +9,7 @@ import {
 // import hamburgerBtn from '../images/menu_icon_mobile.svg';
 
 
-function Navigation() {
+function Navigation(props) {
 
 	const [menuState, setMenuState] = useState(false)
 
@@ -18,11 +19,32 @@ function Navigation() {
 	const navLinkStyleActive = 'navigation__link_active'
 	const navLinkStyle = 'navigation__link'
 
-  function navBtn(){
+	const [isComponentVisible, setIsComponentVisible] = useState(true);
+	const ref = useRef(null);
 
-  	function openMenu(){
-      menuState ? setMenuState(false) : setMenuState(true)
-    }
+	const handleClickOutside = (event) => {
+
+	  if (ref.current && !ref.current.contains(event.target) && event.path[0].tagName !== 'BUTTON') {
+	  	console.log(ref.current)
+	    setMenuState(false)
+	  }
+
+	};
+
+	useEffect(() => {
+	  document.body.addEventListener('click', handleClickOutside, true);
+	  return () => {
+	      document.body.removeEventListener('click', handleClickOutside, true);
+	  };
+	}, []);
+
+	const openMenu = () =>{
+
+    menuState ? setMenuState(false) : setMenuState(true) 
+
+  }
+
+  function navBtn(){
 
   	return(
   		<>
@@ -35,13 +57,13 @@ function Navigation() {
   }
 
   function sideMenu(addMenuBackground){
-
+  	console.log(menuState)
     return(
       <>
       {addMenuBackground}
-      <nav className={navStyle}>
+      <nav className={navStyle} ref={ref}>
       	<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}  to="/form_1">Форма</NavLink>
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/movies">Профиль</NavLink>
+        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/profile">Профиль</NavLink>
         <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/saved-movies">Мои формы</NavLink>
         <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/profile">Блог</NavLink>
       </nav>
@@ -52,8 +74,8 @@ function Navigation() {
 
 	return(
 		<>
-		{navBtn()}
-		{menuState ? sideMenu() : ''}
+			{navBtn()}
+			{menuState ? sideMenu() : ''}
 		</>
 		)
 }
