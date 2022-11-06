@@ -12,9 +12,9 @@ import {
 function Navigation(props) {
 
 	const [menuState, setMenuState] = useState(false)
+	const [currentLocation, setCurrentLocation] = useState('None')
 
 	const navStyle = menuState ? `navigation__side` : `navigation`
-
 	const addMenuBackground = <div className="navigation__background"></div>
 	const navLinkStyleActive = 'navigation__link_active'
 	const navLinkStyle = 'navigation__link'
@@ -22,16 +22,24 @@ function Navigation(props) {
 	const [isComponentVisible, setIsComponentVisible] = useState(true);
 	const ref = useRef(null);
 
-	const handleClickOutside = (event) => {
+	const handleLocation = () => {
+		const loc = document.location.href
+		loc.includes('form_1') ? setCurrentLocation('Форма') : loc.includes('profile') ? 
+		setCurrentLocation('ЛК') : loc.includes('my_forms') ? 
+		setCurrentLocation('ЛК') : loc.includes('blog') ? 
+		setCurrentLocation('Блог') : setCurrentLocation('None') 
+	}
 
+	const handleClickOutside = (event) => {
+		
 	  if (ref.current && !ref.current.contains(event.target) && event.path[0].tagName !== 'BUTTON') {
-	  	console.log(ref.current)
 	    setMenuState(false)
 	  }
 
 	};
 
 	useEffect(() => {
+		handleLocation()
 	  document.body.addEventListener('click', handleClickOutside, true);
 	  return () => {
 	      document.body.removeEventListener('click', handleClickOutside, true);
@@ -45,10 +53,10 @@ function Navigation(props) {
   }
 
   function navBtn(){
-
+  	
   	return(
   		<>
-  		<h2 className="header__navigation">Форма</h2>
+  		<h2 className="header__navigation">{currentLocation}</h2>
       <button className='navigation__hamburger' 
       onClick={openMenu} alt="Кнопка меню"></button>
       </>
@@ -57,15 +65,14 @@ function Navigation(props) {
   }
 
   function sideMenu(addMenuBackground){
-  	console.log(menuState)
     return(
       <>
       {addMenuBackground}
       <nav className={navStyle} ref={ref}>
-      	<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}  to="/form_1">Форма</NavLink>
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/profile">Профиль</NavLink>
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/saved-movies">Мои формы</NavLink>
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)}   to="/profile">Блог</NavLink>
+      	<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_1">Форма</NavLink>
+        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/profile">Профиль</NavLink>
+        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/my_forms">Мои формы</NavLink>
+        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/blog">Блог</NavLink>
       </nav>
       </>
 

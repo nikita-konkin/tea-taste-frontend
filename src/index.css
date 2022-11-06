@@ -16,6 +16,11 @@
 @import url(./blocks/form/_taste/form_taste.css);
 @import url(./blocks/form/_aroma/form_aroma.css);
 
+@import url(./blocks/myform/myform.css);
+@import url(./blocks/myforms/myforms.css);
+@import url(./blocks/myform/__list/myform__list.css);
+@import url(./blocks/myform/__row/myform__row.css);
+
 @import url(./blocks/authorization/authorization.css);
 @import url(./blocks/authorization/__header/authorization__header.css);
 @import url(./blocks/authorization/__email/authorization__email.css);
@@ -40,6 +45,7 @@
 @import url(./blocks/header/__title/header__title.css);
 @import url(./blocks/header/__navigation/header__navigation.css);
 @import url(./blocks/header/__menu/header__menu.css);
+@import url(./blocks/header/__myforms/header__myforms.css);
 
 @import url(./blocks/selectbox/__name/selectbox__name.css);
 @import url(./blocks/selectbox/selectbox.css);

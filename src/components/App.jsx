@@ -14,7 +14,9 @@ import TeaFormStage2 from './TeaFormStage2.jsx'
 import Login from './Login.jsx'
 import Registration from './Registration.jsx'
 import Profile from './Profile.jsx'
+import MyForms from './MyForms.jsx'
 import Navigation from './Navigation.jsx'
+import Blog from './Blog.jsx'
 
 
 
@@ -64,6 +66,24 @@ function App() {
           ProtectedRoute
           loggedIn = {loggedIn}
           component = {Profile}
+          />
+        }
+        />
+        <Route path = "/my_forms"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {MyForms}
+          />
+        }
+        />
+        <Route path = "/blog"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {Blog}
           />
         }
         />
