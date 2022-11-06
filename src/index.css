@@ -20,6 +20,7 @@
 @import url(./blocks/myforms/myforms.css);
 @import url(./blocks/myform/__list/myform__list.css);
 @import url(./blocks/myform/__row/myform__row.css);
+@import url(./blocks/myform/__buttons/myform__buttons.css);
 
 @import url(./blocks/authorization/authorization.css);
 @import url(./blocks/authorization/__header/authorization__header.css);
