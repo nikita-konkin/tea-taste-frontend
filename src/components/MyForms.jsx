@@ -16,10 +16,10 @@ function MyForms(props) {
 			<Header navigation={props.navigation}/>
 			<div className="myforms">
 				<h2 className="header__myforms">Мои формы</h2>
-				<MyForm />
-				<MyForm />
-				<MyForm />
-				<MyForm />
+				<MyForm navigation={props.navigation}/>
+				<MyForm navigation={props.navigation}/>
+				<MyForm navigation={props.navigation}/>
+				<MyForm navigation={props.navigation}/>
 			</div>
 		</>
 

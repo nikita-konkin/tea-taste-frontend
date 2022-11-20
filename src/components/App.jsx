@@ -15,6 +15,7 @@ import Login from './Login.jsx'
 import Registration from './Registration.jsx'
 import Profile from './Profile.jsx'
 import MyForms from './MyForms.jsx'
+import MyFormInteraction from './MyFormInteraction.jsx'
 import Navigation from './Navigation.jsx'
 import Blog from './Blog.jsx'
 
@@ -31,7 +32,9 @@ function App() {
   const FormNavigatePrevSatge = () => {
     navigate('/form_1')
   }
-
+  const FormNavigateToInteracion = () => {
+    navigate('/my_forms/formID')
+  }
   return (
     <div className="root">
       <Routes>
@@ -45,7 +48,7 @@ function App() {
           nextStage = {FormNavigateNextSatge}
           navigation = {Navigation}
           />
-        }
+          }
         />
 
         <Route path = "/form_2"
@@ -57,7 +60,7 @@ function App() {
           prevStage = {FormNavigatePrevSatge}
           navigation = {Navigation}
           />
-        }
+          }
         />
 
         <Route path = "/profile"
@@ -67,7 +70,7 @@ function App() {
           loggedIn = {loggedIn}
           component = {Profile}
           />
-        }
+          }
         />
         <Route path = "/my_forms"
         element = {
@@ -75,8 +78,18 @@ function App() {
           ProtectedRoute
           loggedIn = {loggedIn}
           component = {MyForms}
+          navigation = {FormNavigateToInteracion}
           />
-        }
+          }
+        />
+        <Route path = "/my_forms/formID"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {MyFormInteraction}
+          />
+          }
         />
         <Route path = "/blog"
         element = {
@@ -85,7 +98,7 @@ function App() {
           loggedIn = {loggedIn}
           component = {Blog}
           />
-        }
+          }
         />
 
         <Route path = "/sign-in"
@@ -96,7 +109,7 @@ function App() {
         <Route path = "/sign-up"
         element = {
           <Registration/>
-        }
+          }
         />
       </Routes>
     </div>

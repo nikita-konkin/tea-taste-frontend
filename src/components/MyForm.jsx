@@ -23,6 +23,7 @@ function MyForm(props) {
 					buttonName={'Удалить'}
 					width={'32%'}
 					margin={'0px'}
+
 				/>
 				<FormButton 
 					buttonName={'Изменить'}
@@ -33,6 +34,7 @@ function MyForm(props) {
 					buttonName={'Просмотр'}
 					width={'32%'}
 					margin={'0px'}
+					onClick={()=>{props.navigation()}}
 				/>
 			</div>
 

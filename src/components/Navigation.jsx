@@ -24,7 +24,8 @@ function Navigation(props) {
 
 	const handleLocation = () => {
 		const loc = document.location.href
-		loc.includes('form_1') ? setCurrentLocation('Форма') : loc.includes('profile') ? 
+		loc.includes('form_1') ? setCurrentLocation('Форма №1') : loc.includes('form_2') ? 
+		setCurrentLocation('Форма №2') : loc.includes('profile') ? 
 		setCurrentLocation('ЛК') : loc.includes('my_forms') ? 
 		setCurrentLocation('ЛК') : loc.includes('blog') ? 
 		setCurrentLocation('Блог') : setCurrentLocation('None') 
@@ -69,7 +70,8 @@ function Navigation(props) {
       <>
       {addMenuBackground}
       <nav className={navStyle} ref={ref}>
-      	<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_1">Форма</NavLink>
+      	<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_1">Форма этап №1</NavLink>
+      	{/*<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_2">Форма этап №2</NavLink>*/}
         <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/profile">Профиль</NavLink>
         <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/my_forms">Мои формы</NavLink>
         <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/blog">Блог</NavLink>

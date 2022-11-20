@@ -22,6 +22,12 @@
 @import url(./blocks/myform/__row/myform__row.css);
 @import url(./blocks/myform/__buttons/myform__buttons.css);
 
+@import url(./blocks/myforminteraction/myforminteraction.css);
+@import url(./blocks/myforminteraction/__section/myforminteraction__section.css);
+@import url(./blocks/myforminteraction/__list/myforminteraction__list.css);
+@import url(./blocks/myforminteraction/__row/myforminteraction__row.css);
+@import url(./blocks/myforminteraction/__buttons/myforminteraction__buttons.css);
+
 @import url(./blocks/authorization/authorization.css);
 @import url(./blocks/authorization/__header/authorization__header.css);
 @import url(./blocks/authorization/__email/authorization__email.css);
