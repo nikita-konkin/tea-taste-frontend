@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
+import FormButton from './FormButton.jsx';
+import {
+  useNavigate
+} from 'react-router-dom';
+
 
 import {
   SLIDER_WEIGHT_DATA,
@@ -9,8 +14,8 @@ import {
   SLIDER_TEMPERATURE_DATA
 } from '../utils/utils.js'
 
-function Teaform(argument) {
-
+function TeaFormStage1(props) {
+	const navigate = useNavigate();
 	const options = [
 	  { title: "The Shawshank Redemption", year: 1994 },
 	  { title: "The Godfather", year: 1972 },
@@ -20,8 +25,8 @@ function Teaform(argument) {
 
 	return(
 		<>
-			<Header />
-			<form className="form">
+			<Header navigation={props.navigation}/>
+			<form className="form" >
 				<h3 className="form_header">Шаг 1 основаня информация</h3>
 				<SelectBox boxName='Название чая' options={options}/>
 				<SliderBox 
@@ -50,9 +55,13 @@ function Teaform(argument) {
 				<SelectBox boxName='Посуда' options={options}/>
 				<SelectBox boxName='Метод заваривания' options={options}/>
 
+				<FormButton 
+					onClick={()=>{props.nextStage()}}
+					buttonName={'Далее (проливы)'}
+					/>
 			</form>
 		</>
 		)
 }
 
-export default Teaform;
+export default TeaFormStage1;

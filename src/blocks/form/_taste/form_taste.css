@@ -1,7 +1,6 @@
-.authorization__fields-box{
+.form_taste{
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 100%;
-	max-width: 500px;
+	width: 98%;
 }

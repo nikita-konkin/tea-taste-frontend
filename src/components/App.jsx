@@ -1,42 +1,104 @@
 import React, {
   useState,
-  // useEffect
+  useEffect
 } from 'react'
 import {
   Route,
   Routes,
-  // useNavigate
+  useNavigate
 } from 'react-router-dom';
 import ProtectedRoute from "./ProtectedRoute";
 
-import TeaForm from './Teaform.jsx'
+import TeaFormStage1 from './TeaFormStage1.jsx'
+import TeaFormStage2 from './TeaFormStage2.jsx'
 import Login from './Login.jsx'
 import Registration from './Registration.jsx'
+import Profile from './Profile.jsx'
+import MyForms from './MyForms.jsx'
+import MyFormInteraction from './MyFormInteraction.jsx'
+import Navigation from './Navigation.jsx'
+import Blog from './Blog.jsx'
+
 
 
 function App() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(true)
 
   // setLoggedIn(true)
-
+  const FormNavigateNextSatge = () => {
+    navigate('/form_2')
+  }
+  const FormNavigatePrevSatge = () => {
+    navigate('/form_1')
+  }
+  const FormNavigateToInteracion = () => {
+    navigate('/my_forms/formID')
+  }
   return (
     <div className="root">
       <Routes>
 
-        <Route path = "/"
+        <Route path = "/form_1"
         element = {
           < 
-          ProtectedRoute loggedIn = {
-            loggedIn
-          }
-
-          component = {
-            TeaForm
-          } 
-
+          ProtectedRoute 
+          loggedIn = {loggedIn}
+          component = {TeaFormStage1} 
+          nextStage = {FormNavigateNextSatge}
+          navigation = {Navigation}
           />
-        }
+          }
+        />
+
+        <Route path = "/form_2"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {TeaFormStage2}
+          prevStage = {FormNavigatePrevSatge}
+          navigation = {Navigation}
+          />
+          }
+        />
+
+        <Route path = "/profile"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {Profile}
+          />
+          }
+        />
+        <Route path = "/my_forms"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {MyForms}
+          navigation = {FormNavigateToInteracion}
+          />
+          }
+        />
+        <Route path = "/my_forms/formID"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {MyFormInteraction}
+          />
+          }
+        />
+        <Route path = "/blog"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component = {Blog}
+          />
+          }
         />
 
         <Route path = "/sign-in"
@@ -47,7 +109,7 @@ function App() {
         <Route path = "/sign-up"
         element = {
           <Registration/>
-        }
+          }
         />
       </Routes>
     </div>
