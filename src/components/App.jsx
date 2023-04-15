@@ -9,6 +9,8 @@ import {
 } from 'react-router-dom';
 import ProtectedRoute from "./ProtectedRoute";
 
+import {mainApi} from "../utils/MainAPI.jsx"
+
 import TeaFormStage1 from './TeaFormStage1.jsx'
 import TeaFormStage2 from './TeaFormStage2.jsx'
 import Login from './Login.jsx'
@@ -19,7 +21,14 @@ import MyFormInteraction from './MyFormInteraction.jsx'
 import Navigation from './Navigation.jsx'
 import Blog from './Blog.jsx'
 
-
+function handleRegistration(data){
+  console.log(data)
+  mainApi.handleRegistration(data.name, data.pass, data.email)
+  .then(res => {
+    console.log(res)
+  })
+  .catch(res => {console.log(res)})
+}
 
 function App() {
   const navigate = useNavigate();
@@ -108,7 +117,7 @@ function App() {
         />
         <Route path = "/sign-up"
         element = {
-          <Registration/>
+          <Registration auth = {handleRegistration}/>
           }
         />
       </Routes>
