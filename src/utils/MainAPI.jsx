@@ -12,12 +12,23 @@ class MainApi{
 		return Promise.reject({error: res.status})
 	}
 
+  handleTokenValidation(JWT) {
+
+    return fetch(`${this._usersApiUrl}/profile/me`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${JWT}`
+      }
+    }).then(res => this.error(res));
+
+  }
 
 	handleRegistration(name, pass, email){
-		console.log(pass)
+
 		return fetch(`${this._usersApiUrl}/sign-up`, {
 			method: 'POST',
-			// credentials: 'include',
 			headers: this._headers,
 			body: JSON.stringify({
 				name:name,
@@ -26,6 +37,19 @@ class MainApi{
 			})
 		})
 		.then(res => this.error(res))
+	}
+
+	handleAuthorization(email, pass){
+
+		return fetch(`${this._usersApiUrl}/sign-in`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify({
+				email: email,
+				password: pass
+			})
+		})
 
 	}
 

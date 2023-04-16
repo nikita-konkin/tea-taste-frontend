@@ -67,10 +67,12 @@ function SliderBox(props) {
 
 	const handleInputChange = (event) => {
 		setValue(event.target.value === '' ? '' : Number(event.target.value));
+		props.handler(event.target.value)
 	};
 
 	 const handleSliderChange = (event, newValue) => {
     setValue(newValue);
+    props.handler(event.target.value)
   };
 
   const test = {

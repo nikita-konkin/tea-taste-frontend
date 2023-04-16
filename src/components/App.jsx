@@ -10,6 +10,7 @@ import {
 import ProtectedRoute from "./ProtectedRoute";
 
 import {mainApi} from "../utils/MainAPI.jsx"
+import {formApi} from "../utils/FormAPI.jsx"
 
 import TeaFormStage1 from './TeaFormStage1.jsx'
 import TeaFormStage2 from './TeaFormStage2.jsx'
@@ -21,18 +22,68 @@ import MyFormInteraction from './MyFormInteraction.jsx'
 import Navigation from './Navigation.jsx'
 import Blog from './Blog.jsx'
 
-function handleRegistration(data){
-  console.log(data)
-  mainApi.handleRegistration(data.name, data.pass, data.email)
-  .then(res => {
-    console.log(res)
-  })
-  .catch(res => {console.log(res)})
-}
+
 
 function App() {
+  
+  const loggedIn = localStorage.getItem("loggedIn");
+
   const navigate = useNavigate();
-  const [loggedIn, setLoggedIn] = useState(true)
+  // const [loggedIn, setLoggedIn] = useState(false)
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log('token')
+      mainApi.handleTokenValidation(token).then(data => {
+        localStorage.setItem('loggedIn', true)
+      }).catch(err => {
+        console.log(err)
+        localStorage.removeItem('token')
+        localStorage.removeItem('loggedIn')
+      })
+    } else {
+      localStorage.removeItem('token')
+      localStorage.removeItem('loggedIn')
+    }
+  }, []);
+
+
+  function handleRegistration(data){
+
+    mainApi.handleRegistration(data.name, data.password, data.email)
+    .then(res => {
+      console.log(res)
+      handleAuthorization(res)
+      navigate('/form_1')
+    })
+    .catch(err => {console.log(err)})
+  }
+
+  function handleAuthorization(data){
+    console.log(data)
+    mainApi.handleAuthorization(data.email, data.password)
+    .then(res => {
+      console.log(res)
+      // setLoggedIn(true)
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('loggedIn', true)
+      navigate('/form_1')
+    })
+    .catch(err => console.log(err))
+  }
+
+  function postFormMainData(data, formId){
+    console.log(data)
+    formApi.postFormMainData(data, formId)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }
+
 
   // setLoggedIn(true)
   const FormNavigateNextSatge = () => {
@@ -48,6 +99,16 @@ function App() {
     <div className="root">
       <Routes>
 
+
+        <Route path = "/"
+        element = {
+          < 
+          ProtectedRoute 
+          loggedIn = {loggedIn}
+          />
+          }
+        />
+
         <Route path = "/form_1"
         element = {
           < 
@@ -56,6 +117,7 @@ function App() {
           component = {TeaFormStage1} 
           nextStage = {FormNavigateNextSatge}
           navigation = {Navigation}
+          postFormMainData = {postFormMainData}
           />
           }
         />
@@ -112,7 +174,7 @@ function App() {
 
         <Route path = "/sign-in"
         element = {
-          <Login/>
+          <Login auth = {handleAuthorization}/>
         }
         />
         <Route path = "/sign-up"

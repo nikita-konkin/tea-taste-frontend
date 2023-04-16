@@ -52,6 +52,7 @@ const StyledPopper = styled(Popper)({
 
 function SelectBox(props) {
 
+
 	const theme = createTheme({
 	   typography: {
 	    "fontFamily": `jura`,
@@ -73,6 +74,8 @@ function SelectBox(props) {
 		<ThemeProvider  theme={theme}>
     <Autocomplete
     // classes = {classes}
+    	onInputChange={(event, value)=>{props.handler(value)}}
+    	onChange={(event, value)=>{props.handler(value)}}
     	key = {props.id}
       options={props.options}
       getOptionLabel={(option) => option.title}
@@ -98,6 +101,7 @@ function SelectBox(props) {
 					variant="standard"
 				/>
 			)}
+
 			// renderOption={(params, option) => 
 			// 	<StyledPopper {...params}>{option.title}</StyledPopper>
 			// }

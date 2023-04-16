@@ -8,12 +8,6 @@ function Registration(props) {
 	const [pass, setPass] = useState('')
 	const [email, setEmail] = useState('')
 
-	const stateShema = {
-		userName: {value: ""},
-		userPass: {value: ""},
-		userEmail: {value: ""}
-	}
-
 	function handleName(e){
 		setName(e.target.value)
 	}
