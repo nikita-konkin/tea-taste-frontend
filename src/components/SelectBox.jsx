@@ -74,9 +74,9 @@ function SelectBox(props) {
 		<ThemeProvider  theme={theme}>
     <Autocomplete
     // classes = {classes}
-    	onInputChange={(event, value)=>{props.handler(value)}}
-    	onChange={(event, value)=>{props.handler(value)}}
-    	key = {props.id}
+    	// onInputChange={(event, value)=>{props.handler(value, props.keyId)}}
+    	onChange={(event, value)=>{props.handler(value, props.keyId)}}
+    	key = {props.keyId}
       options={props.options}
       getOptionLabel={(option) => option.title}
       PopperComponent={StyledPopper}

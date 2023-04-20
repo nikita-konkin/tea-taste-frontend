@@ -91,10 +91,16 @@ function TeaFormStage1(props) {
 
 	function onSubmit(e){
 		e.preventDefault()
-		console.log(teaData)
+
 		const formId = '0C7C95FA02C054C3B96517C0'
-		props.postFormMainData(teaData, formId)
-		// props.nextStage()
+		if (teaData.teaName != 'undefined'){
+			console.log('SNEDED')
+			props.postFormMainData(teaData, formId)
+			props.nextStage()
+		}
+		else{
+			props.nextStage()
+		}
 	}
 
 	return(

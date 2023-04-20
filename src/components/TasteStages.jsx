@@ -19,7 +19,7 @@ function TasteStages(props) {
 		
 		return(
 			<section className='form_taste-stages'>
-				<h4 className="form_stages-header">Вкус</h4>
+				<h4 className="form_stages-header">Вкус №{key}</h4>
 				<SelectBox key={key + '0'} options = {props.options} boxName='Этап №1'/>
 				<SelectBox key={key + '1'} options = {props.options} boxName='Этап №2'/>
 			</section>
