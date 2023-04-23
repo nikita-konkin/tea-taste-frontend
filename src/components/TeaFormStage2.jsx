@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from './Header.jsx'
-// import SelectBox from './SelectBox.jsx';
-// import SliderBox from './SliderBox.jsx';
 import FormButton from './FormButton.jsx';
 import AromaStages from './AromaStages.jsx';
 import TasteStages from './TasteStages.jsx';
 import TeaTextField from './TeaTextField.jsx';
 import TeaRaiting from './TeaRaiting.jsx';
 
-
-// import {
-//   SLIDER_WEIGHT_DATA,
-//   SLIDER_WATER_DATA,
-//   SLIDER_TEMPERATURE_DATA
-// } from '../utils/utils.js'
 
 function TeaFormStage1(props) {
 
@@ -23,19 +15,14 @@ function TeaFormStage1(props) {
 	  { title: "The Godfather: Part II"}
 	];
 
-	const [aromaStage1, setAromaStage1] = useState('')
-	const [aromaStage2, setAromaStage2] = useState('')
-	const [aromaStage3, setAromaStage3] = useState('')
+	const aromaStages = useRef({});
+	const straitNum = useRef(null);
+
 	const [straits, setStraits] = useState([])
 
 	let [stagesCount, setStagesCount] = useState(1)
 	const stagesArray = []
 
-	const aromaData = {
-		aromaStage1: aromaStage1.title,
-		aromaStage2: aromaStage2.title,
-		aromaStage3: aromaStage3.title
-	}
 	useEffect(() => {
 
   	addStrait()
@@ -51,6 +38,7 @@ function TeaFormStage1(props) {
 	}
 
 	const renderStraits = (stageCount) => {
+		straitNum.current = stageCount
 		return(
 			<section className="form_strait-stages">
 				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
@@ -63,20 +51,9 @@ function TeaFormStage1(props) {
 	}
 
 	function handleAromaStage(value, key){
-
-		if (key === 11){
-			console.log(value)
-			setAromaStage1(value.title)
-			console.log(aromaStage1)
-		}
-		if (key === 12){
-			setAromaStage2(value.title)
-			console.log(aromaStage2)
-		}
-		if (key === 13){
-			setAromaStage3(value.title)
-		}
-		console.log(aromaData)
+		console.log(String(straitNum.current))
+		aromaStages.current[String(straitNum.current) + String(key)] = value.title
+		console.log(aromaStages)
 		
 	}
 
