@@ -75,7 +75,7 @@ function SelectBox(props) {
     <Autocomplete
     // classes = {classes}
     	// onInputChange={(event, value)=>{props.handler(value, props.keyId)}}
-    	onChange={(event, value)=>{props.handler(value, props.keyId)}}
+    	onChange={(event, value)=>{props.handler(value.title, props.keyId, props.boxId)}}
     	key = {props.keyId}
       options={props.options}
       getOptionLabel={(option) => option.title}

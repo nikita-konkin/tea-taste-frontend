@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Header from './Header.jsx'
 import SelectBox from './SelectBox.jsx';
 import SliderBox from './SliderBox.jsx';
@@ -16,27 +16,7 @@ import {
 
 function TeaFormStage1(props) {
 
-	const [teaName, SetTeaName] = useState('')
-	const [teaWeight, SetTeaWeight] = useState('')
-	const [teaType, SetTeaType] = useState('')
-	const [teaCountry, SetTeaCountry] = useState('')
-	const [waterBrand, SetWaterBrand] = useState('')
-	const [waterVolume, SetWaterVolume] = useState('')
-	const [waterTemperature, SetWaterTemperature] = useState('')
-	const [teaWare, SetTeaWare] = useState('')
-	const [brewingType, SetBrewingType] = useState('')
-	
-	const teaData = {
-		teaName: teaName.title,
-		teaType: teaType.title,
-		teaWeight: teaWeight,
-		waterBrand: waterBrand.title,
-		waterVolume: waterVolume,
-		waterTemperature: waterTemperature,
-		teaWare: teaWare.title,
-		brewingType: brewingType.title,
-		teaCountry: teaCountry.title
-	}
+	const teaData = useRef({});
 	const navigate = useNavigate();
 	const options = [
 	  { title: "The Shawshank Redemption"},
@@ -44,58 +24,19 @@ function TeaFormStage1(props) {
 	  { title: "The Godfather: Part II"}
 	];
 
-	function handleTeaName(value){
-		SetTeaName(value)
-		// console.log(teaName)
+	function handleInputsData(value, boxName){
+		console.log(String(teaData.current))
+		teaData.current[String(arguments[2])] = arguments[0]
+		console.log(teaData)
 	}
 
-	function handleTeaWeight(value){
-		SetTeaWeight(value)
-		// console.log(teaWeight)
-	}
-
-	function handleTeaType(value){
-		SetTeaType(value)
-		// console.log(teaType)
-	}
-
-	function handleWaterBrand(value){
-		SetWaterBrand(value)
-		// console.log(waterBrand)
-	}
-
-	function handleWaterVolume(value){
-		SetWaterVolume(value)
-		// console.log(waterVolume)
-	}
-
-	function handleWaterTemperature(value){
-		SetWaterTemperature(value)
-		// console.log(waterTemperature)
-	}
-
-	function handleTeaWare(value){
-		SetTeaWare(value)
-		// console.log(teaWare)
-	}
-
-	function handleBrewingType(value){
-		SetBrewingType(value)
-		// console.log(brewingType)
-	}
-
-	function handleTeaCountry(value){
-		SetTeaCountry(value)
-		// console.log(teaCountry)
-	}
 
 	function onSubmit(e){
 		e.preventDefault()
-
 		const formId = '0C7C95FA02C054C3B96517C0'
 		if (teaData.teaName != 'undefined'){
 			console.log('SNEDED')
-			props.postFormMainData(teaData, formId)
+			props.postFormMainData(teaData.current, formId)
 			props.nextStage()
 		}
 		else{
@@ -108,50 +49,58 @@ function TeaFormStage1(props) {
 			<Header navigation={props.navigation}/>
 			<form className="form" >
 				<h3 className="form_header">Шаг 1 основаня информация</h3>
-				<SelectBox boxName='Название чая' handler={handleTeaName} 
+				<SelectBox boxName='Название чая' handler={handleInputsData} boxId = 'teaName'
 					options={options}/>
-				<SelectBox boxName='Страна' handler={handleTeaCountry} 
+				<SelectBox boxName='Страна' handler={handleInputsData} boxId = 'teaCountry'
 					options={options}/>
 				<SliderBox 
-					handler={handleTeaWeight}
+					handler={handleInputsData}
 					sliderName='Вес чая при заваривании'
 					maxValue={50}
 					defaultValue={5}
 					units='г'
 					marks = {SLIDER_WEIGHT_DATA}
+					boxId = 'teaWeight'
 				/>
 				<SelectBox boxName='Тип чая' options={options}
-					handler={handleTeaType}
+					handler={handleInputsData}
+					boxId='teaType'
 				/>
 				<SelectBox boxName='Вода' options={options}
-					handler={handleWaterBrand}
+					handler={handleInputsData}
+					boxId='waterBrand'
 				/>
 				<SliderBox 
-					handler={handleWaterVolume}
+					handler={handleInputsData}
 					sliderName='Объем воды'
 					maxValue={1000}
 					defaultValue={100}
 					units='мл'
 					marks = {SLIDER_WATER_DATA}
+					boxId='waterVolume'
 				/>
 				<SliderBox 
-					handler={handleWaterTemperature}
+					handler={handleInputsData}
 					sliderName='Температура воды'
 					maxValue={100}
 					defaultValue={95}
 					units='°C'
 					marks = {SLIDER_TEMPERATURE_DATA}
+					boxId='waterTemperature'
 				/>
 				<SelectBox boxName='Посуда' options={options}
-					handler={handleTeaWare}
+					handler={handleInputsData}
+					boxId='teaWare'
 				/>
 				<SelectBox boxName='Метод заваривания' options={options}
-					handler={handleBrewingType}
+					handler={handleInputsData}
+					boxId='brewingType'
 				/>
 
 				<FormButton 
 					onClick={(e)=>{onSubmit(e)}}
 					buttonName={'Далее (проливы)'}
+					boxId=''
 					/>
 			</form>
 		</>

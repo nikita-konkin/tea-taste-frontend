@@ -42,7 +42,7 @@ function TeaFormStage1(props) {
 		return(
 			<section className="form_strait-stages">
 				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
-				<AromaStages options={options} stagesHandler={handleAromaStage}/>
+				<AromaStages options={options} stagesHandler={handleAromaInputStage}/>
 				<TasteStages options={options}/>
 				<TeaTextField />
 				<TeaRaiting />
@@ -50,11 +50,10 @@ function TeaFormStage1(props) {
 			)
 	}
 
-	function handleAromaStage(value, key){
+	function handleAromaInputStage(value, key){
 		console.log(String(straitNum.current))
 		aromaStages.current[String(straitNum.current) + String(key)] = value.title
 		console.log(aromaStages)
-		
 	}
 
 	return(
