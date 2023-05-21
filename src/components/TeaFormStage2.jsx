@@ -16,19 +16,27 @@ function TeaFormStage1(props) {
 	];
 
 	const aromaStages = useRef({});
+	const tasteStages = useRef({});
 	const straitNum = useRef(null);
 
 	const [straits, setStraits] = useState([])
 
 	let [stagesCount, setStagesCount] = useState(1)
+	const aromaStagesCount = useRef(1);
+	const tasteStagesCount = useRef(1);
 	const stagesArray = []
 
 	useEffect(() => {
-
+		clearStageArraysIf(stagesCount)
   	addStrait()
   	setStraits(stagesArray)
-
   }, [stagesCount]);
+
+  // useEffect(() => {
+		// clearStageArrays(stagesCount)
+  // 	addStrait()
+  // 	setStraits(stagesArray)
+  // }, [stagesCount]);
 
 
 	const addStrait = (i) => {
@@ -38,24 +46,57 @@ function TeaFormStage1(props) {
 	}
 
 	const renderStraits = (stageCount) => {
+
 		straitNum.current = stageCount
 		return(
 			<section className="form_strait-stages">
 				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
-				<AromaStages options={options} stagesHandler={handleAromaInputStage}/>
-				<TasteStages options={options}/>
+				<AromaStages options={options} stagesHandler={handleAromaInputStage} clearFnc={clearObjByKeyIf} aromaStages={aromaStages.current}/>
+				<TasteStages options={options} stagesHandler={handleTasteInputStage} clearFnc={clearObjByKeyIf} tasteStages={tasteStages.current}/>
 				<TeaTextField />
 				<TeaRaiting />
 			</section>
 			)
 	}
 
+	function clearStageArraysIf() {
+
+		if (straitNum.current > stagesCount){
+			clearObjByKeyIf(straitNum.current, aromaStages.current)
+			clearObjByKeyIf(straitNum.current, tasteStages.current)
+		}
+
+	}
+
+	function clearObjByKeyIf(value, obj, current = false){
+
+		Object.keys(obj).forEach((i)=>{
+			const num = String(i).split('').map(Number)
+			if (!current) {
+				if (num[0] == value) {
+					delete obj[i]
+				}
+			} else {
+				if (num[1] == value) {
+					delete obj[i]
+				}
+			}
+		});
+
+		console.log(obj)
+	}
+
 	function handleAromaInputStage(value, key){
 		console.log(String(straitNum.current))
-		aromaStages.current[String(straitNum.current) + String(key)] = value.title
+		aromaStages.current[String(straitNum.current) + String(key)] = value
 		console.log(aromaStages)
 	}
 
+	function handleTasteInputStage(value, key){
+		console.log(String(straitNum.current))
+		tasteStages.current[String(straitNum.current) + String(key)] = value
+		console.log(tasteStages)
+	}
 	return(
 		<>
 			<Header navigation={props.navigation}/>

@@ -8,12 +8,15 @@ function AromaStages(props) {
 
 	const [stages, setStages] = useState([])
 	let [stagesCount, setStagesCount] = useState(1)
+	let [prevStagesCount, setPrevStagesCount] = useState()
 	const stagesArray = []
 
   useEffect(() => {
 
+  	clearStageArraysIf()
   	addAromaStages()
   	setStages(stagesArray)
+  	setPrevStagesCount(stagesCount)
 
   }, [stagesCount]);
 
@@ -49,16 +52,19 @@ function AromaStages(props) {
 
 	}
 
-	// function aromaStageHandler(){
-	// 	props.handler
-	// }
+	function clearStageArraysIf() {
+		if (prevStagesCount > stagesCount){
+			props.clearFnc(prevStagesCount, props.aromaStages, true)
+		}
+	}
+
 
 	return(
 		<div className="form_aroma">
 			{stages}
 			<FormButton 
 				buttonName={'Добавить еще оттенок аромата'}
-				onClick={()=>{stagesCount != 5 ?setStagesCount(stagesCount+=1):setStagesCount(stagesCount)}}
+				onClick={()=>{stagesCount != 5 ? setStagesCount(stagesCount+=1):setStagesCount(stagesCount)}}
 			/>
 			<FormButton 
 				buttonName={'Удалить последний оттенок аромата'}
