@@ -44,6 +44,7 @@ function TeaTextField(props) {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
+    props.commentText.current[(props.straitNum)] = event.target.value;
   };
 
 	return(

@@ -74,9 +74,9 @@ function App() {
     .catch(err => console.log(err))
   }
 
-  function postFormMainData(data, formId){
-    console.log(data)
-    formApi.postFormMainData(data, formId)
+  function postFormStage1(data, formId){
+
+    formApi.postFormStage1(data, formId)
     .then(res=>{
       console.log(res)
       // FormNavigateNextSatge()
@@ -84,6 +84,25 @@ function App() {
     .catch(err => console.log(err))
   }
 
+  function postFormStage2Aroma(data, formId, brewId, aromaShadeId){
+    console.log(data)
+    formApi.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }
+  
+  function patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage){
+    console.log(data)
+    formApi.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }
 
   // setLoggedIn(true)
   const FormNavigateNextSatge = () => {
@@ -117,7 +136,7 @@ function App() {
           component = {TeaFormStage1} 
           nextStage = {FormNavigateNextSatge}
           navigation = {Navigation}
-          postFormMainData = {postFormMainData}
+          postFormStage1 = {postFormStage1}
           />
           }
         />
@@ -130,6 +149,8 @@ function App() {
           component = {TeaFormStage2}
           prevStage = {FormNavigatePrevSatge}
           navigation = {Navigation}
+          postFormStage2Aroma = {postFormStage2Aroma}
+          patchFormStage2Aroma = {patchFormStage2Aroma}
           />
           }
         />

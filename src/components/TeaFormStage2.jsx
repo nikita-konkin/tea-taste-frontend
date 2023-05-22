@@ -15,15 +15,15 @@ function TeaFormStage1(props) {
 	  { title: "The Godfather: Part II"}
 	];
 
+	const straitNum = useRef(null);
 	const aromaStages = useRef({});
 	const tasteStages = useRef({});
-	const straitNum = useRef(null);
+	const commentText = useRef({});
+	const ratingValue = useRef({});
 
 	const [straits, setStraits] = useState([])
 
 	let [stagesCount, setStagesCount] = useState(1)
-	const aromaStagesCount = useRef(1);
-	const tasteStagesCount = useRef(1);
 	const stagesArray = []
 
 	useEffect(() => {
@@ -32,12 +32,10 @@ function TeaFormStage1(props) {
   	setStraits(stagesArray)
   }, [stagesCount]);
 
-  // useEffect(() => {
-		// clearStageArrays(stagesCount)
-  // 	addStrait()
-  // 	setStraits(stagesArray)
-  // }, [stagesCount]);
-
+	useEffect(()=>{
+		ratingValue.current[stagesCount] = 7
+		commentText.current[stagesCount] = ''
+	})
 
 	const addStrait = (i) => {
     for (let i = 0; i < stagesCount; i++) {
@@ -51,10 +49,12 @@ function TeaFormStage1(props) {
 		return(
 			<section className="form_strait-stages">
 				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
-				<AromaStages options={options} stagesHandler={handleAromaInputStage} clearFnc={clearObjByKeyIf} aromaStages={aromaStages.current}/>
-				<TasteStages options={options} stagesHandler={handleTasteInputStage} clearFnc={clearObjByKeyIf} tasteStages={tasteStages.current}/>
-				<TeaTextField />
-				<TeaRaiting />
+				<AromaStages options={options} stagesHandler={handleAromaInputStage} 
+					clearFnc={clearObjByKeyIf} aromaStages={aromaStages.current}/>
+				<TasteStages options={options} stagesHandler={handleTasteInputStage} 
+					clearFnc={clearObjByKeyIf} tasteStages={tasteStages.current}/>
+				<TeaTextField commentText={commentText} straitNum={straitNum.current}/>
+				<TeaRaiting ratingValue={ratingValue} straitNum={straitNum.current}/>
 			</section>
 			)
 	}
@@ -83,20 +83,42 @@ function TeaFormStage1(props) {
 			}
 		});
 
-		console.log(obj)
 	}
 
 	function handleAromaInputStage(value, key){
-		console.log(String(straitNum.current))
+		// console.log(String(straitNum.current))
 		aromaStages.current[String(straitNum.current) + String(key)] = value
-		console.log(aromaStages)
+		// console.log(aromaStages)
 	}
 
 	function handleTasteInputStage(value, key){
-		console.log(String(straitNum.current))
+		// console.log(String(straitNum.current))
 		tasteStages.current[String(straitNum.current) + String(key)] = value
-		console.log(tasteStages)
+		// console.log(tasteStages)
 	}
+
+	function onSubmit(e){
+		e.preventDefault()
+		const formId = '0C7C95FA02C054C3B96517C0'
+		for (const [key, data] of Object.entries(aromaStages.current)) {
+			const keys = String(key).split('').map(Number)
+			const brewId = keys[0]
+			const aromaShadeId = keys[1]
+			const aromaStage = keys[2]
+			if (aromaStage == 1) {
+				props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
+			} else {
+				props.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
+			}
+
+		  console.log(`${key}: ${data}`);
+		}
+
+		// props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
+		// props.nextStage()
+
+	}
+
 	return(
 		<>
 			<Header navigation={props.navigation}/>
@@ -118,7 +140,7 @@ function TeaFormStage1(props) {
 					buttonName={'Назад'}
 				/>
 				<FormButton 
-					onClick={()=>{props.nextStage()}}
+					onClick={(e)=>{onSubmit(e)}}
 					buttonName={'Далее (проверка формы)'}
 				/>
 			</form>

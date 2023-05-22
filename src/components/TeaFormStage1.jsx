@@ -36,7 +36,7 @@ function TeaFormStage1(props) {
 		const formId = '0C7C95FA02C054C3B96517C0'
 		if (teaData.teaName != 'undefined'){
 			console.log('SENDED')
-			props.postFormMainData(teaData.current, formId)
+			props.postFormStage1(teaData.current, formId)
 			props.nextStage()
 		}
 		else{

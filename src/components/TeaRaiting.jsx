@@ -99,8 +99,11 @@ function TeaRaiting(props) {
         name="simple-controlled"
         value={value}
         max={10}
+        min={1}
         onChange={(event, newValue) => {
           setValue(newValue);
+          props.ratingValue.current[props.straitNum] = newValue;
+          console.log(props.ratingValue.current)
         }}
       />
       </Box>
