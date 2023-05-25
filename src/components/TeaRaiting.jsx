@@ -102,7 +102,7 @@ function TeaRaiting(props) {
         min={1}
         onChange={(event, newValue) => {
           setValue(newValue);
-          props.ratingValue.current[props.straitNum] = newValue;
+          props.ratingValue.current[props.straitNum + '_brewingRating'] = newValue;
           console.log(props.ratingValue.current)
         }}
       />

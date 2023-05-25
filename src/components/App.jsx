@@ -104,6 +104,46 @@ function App() {
     .catch(err => console.log(err))
   }
 
+
+  function postFormStage2Taste(data, formId, brewId, tasteShadeId){
+    console.log(data)
+    formApi.postFormStage2Taste(data, formId, brewId, tasteShadeId)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }
+  
+  function patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage){
+    console.log(data)
+    formApi.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }  
+
+  function postFormStage2Brew(data, formId, brewId){
+    console.log(data)
+    formApi.postFormStage2Brew(data, formId, brewId)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }  
+  
+  function patchFormStage2Brew(data, formId, brewId){
+    console.log(data)
+    formApi.patchFormStage2Brew(data, formId, brewId)
+    .then(res=>{
+      console.log(res)
+      // FormNavigateNextSatge()
+    })
+    .catch(err => console.log(err))
+  }
   // setLoggedIn(true)
   const FormNavigateNextSatge = () => {
     navigate('/form_2')
@@ -151,6 +191,8 @@ function App() {
           navigation = {Navigation}
           postFormStage2Aroma = {postFormStage2Aroma}
           patchFormStage2Aroma = {patchFormStage2Aroma}
+          postFormStage2Taste = {postFormStage2Taste}
+          patchFormStage2Taste = {patchFormStage2Taste}
           />
           }
         />

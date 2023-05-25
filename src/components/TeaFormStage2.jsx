@@ -18,8 +18,9 @@ function TeaFormStage1(props) {
 	const straitNum = useRef(null);
 	const aromaStages = useRef({});
 	const tasteStages = useRef({});
-	const commentText = useRef({});
-	const ratingValue = useRef({});
+	// const commentText = useRef({});
+	// const ratingValue = useRef({});
+	const brewValue = useRef({});
 
 	const [straits, setStraits] = useState([])
 
@@ -33,8 +34,8 @@ function TeaFormStage1(props) {
   }, [stagesCount]);
 
 	useEffect(()=>{
-		ratingValue.current[stagesCount] = 7
-		commentText.current[stagesCount] = ''
+		brewValue.current[stagesCount + '_brewingTime'] = 7
+		brewValue.current[stagesCount + '_description'] = ''
 	})
 
 	const addStrait = (i) => {
@@ -53,8 +54,8 @@ function TeaFormStage1(props) {
 					clearFnc={clearObjByKeyIf} aromaStages={aromaStages.current}/>
 				<TasteStages options={options} stagesHandler={handleTasteInputStage} 
 					clearFnc={clearObjByKeyIf} tasteStages={tasteStages.current}/>
-				<TeaTextField commentText={commentText} straitNum={straitNum.current}/>
-				<TeaRaiting ratingValue={ratingValue} straitNum={straitNum.current}/>
+				<TeaTextField commentText={brewValue} straitNum={straitNum.current}/>
+				<TeaRaiting ratingValue={brewValue} straitNum={straitNum.current}/>
 			</section>
 			)
 	}
@@ -65,7 +66,6 @@ function TeaFormStage1(props) {
 			clearObjByKeyIf(straitNum.current, aromaStages.current)
 			clearObjByKeyIf(straitNum.current, tasteStages.current)
 		}
-
 	}
 
 	function clearObjByKeyIf(value, obj, current = false){
@@ -82,7 +82,6 @@ function TeaFormStage1(props) {
 				}
 			}
 		});
-
 	}
 
 	function handleAromaInputStage(value, key){
@@ -97,9 +96,8 @@ function TeaFormStage1(props) {
 		// console.log(tasteStages)
 	}
 
-	function onSubmit(e){
-		e.preventDefault()
-		const formId = '0C7C95FA02C054C3B96517C0'
+	function postAromaData(formId){
+
 		for (const [key, data] of Object.entries(aromaStages.current)) {
 			const keys = String(key).split('').map(Number)
 			const brewId = keys[0]
@@ -110,9 +108,56 @@ function TeaFormStage1(props) {
 			} else {
 				props.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
 			}
-
-		  console.log(`${key}: ${data}`);
 		}
+	}
+
+	function postTasteData(formId){
+		// console.log(tasteStages.current)
+		for (const [key, data] of Object.entries(tasteStages.current)) {
+			const keys = String(key).split('').map(Number)
+			const brewId = keys[0]
+			const tasteShadeId = keys[1]
+			const tasteStage = keys[2]
+			if (tasteStage == 1) {
+				props.postFormStage2Taste(data, formId, brewId, tasteShadeId)
+			} else {
+				props.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
+			}
+		}
+	}
+
+
+	function postBrewData(formId){
+
+		console.log(brewValue.current)
+
+		// const [key, data] = Object.entries(brewValue.current)
+		// console.log(key.spli)
+		// const keys = String(key).split('').map(Number)
+		// const brewId = keys[0]
+		// const brewTempId = keys[1]
+		// const brewDataType = keys[2]
+
+		for (const [key, data] of Object.entries(brewValue.current)) {
+			const keys = key.split('_')
+			const brewId = keys[0]
+			// const brewTempId = keys[1]
+			const brewDataType = keys[1]
+			if (brewId == 1) {
+				props.postFormStage2Brew(data, formId, brewId)
+			} else {
+				props.patchFormStage2Brew(data, formId, brewId)
+			}
+		}
+		// props.postFormStage2Brew(data, formId, brewId)
+
+	}
+	function onSubmit(e){
+		e.preventDefault()
+		const formId = '0C7C95FA02C054C3B96517C0'
+		postAromaData(formId)
+		postTasteData(formId)
+		postBrewData(formId)
 
 		// props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
 		// props.nextStage()

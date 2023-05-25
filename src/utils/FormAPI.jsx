@@ -64,21 +64,36 @@ class FormApi{
 
 	postFormStage2Taste(data, formId, brewId, tasteShadeId){
 
-		return fetch(`${this._usersApiUrl}/create-form/${formId}/brew/${brewId}/taste/${tasteShadeId}` ,{
+		return fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}` ,{
 			method: 'POST',
 			credentials: 'include',
 			headers: this._headers,
 			body: JSON.stringify({
-				tasteStage1: data.teaName,
-				tasteStage1: data.teaType
+				tasteStage1: data
 			})
 		})
 		.then(res=>{this.error(res)})
 	}
 
+	patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStageId){
+		const key = 'tasteStage'+String(tasteStageId)
+		const obj = {};
+
+		obj[key] = data
+
+		return fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}` ,{
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify(obj)
+		})
+		.then(res=>{this.error(res)})
+	}
+
+
 	postFormStage2Brew(data, formId, brewId){
 
-		return fetch(`${this._usersApiUrl}/create-form/${formId}/brew/${brewId}` ,{
+		return fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}` ,{
 			method: 'POST',
 			credentials: 'include',
 			headers: this._headers,
@@ -91,6 +106,20 @@ class FormApi{
 		.then(res=>{this.error(res)})
 	}
 
+	patchFormStage2Brew(data, formId, brewId){
+		// const key = 'brewStage'+String(brewStageId)
+		// const obj = {};
+
+		// obj[key] = data
+
+		return fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}` ,{
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			// body: JSON.stringify(obj)
+		})
+		.then(res=>{this.error(res)})
+	}
 
 }
 
