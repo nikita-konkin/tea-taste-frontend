@@ -40,7 +40,7 @@ function TeaTextField(props) {
      }
       }, []);
 
-  const [textValue, setValue] = React.useState('');
+  const [textValue, setValue] = React.useState(props.defaultValue);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
@@ -50,19 +50,20 @@ function TeaTextField(props) {
 
   const handleChangeWoStraitNum = (event)=>{
     setValue(event.target.value);
-    props.handler(textValue, props.keyId, props.boxId)
+    props.handler(event.target.value, props.keyId, props.boxId)
   }
 
 	return(
 	<>
 		<ThemeProvider  theme={theme}>
-		<StyledTextField 
-		  label= {props.label}
-		  multiline
-		  maxRows={5}
-		  value={textValue}
-		  onChange={props.woStraitNum ? handleChangeWoStraitNum : handleChange}
-		/>
+      <StyledTextField 
+        label= {props.label}
+        multiline
+        maxRows={5}
+        value={textValue}
+        // defaultValue={props.defaultValue}
+        onChange={props.woStraitNum ? handleChangeWoStraitNum : handleChange}
+      />
 		</ThemeProvider>
 
 	</>

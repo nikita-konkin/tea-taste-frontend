@@ -51,7 +51,8 @@ const StyledPopper = styled(Popper)({
 
 
 function SelectBox(props) {
-
+  console.log(props.defaultValue)
+  const [value, setValue] = React.useState(props.options[0]);
 
 	const theme = createTheme({
 	   typography: {
@@ -75,29 +76,34 @@ function SelectBox(props) {
     <Autocomplete
     // classes = {classes}
     	// onInputChange={(event, value)=>{props.handler(value, props.keyId)}}
-    	onChange={(event, value)=>{props.handler(value.title, props.keyId, props.boxId)}}
+    	onChange = {(event, value)=>{props.handler(value.title, props.keyId, props.boxId)}}
     	key = {props.keyId}
-      options={props.options}
-      getOptionLabel={(option) => option.title}
-      PopperComponent={StyledPopper}
+      // value={props.defaultValue}
+      // inputValue={props.defaultValue}
+      defaultValue={{ title: props.defaultValue}}
+      options = {props.options}
+      getOptionLabel = {(option) => option.title}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+      PopperComponent = {StyledPopper}
       // style={{ width: 300 }}
-      sx={{
-      margin: '0 5px 5px 5px',
-      "& .MuiInputBase-root::before":
-          { borderBottomColor: "white"},
-      "& .MuiInputBase-root:hover:not(.Mui-disabled):before":
-          { borderBottomColor: "white"},
-      "& .MuiInputBase-root::after":
-          { borderBottomColor: "#00ffaf"},
-      "& .MuiSvgIcon-root":
-          { color: "white"},
-      "& .MuiAutocomplete-input":
-          { color: "white"},
+      sx = {{
+        margin: '0 5px 5px 5px',
+        "& .MuiInputBase-root::before":
+            { borderBottomColor: "white"},
+        "& .MuiInputBase-root:hover:not(.Mui-disabled):before":
+            { borderBottomColor: "white"},
+        "& .MuiInputBase-root::after":
+            { borderBottomColor: "#00ffaf"},
+        "& .MuiSvgIcon-root":
+            { color: "white"},
+        "& .MuiAutocomplete-input":
+            { color: "white"},
     	}}
-			renderInput={(params) => (
+			renderInput = {(params) => (
 				<StyledTextField
 					{...params}
 					label={props.boxName}
+          defaultValue={props.defaultValue}
 					variant="standard"
 				/>
 			)}

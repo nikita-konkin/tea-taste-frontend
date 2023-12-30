@@ -24,15 +24,31 @@ function TeaFormStage1(props) {
 	  { title: "The Godfather"},
 	  { title: "The Godfather: Part II"}
 	];
-	const defaultData = {
-		teaWeight: 5,
-		waterVolume: 100,
-		waterTemperature: 95
+
+
+	const isStage1Commit = localStorage.getItem('isStage1Commit')
+	if (!isStage1Commit) {
+		localStorage.setItem('isStage1Commit', false)
+		const defaultData = {
+			teaName: 'TdefaultTEA',
+			teaCountry: 'The Godfathe',
+			teaWeight: 5,
+			teaType: 'The Godfathe',
+			waterBrand: 'The Godfathe',
+			waterVolume: 100,
+			waterTemperature: 95,
+			teaWare: 'The Godfathe',
+			brewingType: 'The Godfathe'
+		}
+		Object.entries(defaultData).map(([key, val]) => [handleInputsData(val, key, key)])
+	} else {
+		const teaDataLocal = JSON.parse(localStorage.getItem('teaData'))
+		// console.log(teaDataLocal.teaCountry)
+		Object.entries(teaDataLocal).map(([key, val]) => [handleInputsData(val, key, key)])
 	}
 
-	useEffect(()=>{
-		Object.entries(defaultData).map(([key, val]) => [handleInputsData(val, key, key)])
-	}, [])
+	// useEffect(()=>{	
+	// }, [])
 
 	function handleInputsData(){
 		// console.log(String(teaData.current))
@@ -43,6 +59,10 @@ function TeaFormStage1(props) {
 	function onSubmit(e){
 		e.preventDefault()
 		const formId = '0C7C95FA02C054C3B96517C0'
+
+		localStorage.setItem('isStage1Commit', true)
+		localStorage.setItem('teaData', JSON.stringify(teaData.current))
+
 		if (teaData.teaName != 'undefined'){
 			console.log('SENDED')
 			props.postFormStage1(teaData.current, formId)
@@ -62,16 +82,22 @@ function TeaFormStage1(props) {
 					woStraitNum = {true}
 					handler = {handleInputsData}
 					label = 'Название чая'
+					defaultValue = {teaData.current.teaName}
 				/>
 				{/* <SelectBox boxName='Название чая' handler={handleInputsData} boxId = 'teaName'
 					options={options}/> */}
-				<SelectBox boxName='Страна' handler={handleInputsData} boxId = 'teaCountry'
-					options={options}/>
+				<SelectBox 
+					boxName='Страна' 
+					handler={handleInputsData} 
+					boxId = 'teaCountry'
+					options={options}
+					defaultValue = {teaData.current.teaCountry}
+					/>
 				<SliderBox 
 					handler={handleInputsData}
 					sliderName='Вес чая при заваривании'
 					maxValue={50}
-					defaultValue={defaultData.teaWeight}
+					defaultValue={teaData.current.teaWeight}
 					units='г'
 					marks = {SLIDER_WEIGHT_DATA}
 					boxId = 'teaWeight'
@@ -79,16 +105,18 @@ function TeaFormStage1(props) {
 				<SelectBox boxName='Тип чая' options={options}
 					handler={handleInputsData}
 					boxId='teaType'
+					defaultValue={teaData.current.teaType}
 				/>
 				<SelectBox boxName='Вода' options={options}
 					handler={handleInputsData}
 					boxId='waterBrand'
+					defaultValue={teaData.current.waterBrand}
 				/>
 				<SliderBox 
 					handler={handleInputsData}
 					sliderName='Объем воды'
 					maxValue={1000}
-					defaultValue={defaultData.waterVolume}
+					defaultValue={teaData.current.waterVolume}
 					units='мл'
 					marks = {SLIDER_WATER_DATA}
 					boxId='waterVolume'
@@ -97,7 +125,7 @@ function TeaFormStage1(props) {
 					handler={handleInputsData}
 					sliderName='Температура воды'
 					maxValue={100}
-					defaultValue={defaultData.waterTemperature}
+					defaultValue={teaData.current.waterTemperature}
 					units='°C'
 					marks = {SLIDER_TEMPERATURE_DATA}
 					boxId='waterTemperature'
@@ -105,10 +133,12 @@ function TeaFormStage1(props) {
 				<SelectBox boxName='Посуда' options={options}
 					handler={handleInputsData}
 					boxId='teaWare'
+					defaultValue={teaData.current.teaWare}
 				/>
 				<SelectBox boxName='Метод заваривания' options={options}
 					handler={handleInputsData}
 					boxId='brewingType'
+					defaultValue={teaData.current.brewingType}
 				/>
 
 				<FormButton 
