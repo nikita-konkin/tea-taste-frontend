@@ -40,22 +40,28 @@ function TeaTextField(props) {
      }
       }, []);
 
-  const [value, setValue] = React.useState('');
+  const [textValue, setValue] = React.useState('');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
-    props.commentText.current[props.straitNum + '_description'] = event.target.value;
+    // props.commentText.current[props.straitNum + '_description'] = event.target.value;
+    props.commentText.current[props.straitNum].description = event.target.value;
   };
+
+  const handleChangeWoStraitNum = (event)=>{
+    setValue(event.target.value);
+    props.handler(textValue, props.keyId, props.boxId)
+  }
 
 	return(
 	<>
 		<ThemeProvider  theme={theme}>
 		<StyledTextField 
-		  label="Комментарии к проливу"
+		  label= {props.label}
 		  multiline
 		  maxRows={5}
-		  value={value}
-		  onChange={handleChange}
+		  value={textValue}
+		  onChange={props.woStraitNum ? handleChangeWoStraitNum : handleChange}
 		/>
 		</ThemeProvider>
 

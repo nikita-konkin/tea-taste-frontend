@@ -26,7 +26,7 @@ class MainApi{
   }
 
 	handleRegistration(name, pass, email){
-
+		console.log(pass)
 		return fetch(`${this._usersApiUrl}/sign-up`, {
 			method: 'POST',
 			headers: this._headers,

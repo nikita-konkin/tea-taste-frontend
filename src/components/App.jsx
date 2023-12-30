@@ -52,7 +52,7 @@ function App() {
 
   function handleRegistration(data){
 
-    mainApi.handleRegistration(data.name, data.password, data.email)
+    mainApi.handleRegistration(data.name, data.pass, data.email)
     .then(res => {
       console.log(res)
       handleAuthorization(res)
@@ -193,6 +193,8 @@ function App() {
           patchFormStage2Aroma = {patchFormStage2Aroma}
           postFormStage2Taste = {postFormStage2Taste}
           patchFormStage2Taste = {patchFormStage2Taste}
+          postFormStage2Brew = {postFormStage2Brew}
+          patchFormStage2Brew = {patchFormStage2Brew}
           />
           }
         />

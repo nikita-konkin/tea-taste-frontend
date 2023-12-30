@@ -23,25 +23,34 @@ function TeaFormStage1(props) {
 	const brewValue = useRef({});
 
 	const [straits, setStraits] = useState([])
+	const [isSubmitted, setIsSubmitted] = useState(false)
 
 	let [stagesCount, setStagesCount] = useState(1)
 	const stagesArray = []
 
 	useEffect(() => {
 		clearStageArraysIf(stagesCount)
+		// localStorage.setItem()
   	addStrait()
   	setStraits(stagesArray)
   }, [stagesCount]);
 
 	useEffect(()=>{
-		brewValue.current[stagesCount + '_brewingTime'] = 7
-		brewValue.current[stagesCount + '_description'] = ''
+		// brewValue.current[stagesCount + '_brewingTime'] = 7
+		// brewValue.current[stagesCount + '_description'] = ''		
+		
+		brewValue.current[stagesCount] = {
+			brewingTime: '00:01:30',
+			description: '',
+			brewingRating: 7
+		}
+
 	})
 
 	const addStrait = (i) => {
-    for (let i = 0; i < stagesCount; i++) {
-      stagesArray.push(renderStraits(i+1))
-    }
+		for (let i = 0; i < stagesCount; i++) {
+			stagesArray.push(renderStraits(i+1))
+		}
 	}
 
 	const renderStraits = (stageCount) => {
@@ -54,7 +63,12 @@ function TeaFormStage1(props) {
 					clearFnc={clearObjByKeyIf} aromaStages={aromaStages.current}/>
 				<TasteStages options={options} stagesHandler={handleTasteInputStage} 
 					clearFnc={clearObjByKeyIf} tasteStages={tasteStages.current}/>
-				<TeaTextField commentText={brewValue} straitNum={straitNum.current}/>
+				<TeaTextField 
+					commentText={brewValue}
+					straitNum={straitNum.current}
+					woStraitNum = {false}
+					label = 'Комментарий к проливу'
+				/>
 				<TeaRaiting ratingValue={brewValue} straitNum={straitNum.current}/>
 			</section>
 			)
@@ -129,25 +143,35 @@ function TeaFormStage1(props) {
 
 	function postBrewData(formId){
 
-		console.log(brewValue.current)
-
-		// const [key, data] = Object.entries(brewValue.current)
-		// console.log(key.spli)
-		// const keys = String(key).split('').map(Number)
+		// const keys = Object.keys(brewValue.current)
+		// const ids = keys.map(str => {return parseInt(str, 10); })
+		// const maxIds = Math.max.apply(Math, ids)
+	
 		// const brewId = keys[0]
 		// const brewTempId = keys[1]
 		// const brewDataType = keys[2]
 
+		// if (brewId == 1) {
+		// 	props.postFormStage2Brew(data, formId, brewId)
+		// } else {
+		// 	props.patchFormStage2Brew(data, formId, brewId)
+		// }
+
+
 		for (const [key, data] of Object.entries(brewValue.current)) {
-			const keys = key.split('_')
-			const brewId = keys[0]
+			// const keys = key.split('_')
+			// const brewId = keys[0]
 			// const brewTempId = keys[1]
-			const brewDataType = keys[1]
-			if (brewId == 1) {
-				props.postFormStage2Brew(data, formId, brewId)
+			// const brewDataType = keys[1]
+			// console.log(key)
+			// console.log(data)
+			if (!isSubmitted){
+				props.postFormStage2Brew(data, formId, key)
 			} else {
-				props.patchFormStage2Brew(data, formId, brewId)
+				props.patchFormStage2Brew(data, formId, key)
 			}
+	
+
 		}
 		// props.postFormStage2Brew(data, formId, brewId)
 
@@ -158,7 +182,7 @@ function TeaFormStage1(props) {
 		postAromaData(formId)
 		postTasteData(formId)
 		postBrewData(formId)
-
+		setIsSubmitted(true)
 		// props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
 		// props.nextStage()
 

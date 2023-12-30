@@ -5,6 +5,7 @@ class FormApi{
 	}
 
 	error(res){
+
 		if (res.ok){
 			return res.json();
 		}
@@ -36,7 +37,7 @@ class FormApi{
 
 	postFormStage2Aroma(data, formId, brewId, aromaShadeId){
 
-		return fetch(`${this._usersApiUrl}/create-form/${formId}/brew/${brewId}/aroma/${aromaShadeId}` ,{
+		return fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}` ,{
 			method: 'POST',
 			credentials: 'include',
 			headers: this._headers,
@@ -98,12 +99,15 @@ class FormApi{
 			credentials: 'include',
 			headers: this._headers,
 			body: JSON.stringify({
-				description: data.teaName,
-				brewingRating: data.teaType,
-				brewingTime: data.teaType
+				description: data.description,
+				brewingRating: data.brewingRating,
+				brewingTime: data.brewingTime
 			})
 		})
-		.then(res=>{this.error(res)})
+		.then(res=>{
+			console.log(res.brew)
+			this.error(res)
+		})
 	}
 
 	patchFormStage2Brew(data, formId, brewId){
@@ -117,6 +121,11 @@ class FormApi{
 			credentials: 'include',
 			headers: this._headers,
 			// body: JSON.stringify(obj)
+			body: JSON.stringify({
+				description: data.description,
+				brewingRating: data.brewingRating,
+				brewingTime: data.brewingTime
+			})
 		})
 		.then(res=>{this.error(res)})
 	}

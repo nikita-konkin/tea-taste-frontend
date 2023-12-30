@@ -12,6 +12,7 @@ function Registration(props) {
 		setName(e.target.value)
 	}
 	function handlePass(e){
+		
 		setPass(e.target.value)
 	}
 	function handleEmail(e){

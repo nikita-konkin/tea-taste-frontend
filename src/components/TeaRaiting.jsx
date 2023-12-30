@@ -7,7 +7,7 @@ import { ThemeProvider , createTheme } from '@mui/material/styles';
 
 function TeaRaiting(props) {
 
-  const [value, setValue] = React.useState(8);
+  const [value, setValue] = React.useState(props.ratingValue.current[props.straitNum].brewingRating);
 
   const StyledRaiting = styled(Rating)({
     display: 'flex',
@@ -102,7 +102,8 @@ function TeaRaiting(props) {
         min={1}
         onChange={(event, newValue) => {
           setValue(newValue);
-          props.ratingValue.current[props.straitNum + '_brewingRating'] = newValue;
+          // props.ratingValue.current[props.straitNum + '_brewingRating'] = newValue;
+          props.ratingValue.current[props.straitNum].brewingRating = newValue;
           console.log(props.ratingValue.current)
         }}
       />
