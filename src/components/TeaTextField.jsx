@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { styled } from "@mui/material/styles";
 import { ThemeProvider , createTheme } from '@mui/material/styles';
@@ -42,10 +42,19 @@ function TeaTextField(props) {
 
   const [textValue, setValue] = React.useState(props.defaultValue);
 
+  useEffect(() => {
+    const obj_len = props.commentText ? Object.keys(props.commentText).length : 0
+    if (obj_len != 0) {
+      setValue(props.commentText[String(props.straitNum) + String(props.id)])
+    }
+  }, [props.commentText])
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
     // props.commentText.current[props.straitNum + '_description'] = event.target.value;
-    props.commentText.current[props.straitNum].description = event.target.value;
+    // props.commentText.current[props.straitNum].description = event.target.value;
+    props.stagesHandler(event.target.value, event.target.id)
+
   };
 
   const handleChangeWoStraitNum = (event)=>{
@@ -56,8 +65,9 @@ function TeaTextField(props) {
 	return(
 	<>
 		<ThemeProvider  theme={theme}>
-      <StyledTextField 
-        label= {props.label}
+      <StyledTextField
+        id={String(props.straitNum) + String(props.id)}
+        label={props.label}
         multiline
         maxRows={5}
         value={textValue}

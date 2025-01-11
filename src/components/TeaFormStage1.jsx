@@ -27,6 +27,7 @@ function TeaFormStage1(props) {
 
 
 	const isStage1Commit = localStorage.getItem('isStage1Commit')
+
 	if (!isStage1Commit) {
 		localStorage.setItem('isStage1Commit', false)
 		const defaultData = {
@@ -53,7 +54,7 @@ function TeaFormStage1(props) {
 	function handleInputsData(){
 		// console.log(String(teaData.current))
 		teaData.current[String(arguments[2])] = arguments[0]
-		console.log(teaData)
+		// console.log(arguments)
 	}
 
 	function onSubmit(e){

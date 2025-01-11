@@ -22,6 +22,7 @@ import MyFormInteraction from './MyFormInteraction.jsx'
 import Navigation from './Navigation.jsx'
 import Blog from './Blog.jsx'
 
+import { FormProvider } from "./TeaFormContext";
 
 
 function App() {
@@ -68,8 +69,8 @@ function App() {
       console.log(res)
       // setLoggedIn(true)
       localStorage.setItem('token', res.token);
-      localStorage.setItem('loggedIn', true)
-      navigate('/form_1')
+      localStorage.setItem('loggedIn', res.ok)
+      if (res.ok) {navigate('/form_1')}
     })
     .catch(err => console.log(err))
   }
@@ -167,7 +168,7 @@ function App() {
           />
           }
         />
-
+        
         <Route path = "/form_1"
         element = {
           < 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
 import { styled } from "@mui/material/styles";
@@ -7,7 +7,7 @@ import { ThemeProvider , createTheme } from '@mui/material/styles';
 
 function TeaRaiting(props) {
 
-  const [value, setValue] = React.useState(props.ratingValue.current[props.straitNum].brewingRating);
+  const [value, setValue] = useState(7);
 
   const StyledRaiting = styled(Rating)({
     display: 'flex',
@@ -16,8 +16,6 @@ function TeaRaiting(props) {
     width: '100%',
     margin: '10px 0 0 0',
     color: "#ffffff",
-    
-
   });
 
   const legendStyle = {
@@ -41,6 +39,13 @@ function TeaRaiting(props) {
       // "fontWeightMedium": 500
      }
       }, []);
+
+  useEffect(() => {
+    const obj_len = Object.keys(props.ratingValue).length
+    if (obj_len != 0) {
+      setValue(props.ratingValue[String(props.straitNum) + String(props.id)])
+    }
+  }, [props.ratingValue])
 
   const ActiveRaitingPial = (props) => (
     <svg
@@ -88,24 +93,29 @@ function TeaRaiting(props) {
     </svg>
   )
 
+  const handleRatingChange = (event, newValue, id) => {
+
+    setValue(newValue);
+    props.stagesHandler(newValue, id)
+    // props.ratingValue.current[props.straitNum].brewingRating = newValue;
+    console.log(props.ratingValue.current)
+  };
+
   return(
     <>
       <ThemeProvider  theme={theme}>
       <Box style={boxStyle}>
       <Typography component="legend" style={legendStyle}>Общий рейтинг пролива</Typography>
       <StyledRaiting
+        id={String(props.straitNum) + String(props.id)}
         icon={<ActiveRaitingPial />}
         emptyIcon={<DiactiveRaitingPial/>}
         name="simple-controlled"
         value={value}
         max={10}
         min={1}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-          // props.ratingValue.current[props.straitNum + '_brewingRating'] = newValue;
-          props.ratingValue.current[props.straitNum].brewingRating = newValue;
-          console.log(props.ratingValue.current)
-        }}
+        onChange={(event, newValue) =>
+          handleRatingChange(event, newValue, String(props.straitNum) + String(props.id))}
       />
       </Box>
       </ThemeProvider>
