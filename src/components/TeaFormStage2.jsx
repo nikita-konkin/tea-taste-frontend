@@ -10,7 +10,13 @@ import { useTeaFormContext } from './TeaFormContext.jsx';
 
 function TeaFormStage2(props) {
 
-	const { teaFormData, updateTeaFormData, removeKeyFromTeaFormData} = useTeaFormContext();
+	const { 
+		straitsStagesFormData, 
+		updateStraitsStagesFormData, 
+		aromaStagesFormData, 
+		updateAromaStagesFormData, 
+		tasteStagesFormData, 
+		updateTasteStagesFormData } = useTeaFormContext();
 
 	const options = [
 	  { title: "The Shawshank Redemption"},
@@ -37,11 +43,30 @@ function TeaFormStage2(props) {
 	}, [stagesCount])
 
 	useEffect(()=>{
-		const obj_len = Object.keys(teaFormData).length
+		const obj_len = Object.keys(aromaStagesFormData).length
 		
 		if (obj_len != 0) {
-			const lastStageNumber = Object.keys(teaFormData)[obj_len-1].split('').map(Number)[0]
-			straitStages.current = teaFormData
+			aromaStages.current = aromaStagesFormData
+			console.log(aromaStages.current)
+		}
+
+	}, [])
+
+	useEffect(()=>{
+		const obj_len = Object.keys(tasteStagesFormData).length
+		
+		if (obj_len != 0) {
+			tasteStages.current = tasteStagesFormData
+		}
+		
+	}, [])
+
+	useEffect(()=>{
+		const obj_len = Object.keys(straitsStagesFormData).length
+		
+		if (obj_len != 0) {
+			const lastStageNumber = Object.keys(straitsStagesFormData)[obj_len-1].split('').map(Number)[0]
+			straitStages.current = straitsStagesFormData
 			setStagesCount(obj_len)
 			renderStrait(lastStageNumber, stagesArray)
 		} else {
@@ -49,6 +74,8 @@ function TeaFormStage2(props) {
 		}
 		
 	}, [])
+
+
 	
 	const addStraitAndUpdateContext = () => {
 
@@ -58,17 +85,13 @@ function TeaFormStage2(props) {
 	}
 
 	const removeStraitAndUpdateContext = () => {
-		console.log(stagesCount)
+
 		stagesCount !== 5 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)
 		clearStageArraysIf(stagesCount)
 		addStrait(stagesCount)
 		setStraits(stagesArray)
-		updateTeaFormData(straitStages.current)
+		updateStraitsStagesFormData(straitStages.current)
 	}
-
-	// const updateStraitAndUpdateContext = () => {
-
-	// }
 
 	const renderStrait = (stagesCount, stagesArray) => {
 		// clearStageArraysIf(stagesCount)
@@ -91,9 +114,15 @@ function TeaFormStage2(props) {
 			<section className="form_strait-stages" id={straitNum.current}>
 				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
 				<AromaStages options={options} stagesHandler={handleAromaInputStage} 
-					clearFnc={clearObjByKeyIf} aromaStages={aromaStages.current}/>
+					clearFnc={clearObjByKeyIf}
+					// defaultValues={aromaStages.current}
+					straitNum={straitNum.current}
+					/>
 				<TasteStages options={options} stagesHandler={handleTasteInputStage} 
-					clearFnc={clearObjByKeyIf} tasteStages={tasteStages.current}/>
+					clearFnc={clearObjByKeyIf} 
+					straitNum={straitNum.current}
+					// tasteStages={tasteStages.current}
+					/>
 				<TeaTextField 
 					commentText={straitStages.current}
 					id={1}
@@ -127,7 +156,7 @@ function TeaFormStage2(props) {
 	}
 
 	function clearObjByKeyIf(value, obj, current=false, handleStagesArray=false){
-		// console.log(value)
+		console.log(obj)
 		Object.keys(obj).forEach((i)=>{
 			const num = String(i).split('').map(Number)
 			
@@ -136,38 +165,34 @@ function TeaFormStage2(props) {
 					delete obj[i]
 				}
 			} else {
-				if (handleStagesArray) {
-					if (num[0]+1 == value) {
-						obj.pop()
-					}
-				} else {
-					if (num[0] == value) {
-						delete obj[i]
-					}
+				// if (handleStagesArray) {
+				// 	if (num[0]+1 == value) {
+				// 		obj.pop()
+				// 	}
+				// } else {
+				if (num[1] == value) {
+					delete obj[i]
 				}
+				// }
 
 			}
 		});
 
 	}
 
-	function handleAromaInputStage(value, key){
-		// console.log(String(straitNum.current))
-		aromaStages.current[String(straitNum.current) + String(key)] = value
-
+	function handleAromaInputStage(value, id){
+		aromaStages.current[String(id.split('-')[0])] = value
+		updateAromaStagesFormData(aromaStages.current)
 	}
 
-	function handleTasteInputStage(value, key){
-		// console.log(String(straitNum.current))
-		tasteStages.current[String(straitNum.current) + String(key)] = value
-		
+	function handleTasteInputStage(value, id){
+		tasteStages.current[String(id.split('-')[0])] = value
+		updateTasteStagesFormData(tasteStages.current)
 	}
 
 	function handleStraitInputStage(value, id){
-		// const id = String(straitNum.current) + String(key)
 		straitStages.current[id] = value
-		updateTeaFormData(straitStages.current)
-		// console.log(straitStages.current)
+		updateStraitsStagesFormData(straitStages.current)
 	}
 
 	function postAromaData(formId){
@@ -224,8 +249,8 @@ function TeaFormStage2(props) {
 		setIsSubmitted(true)
 		// props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
 		// props.nextStage()
-		// updateTeaFormData(aromaStages.current)
-		// updateTeaFormData(tasteStages.current)
+		// updateStraitsStagesFormData(aromaStages.current)
+		// updateStraitsStagesFormData(tasteStages.current)
 		
 
 	}

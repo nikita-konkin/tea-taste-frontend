@@ -51,7 +51,7 @@ const StyledPopper = styled(Popper)({
 
 
 function SelectBox(props) {
-  console.log(props.defaultValue)
+  // console.log(props.defaultValue)
   const [value, setValue] = React.useState(props.options[0]);
 
 	const theme = createTheme({
@@ -76,8 +76,9 @@ function SelectBox(props) {
     <Autocomplete
     // classes = {classes}
     	// onInputChange={(event, value)=>{props.handler(value, props.keyId)}}
-    	onChange = {(event, value)=>{props.handler(value.title, props.keyId, props.boxId)}}
+    	onChange = {(event, value)=>{props.handler(value.title, event.target.id, props.boxId)}}
     	key = {props.keyId}
+    	id = {props.keyId}
       // value={props.defaultValue}
       // inputValue={props.defaultValue}
       defaultValue={{ title: props.defaultValue}}

@@ -5,47 +5,79 @@ const TeaFormContext = createContext();
 const useTeaFormContext = () => useContext(TeaFormContext);
 
 const FormProvider = ({ children }) => {
-  const [teaFormData, setTeaFormData] = useState(() => {
-    const savedData = localStorage.getItem("teaFormData");
+  const [straitsStagesFormData, setStraitsStagesFormData] = useState(() => {
+    const savedData = localStorage.getItem("straitsStagesFormData");
+    return savedData ? JSON.parse(savedData) : {};
+  });
+
+  const [aromaStagesFormData, setAromaStagesFormData] = useState(() => {
+    const savedData = localStorage.getItem("aromaStagesFormData");
+    return savedData ? JSON.parse(savedData) : {};
+  });
+
+  const [tasteStagesFormData, setTasteStagesFormData] = useState(() => {
+    const savedData = localStorage.getItem("tasteStagesFormData");
     return savedData ? JSON.parse(savedData) : {};
   });
 
   useEffect(() => {
-    // Save teaFormData to localStorage whenever it updates
-    localStorage.setItem("teaFormData", JSON.stringify(teaFormData));
-  }, [teaFormData]);
+    localStorage.setItem("straitsStagesFormData", JSON.stringify(straitsStagesFormData));
+  }, [straitsStagesFormData]);
 
-  const updateTeaFormData = (newData) => {
-    setTeaFormData((prevData) => ({
+  useEffect(() => {
+    localStorage.setItem("aromaStagesFormData", JSON.stringify(aromaStagesFormData));
+  }, [aromaStagesFormData]);
+
+  useEffect(() => {
+    localStorage.setItem("tasteStagesFormData", JSON.stringify(tasteStagesFormData));
+  }, [tasteStagesFormData]);
+
+  const updateStraitsStagesFormData = (newData) => {
+    setStraitsStagesFormData((prevData) => ({
       ...prevData,
       ...newData,
     }));
   };
 
-  const removeKeyFromTeaFormData = (keyToRemove) => {
-    setTeaFormData((prevData) => {
-      const newData = { ...prevData };
-      delete newData[keyToRemove];
-      return newData;
-    });
+  const updateAromaStagesFormData = (newData) => {
+    setAromaStagesFormData((prevData) => ({
+      ...prevData,
+      ...newData,
+    }));
+  };
+
+  const updateTasteStagesFormData = (newData) => {
+    setTasteStagesFormData((prevData) => ({
+      ...prevData,
+      ...newData,
+    }));
   };
 
   const clearTeaFormData = () => {
-    setTeaFormData({}); // Reset state to an empty object
-    localStorage.removeItem("teaFormData"); // Clear from localStorage
+    setStraitsStagesFormData({});
+    setAromaStagesFormData({});
+    setTasteStagesFormData({});
+    localStorage.removeItem("straitsStagesFormData");
+    localStorage.removeItem("aromaStagesFormData");
+    localStorage.removeItem("tasteStagesFormData");
   };
 
   useEffect(() => {
-    console.log("Updated teaFormData:", teaFormData);
-  }, [teaFormData]);
+    console.log("Updated straitsStagesFormData:", straitsStagesFormData);
+    console.log("Updated aromaStagesFormData:", aromaStagesFormData);
+    console.log("Updated tasteStagesFormData:", tasteStagesFormData);
+  }, [straitsStagesFormData, aromaStagesFormData, tasteStagesFormData]);
 
   return (
     <TeaFormContext.Provider
       value={{
-        teaFormData,
-        updateTeaFormData,
-        // clearTeaFormData,
-        removeKeyFromTeaFormData,
+        straitsStagesFormData,
+        updateStraitsStagesFormData,
+        aromaStagesFormData,
+        updateAromaStagesFormData,
+        tasteStagesFormData,
+        updateTasteStagesFormData,
+        clearTeaFormData,
       }}
     >
       {children}
