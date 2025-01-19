@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import SelectBox from './SelectBox.jsx';
 import FormButton from './FormButton.jsx';
 
+
 import { useTeaFormContext } from './TeaFormContext.jsx';
 
 function TasteStages(props) {
 
 	const [stages, setStages] = useState([])
+	// const [key, setKey] = useState(1)
 	let [stagesCount, setStagesCount] = useState(1)
 	let [prevStagesCount, setPrevStagesCount] = useState()
 	const stagesArray = []
@@ -16,13 +18,41 @@ function TasteStages(props) {
 		updateTasteStagesFormData
 	} = useTeaFormContext();
 
+	// useEffect(() => {
+	// 	const obj_len = Object.keys(tasteStagesFormData).length
+	// 	console.log(props.straitNum)
+	// 	if (obj_len != 0) {
+	// 		Object.keys(tasteStagesFormData).map((k, i)=>{
+	// 			if (k.split('').map(Number)[0] == props.straitNum){
+	// 				console.log('key', k.split('').map(Number))
+	// 				console.log(Math.max(Object.keys(tasteStagesFormData)[i].split('').map(Number)[1], k))
+	// 				// setKey(Math.max(Object.keys(tasteStagesFormData)[i].split('').map(Number)[1], key))
+	// 				return 
+	// 			}
+	// 		})
+			
+	// 		const lastStageNumber = key
+	// 		console.log('lastStageNumber', key)
+	// 		// if (props.straitNum === key[0]) {
+	// 		setStagesCount(lastStageNumber)
+	// 		addTasteStages(lastStageNumber)
+	// 		setStages(stagesArray)
+	// 		setPrevStagesCount(lastStageNumber)
+	// 	} else {
+	// 		clearStageArraysIf()
+	// 		addTasteStages(stagesCount)
+	// 		setStages(stagesArray)
+	// 		setPrevStagesCount(stagesCount)
+	// 	}
+
+	// }, []);
+
 	useEffect(() => {
 		const obj_len = Object.keys(tasteStagesFormData).length
-		
+
 		if (obj_len != 0) {
-			const key = Object.keys(tasteStagesFormData)[0].split('').map(Number)
-			const lastStageNumber = key[1] 
-			// if (props.straitNum === key[0]) {
+			const lastStageNumber = Object.keys(tasteStagesFormData)[obj_len-1].split('').map(Number)[1]
+
 			setStagesCount(lastStageNumber)
 			addTasteStages(lastStageNumber)
 			setStages(stagesArray)
@@ -35,6 +65,7 @@ function TasteStages(props) {
 		}
 
 	}, []);
+
 
 	const renderTasteStages = () => {
 		clearStageArraysIf();

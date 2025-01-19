@@ -5,7 +5,15 @@ import { styled } from "@mui/material/styles";
 import Box from '@mui/material/Box';
 import { ThemeProvider , createTheme } from '@mui/material/styles';
 
+import { useTeaFormContext } from './TeaFormContext.jsx';
+
 function TeaRaiting(props) {
+
+  const { updateStraitsStagesFormData } = useTeaFormContext();
+
+  useEffect(() => {
+    updateStraitsStagesFormData({[String(props.straitNum) + String(props.id)]: 7})  
+  }, [])
 
   const [value, setValue] = useState(7);
 

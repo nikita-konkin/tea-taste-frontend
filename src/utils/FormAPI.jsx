@@ -93,7 +93,7 @@ class FormApi{
 
 
 	postFormStage2Brew(data, formId, brewId){
-
+		console.log(data)
 		return fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}` ,{
 			method: 'POST',
 			credentials: 'include',

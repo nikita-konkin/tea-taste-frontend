@@ -14,6 +14,7 @@ import {formApi} from "../utils/FormAPI.jsx"
 
 import TeaFormStage1 from './TeaFormStage1.jsx'
 import TeaFormStage2 from './TeaFormStage2.jsx'
+import MyForm from './MyForm.jsx';
 import Login from './Login.jsx'
 import Registration from './Registration.jsx'
 import Profile from './Profile.jsx'
@@ -23,6 +24,7 @@ import Navigation from './Navigation.jsx'
 import Blog from './Blog.jsx'
 
 import { FormProvider } from "./TeaFormContext";
+
 
 
 function App() {
@@ -127,7 +129,7 @@ function App() {
   }  
 
   function postFormStage2Brew(data, formId, brewId){
-    console.log(data)
+    // console.log(data)
     formApi.postFormStage2Brew(data, formId, brewId)
     .then(res=>{
       console.log(res)
@@ -137,7 +139,7 @@ function App() {
   }  
   
   function patchFormStage2Brew(data, formId, brewId){
-    console.log(data)
+    // console.log(data)
     formApi.patchFormStage2Brew(data, formId, brewId)
     .then(res=>{
       console.log(res)
@@ -155,6 +157,10 @@ function App() {
   const FormNavigateToInteracion = () => {
     navigate('/my_forms/formID')
   }
+  const FormNavigateToFormInteraction = () => {
+    navigate('/form_submit')
+  }
+
   return (
     <div className="root">
       <Routes>
@@ -188,6 +194,7 @@ function App() {
           ProtectedRoute
           loggedIn = {loggedIn}
           component = {TeaFormStage2}
+          nextStage = {FormNavigateToFormInteraction}
           prevStage = {FormNavigatePrevSatge}
           navigation = {Navigation}
           postFormStage2Aroma = {postFormStage2Aroma}
@@ -196,6 +203,16 @@ function App() {
           patchFormStage2Taste = {patchFormStage2Taste}
           postFormStage2Brew = {postFormStage2Brew}
           patchFormStage2Brew = {patchFormStage2Brew}
+          />
+          }
+        />
+
+        <Route path = "/form_submit"
+        element = {
+          < 
+          ProtectedRoute
+          loggedIn = {loggedIn}
+          component={MyFormInteraction}
           />
           }
         />
