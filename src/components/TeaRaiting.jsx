@@ -5,17 +5,18 @@ import { styled } from "@mui/material/styles";
 import Box from '@mui/material/Box';
 import { ThemeProvider , createTheme } from '@mui/material/styles';
 
-import { useTeaFormContext } from './TeaFormContext.jsx';
-
 function TeaRaiting(props) {
 
-  const { updateStraitsStagesFormData } = useTeaFormContext();
+  const [value, setValue] = useState(7);
 
   useEffect(() => {
-    updateStraitsStagesFormData({[String(props.straitNum) + String(props.id)]: 7})  
-  }, [])
+      const obj_len = props.ratingValue ? Object.keys(props.ratingValue).length : 0
+      if (obj_len != 0) {
+        setValue(props.ratingValue[String(props.straitNum) + String(props.id)]) 
+      }
+  }, [props.ratingValue]);
 
-  const [value, setValue] = useState(7);
+
 
   const StyledRaiting = styled(Rating)({
     display: 'flex',
@@ -105,7 +106,6 @@ function TeaRaiting(props) {
 
     setValue(newValue);
     props.stagesHandler(newValue, id)
-    // props.ratingValue.current[props.straitNum].brewingRating = newValue;
     console.log(props.ratingValue.current)
   };
 

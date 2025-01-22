@@ -51,8 +51,6 @@ function TeaTextField(props) {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
-    // props.commentText.current[props.straitNum + '_description'] = event.target.value;
-    // props.commentText.current[props.straitNum].description = event.target.value;
     props.stagesHandler(event.target.value, event.target.id)
 
   };
@@ -71,7 +69,6 @@ function TeaTextField(props) {
         multiline
         maxRows={5}
         value={textValue}
-        // defaultValue={props.defaultValue}
         onChange={props.woStraitNum ? handleChangeWoStraitNum : handleChange}
       />
 		</ThemeProvider>

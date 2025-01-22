@@ -6,8 +6,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs from 'dayjs';
 
-import { useTeaFormContext } from './TeaFormContext';
-
 const theme = createTheme({
     typography: {
         "fontFamily": `jura`,
@@ -56,22 +54,24 @@ const StyledTimePicker = styled(TimePicker)({
     },
 });
 
-const TimeBox = ({ timeValue, stagesHandler, id, straitNum }) => {
+const TimeBox = ({ id, timeValue, straitNum, stagesHandler }) => {
 
-    const { updateStraitsStagesFormData } = useTeaFormContext();
-
-    const [value, setValue] = useState(timeValue);
+    const [value, setValue] = useState(dayjs().hour(0).minute(1).second(0));
+    const timeFormat = 'HH:mm:ss';
 
     useEffect(() => {
-        updateStraitsStagesFormData({ [String(straitNum) + String(id)]: dayjs(value).format('HH:mm:ss') });
-    }, []);
+        const obj_len = timeValue ? Object.keys(timeValue).length : 0
+        if (obj_len != 0) {
+          const dayjsTime = dayjs(timeValue[String(straitNum) + String(id)], timeFormat);
+          setValue(dayjsTime)
+        }
+    }, [timeValue]);
 
     return (
         <ThemeProvider theme={theme}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <StyledTimePicker
                     ampm={false}
-                    // id={String(straitNum) + String(id)} 
                     views={['hours', 'minutes', 'seconds']}
                     label={'Time'}
                     inputFormat="HH:mm:ss"
@@ -79,7 +79,6 @@ const TimeBox = ({ timeValue, stagesHandler, id, straitNum }) => {
                     value={value}
                     onChange={(val) => {
                         const inputId = String(straitNum) + String(id);
-                        // console.log(val);
                         const time = dayjs(val).format('HH:mm:ss');
                         stagesHandler(time, inputId);
                         setValue(val);
@@ -87,7 +86,6 @@ const TimeBox = ({ timeValue, stagesHandler, id, straitNum }) => {
                     renderInput={(params) => (
                         <StyledTextField 
                             {...params} 
-                            // id={String(straitNum) + String(id)} 
                         />
                     )}
                 />

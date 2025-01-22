@@ -63,7 +63,24 @@ const FormProvider = ({ children }) => {
     localStorage.removeItem("tasteStagesFormData");
   };
 
-  // const formID = crypto.randomBytes(16).toString("hex");
+	const maxLastStageNumberFnc = (aromaStagesFormData, tasteStagesFormData, straitsStagesFormData) => {
+
+    const obj1_len = Object.keys(straitsStagesFormData).length
+		const obj2_len = Object.keys(aromaStagesFormData).length
+		const obj3_len = Object.keys(tasteStagesFormData).length
+
+		const maxLenObj = Math.max(obj1_len, obj2_len, obj3_len)
+		
+		if (maxLenObj != 0) {
+      const lastStageNumber1 = obj1_len ? Object.keys(straitsStagesFormData)[obj1_len-1].split('').map(Number)[0] : 0
+      const LastStageNumber2 = obj2_len ? Object.keys(aromaStagesFormData)[obj2_len-1].split('').map(Number)[0] : 0
+      const LastStageNumber3 = obj3_len ? Object.keys(tasteStagesFormData)[obj3_len-1].split('').map(Number)[0] : 0
+
+      return Math.max(lastStageNumber1, LastStageNumber2, LastStageNumber3)
+    } else {
+      return 0
+    }
+	}
 
   useEffect(() => {
     console.log("Updated straitsStagesFormData:", straitsStagesFormData);
@@ -81,6 +98,7 @@ const FormProvider = ({ children }) => {
         tasteStagesFormData,
         updateTasteStagesFormData,
         clearTeaFormData,
+        maxLastStageNumberFnc,
         // formID,
       }}
     >

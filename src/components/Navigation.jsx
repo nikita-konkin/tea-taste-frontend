@@ -24,11 +24,12 @@ function Navigation(props) {
 
 	const handleLocation = () => {
 		const loc = document.location.href
-		loc.includes('form_1') ? setCurrentLocation('Форма №1') : loc.includes('form_2') ? 
-		setCurrentLocation('Форма №2') : loc.includes('profile') ? 
-		setCurrentLocation('ЛК') : loc.includes('my_forms') ? 
-		setCurrentLocation('ЛК') : loc.includes('blog') ? 
-		setCurrentLocation('Блог') : setCurrentLocation('None') 
+		loc.includes('form_1') ? setCurrentLocation('Форма №1') : setCurrentLocation('None')
+		loc.includes('form_2') ? setCurrentLocation('Форма №2') : setCurrentLocation('None')
+		loc.includes('profile') ? setCurrentLocation('ЛК') : setCurrentLocation('None')
+		loc.includes('my_forms') ? setCurrentLocation('ЛК') : setCurrentLocation('None')
+		loc.includes('blog') ? 	setCurrentLocation('Блог'): setCurrentLocation('None')
+		loc.includes('form_submit') ? setCurrentLocation('Проверка формы') : setCurrentLocation('None') 
 	}
 
 	const handleClickOutside = (event) => {
