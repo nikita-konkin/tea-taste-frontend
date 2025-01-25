@@ -19,8 +19,6 @@ function valuetext(value) {
   return `${value}°C`;
 }
 
-
-
 function SliderBox(props) {
 
 	const maxValue = props.maxValue
@@ -76,62 +74,68 @@ function SliderBox(props) {
   };
 
   const test = {
-  	margin: '0px 0 0 -5px',
+  	margin: '0px 0px 20px -5px',
   	padding : '0px',
   	alignItems: 'top',
   }
 
 	return(
 		<><ThemeProvider  theme={theme}>
-			<Box sx={{ mt: 3 }} />
+			<Box sx={{ mt: 2 }} />
 			<Typography style={sliderTitleStyle} gutterBottom>{props.sliderName}</Typography>
 				<Grid container spacing={1} style={test} >
-					<Grid item sx={{mt:-2}}  xs>
+					<Grid item sx={{mt:2}}  xs>
 						<Typography style={{color: 'white'}}>
 						<Slider
 						valueLabelDisplay="auto"
-						// aria-label="pretto slider"
 						defaultValue={defaultValue}
 						getAriaValueText={valuetext}
-			      value={typeof value === 'number' ? value : 0}
-			      onChange={handleSliderChange}
-			      marks={marks}
-			      max={maxValue}
-			      step={1}
-		        sx={{
-						    width: '95%',
-						    height: '15%',
-						    color: '#FFFFFF',
-						    fontcolor: '#FFFFFF',
-						    padding: '0px',
-						    '& .MuiSlider-thumb': {
-						      borderRadius: '8px',
-						    },
-						    '& .MuiSlider-valueLabelOpen' :
-						    {
-						    	color: '#FFFFFF',
-						    	backgroundColor: '#728A7C',
-						    },
-						    '& .MuiSlider-markLabel' :
-						    {
-						    	color: '#FFFFFF',
-						    	fontSize: '12px',
-						    	margin: '0 0 0 7px',
-						    },
-						    // '& .MuiSlider-marked' :
-						    // {
-						    // 	padding : '0px',
-						    // 	// margin : '10px',
-						    // },
-						    '& .MuiSlider-mark':{
-						    	backgroundColor : '#00ffaf',
-						    	width: '4px',
-						    	height: '6px',
-						    },
-						    // '& .MuiGrid-root': {
-						    // 	padding: '22px 0',
-						    // }
-						  }}
+						value={typeof value === 'number' ? value : 0}
+						onChange={handleSliderChange}
+						marks={marks}
+						max={maxValue}
+						step={1}
+						sx={{
+									width: '95%',
+									height: '15%',
+									color: '#FFFFFF',
+									fontcolor: '#FFFFFF',
+									padding: '0px',
+									'& .MuiSlider-thumb': {
+									borderRadius: '8px',
+									},
+									'& .MuiSlider-valueLabelOpen' :
+									{
+										color: '#FFFFFF',
+										backgroundColor: '#728A7C',
+									},
+									'& .MuiSlider-markLabel' :
+									{
+										color: '#FFFFFF',
+										fontSize: '12px',
+										margin: '0 0 0 7px',
+										top: '15px',
+									},
+									// '& .MuiSlider-marked' :
+									// {
+									// 	padding : '0px',
+									// 	// margin : '10px',
+									// },
+									'& .MuiSlider-mark':{
+										backgroundColor : '#00ffaf',
+										margin: '0 0 0 0',
+										width: '4px',
+										height: '6px',
+			
+									},
+									'& .MuiSlider-rail':{
+										backgroundColor: '#728A7C',
+										height: '6px',	
+									},
+									// '& .MuiGrid-root': {
+									// 	padding: '22px 0',
+									// }
+								}}
 					/>
 					</Typography>
 					</Grid>

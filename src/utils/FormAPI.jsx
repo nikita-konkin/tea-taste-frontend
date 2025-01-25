@@ -81,7 +81,7 @@ class FormApi{
 		const obj = {};
 
 		obj[key] = data
-
+		console.log(obj)
 		return fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}` ,{
 			method: 'PATCH',
 			credentials: 'include',
@@ -129,6 +129,16 @@ class FormApi{
 		})
 		.then(res=>{this.error(res)})
 	}
+
+	getAllFromAromaDB() {
+
+		return fetch(`${this._usersApiUrl}/aromadb`, {
+		  method: 'GET',
+		  credentials: 'include',
+		  headers: this._headers
+		}).then(res => this.error(res));
+	
+	  }
 
 }
 

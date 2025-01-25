@@ -49,9 +49,16 @@ function TasteStages(props) {
 
 	useEffect(() => {
 		const obj_len = Object.keys(tasteStagesFormData).length
+		const keys = Object.keys(tasteStagesFormData)
 
 		if (obj_len != 0) {
-			const lastStageNumber = Object.keys(tasteStagesFormData)[obj_len-1].split('').map(Number)[1]
+
+			let lastStageNumber = 1
+			for (let i = 0; i < obj_len-1; i++) {
+				if (keys[i].split('').map(Number)[0] == props.straitNum) {
+					lastStageNumber = keys[i].split('').map(Number)[1]
+				}
+			}
 
 			setStagesCount(lastStageNumber)
 			addTasteStages(lastStageNumber)

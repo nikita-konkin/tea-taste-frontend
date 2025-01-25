@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef  } from 'react';
 import Select from 'react-select';
 import PropTypes from "prop-types";
 import Autocomplete, { autocompleteClasses } from "@mui/material/Autocomplete";
@@ -7,8 +7,9 @@ import { Popper, TextField, ListItem} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { ThemeProvider , createTheme } from '@mui/material/styles';
+import { use } from 'react';
 
-
+import { useTeaFormContext } from './TeaFormContext';
 
 // const styledPopper = {
 // 	// color: 'red',
@@ -51,8 +52,44 @@ const StyledPopper = styled(Popper)({
 
 
 function SelectBox(props) {
-  // console.log(props.defaultValue)
-  const [value, setValue] = React.useState(props.options[0]);
+  
+  // const options = useRef(props.options);
+  const {subCategory,
+    updateAromaStagesFormData,
+    aromaStagesFormData
+  } = useTeaFormContext();
+
+  const [options, setOptions] = useState(props.options);
+  let [deafultValue, setDefaultValue] = useState({ title: props.defaultValue || "Выберите из списка" })
+  const firstValueSubCategory = Object.values(subCategory)[0]
+
+  // useEffect(() => {
+  //   // console.log(selectBoxID.current, props.keyId)
+  //   if (firstValueSubCategory){
+  //     // setOptions(Object.values(subCategory))
+  //     options.current = Object.values(subCategory)
+  //     setDefaultValue(firstValueSubCategory)
+  //     aromaStagesFormData[props.keyId] = firstValueSubCategory.title
+  //     updateAromaStagesFormData(aromaStagesFormData)
+  //   }
+  // }, [subCategory])
+    
+  useEffect(() => {
+    setDefaultValue({ title: props.defaultValue || "Выберите из списка" })
+  }, [])
+
+  const handleFocus = (event) => {
+    
+    if (event.target.id in subCategory){
+      setDefaultValue(subCategory[event.target.id])
+      setOptions(subCategory[event.target.id])
+      // options.current = Object.values(subCategory)
+      console.log('event.target.id', event.target.id)
+      console.log('subCategory', subCategory[event.target.id]) 
+      console.log('subCategory', Object.values(subCategory[event.target.id])[0])
+    }
+  }
+
 
 	const theme = createTheme({
 	   typography: {
@@ -65,6 +102,12 @@ function SelectBox(props) {
 	   }
 			}, []);
 
+  useEffect(() => { 
+    console.log('porps.options', options)
+  }, [options]);
+
+
+
 	return(
 
 		// <div className="selectbox">
@@ -75,14 +118,24 @@ function SelectBox(props) {
 		<ThemeProvider  theme={theme}>
     <Autocomplete
     // classes = {classes}
-    	// onInputChange={(event, value)=>{props.handler(value, props.keyId)}}
-    	onChange = {(event, value)=>{props.handler(value.title, event.target.id, props.boxId)}}
-    	key = {props.keyId}
+    	// onInputChange={(event, value)=>{console.log('value', value)}}
+    	onChange = {(event, value)=>{
+        props.handler(value.title, event.target.id, props.boxId)
+        // if (props.boxId === 'AromaStage1'){
+          props.optionsHandler(value, event.target.id)
+        // }
+        setDefaultValue(value)
+        // if (props.boxId === 'AromaStage2'){
+        //   console.log('boxId', props.boxId)
+        //   console.log('options', props.options)
+        // }
+        }}
+    	key = {props.boxId}
     	id = {props.keyId}
-      // value={props.defaultValue}
+      value={deafultValue}
       // inputValue={props.defaultValue}
-      defaultValue={{ title: props.defaultValue}}
-      options = {props.options}
+      defaultValue={deafultValue}
+      options = {options}
       getOptionLabel = {(option) => option.title}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       PopperComponent = {StyledPopper}
@@ -104,8 +157,9 @@ function SelectBox(props) {
 				<StyledTextField
 					{...params}
 					label={props.boxName}
-          defaultValue={props.defaultValue}
+          defaultValue={props.deafultValue}
 					variant="standard"
+          onFocus={handleFocus}
 				/>
 			)}
 

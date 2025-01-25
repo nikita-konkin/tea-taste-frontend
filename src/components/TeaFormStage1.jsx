@@ -8,6 +8,7 @@ import {
   useNavigate
 } from 'react-router-dom';
 
+import { useTeaFormContext } from './TeaFormContext.jsx';	
 
 import {
   SLIDER_WEIGHT_DATA,
@@ -17,6 +18,12 @@ import {
 
 function TeaFormStage1(props) {
 
+	useEffect(()=>{
+		props.getAllFromAromaDB()
+	}, [])
+
+	const { teaInfo, updateTeaInfo } = useTeaFormContext();
+
 	const teaData = useRef({});
 	// const navigate = useNavigate();
 	const options = [
@@ -25,48 +32,21 @@ function TeaFormStage1(props) {
 	  { title: "The Godfather: Part II"}
 	];
 
-
-	const isStage1Commit = localStorage.getItem('isStage1Commit')
-
-	if (!isStage1Commit) {
-		localStorage.setItem('isStage1Commit', false)
-		const defaultData = {
-			teaName: 'TdefaultTEA',
-			teaCountry: 'The Godfathe',
-			teaWeight: 5,
-			teaType: 'The Godfathe',
-			waterBrand: 'The Godfathe',
-			waterVolume: 100,
-			waterTemperature: 95,
-			teaWare: 'The Godfathe',
-			brewingType: 'The Godfathe'
-		}
-		Object.entries(defaultData).map(([key, val]) => [handleInputsData(val, key, key)])
-	} else {
-		const teaDataLocal = JSON.parse(localStorage.getItem('teaData'))
-		// console.log(teaDataLocal.teaCountry)
-		Object.entries(teaDataLocal).map(([key, val]) => [handleInputsData(val, key, key)])
-	}
-
-	// useEffect(()=>{	
-	// }, [])
-
-	function handleInputsData(){
-		// console.log(String(teaData.current))
-		teaData.current[String(arguments[2])] = arguments[0]
-		// console.log(arguments)
-	}
+	const handleInputsData = (value, type, id) => {
+		teaInfo[id] = value
+		updateTeaInfo(teaInfo)
+    };
 
 	function onSubmit(e){
 		e.preventDefault()
-		const formId = '0C7C95FA02C054C3B96517C0'
+		// const formId = '0C7C95FA02C054C3B96517C0'
 
 		localStorage.setItem('isStage1Commit', true)
-		localStorage.setItem('teaData', JSON.stringify(teaData.current))
+		// localStorage.setItem('teaData', JSON.stringify(teaInfo))
 
 		if (teaData.teaName != 'undefined'){
 			console.log('SENDED')
-			props.postFormStage1(teaData.current, formId)
+			// props.postFormStage1(teaInfo, formId)
 			props.nextStage()
 		}
 		else{
@@ -83,7 +63,8 @@ function TeaFormStage1(props) {
 					woStraitNum = {true}
 					handler = {handleInputsData}
 					label = 'Название чая'
-					defaultValue = {teaData.current.teaName}
+					defaultValue = {teaInfo.teaName}
+					stageNumber = {1}
 				/>
 				{/* <SelectBox boxName='Название чая' handler={handleInputsData} boxId = 'teaName'
 					options={options}/> */}
@@ -92,13 +73,13 @@ function TeaFormStage1(props) {
 					handler={handleInputsData} 
 					boxId = 'teaCountry'
 					options={options}
-					defaultValue = {teaData.current.teaCountry}
+					defaultValue = {teaInfo.teaCountry}
 					/>
 				<SliderBox 
 					handler={handleInputsData}
 					sliderName='Вес чая при заваривании'
 					maxValue={50}
-					defaultValue={teaData.current.teaWeight}
+					defaultValue={teaInfo.teaWeight}
 					units='г'
 					marks = {SLIDER_WEIGHT_DATA}
 					boxId = 'teaWeight'
@@ -106,18 +87,18 @@ function TeaFormStage1(props) {
 				<SelectBox boxName='Тип чая' options={options}
 					handler={handleInputsData}
 					boxId='teaType'
-					defaultValue={teaData.current.teaType}
+					defaultValue={teaInfo.teaType}
 				/>
 				<SelectBox boxName='Вода' options={options}
 					handler={handleInputsData}
 					boxId='waterBrand'
-					defaultValue={teaData.current.waterBrand}
+					defaultValue={teaInfo.waterBrand}
 				/>
 				<SliderBox 
 					handler={handleInputsData}
 					sliderName='Объем воды'
 					maxValue={1000}
-					defaultValue={teaData.current.waterVolume}
+					defaultValue={teaInfo.waterVolume}
 					units='мл'
 					marks = {SLIDER_WATER_DATA}
 					boxId='waterVolume'
@@ -126,7 +107,7 @@ function TeaFormStage1(props) {
 					handler={handleInputsData}
 					sliderName='Температура воды'
 					maxValue={100}
-					defaultValue={teaData.current.waterTemperature}
+					defaultValue={teaInfo.waterTemperature}
 					units='°C'
 					marks = {SLIDER_TEMPERATURE_DATA}
 					boxId='waterTemperature'
@@ -134,12 +115,12 @@ function TeaFormStage1(props) {
 				<SelectBox boxName='Посуда' options={options}
 					handler={handleInputsData}
 					boxId='teaWare'
-					defaultValue={teaData.current.teaWare}
+					defaultValue={teaInfo.teaWare}
 				/>
 				<SelectBox boxName='Метод заваривания' options={options}
 					handler={handleInputsData}
 					boxId='brewingType'
-					defaultValue={teaData.current.brewingType}
+					defaultValue={teaInfo.brewingType}
 				/>
 
 				<FormButton 

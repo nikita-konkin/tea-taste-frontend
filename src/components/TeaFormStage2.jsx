@@ -24,32 +24,33 @@ function TeaFormStage2(props) {
 		maxLastStageNumberFnc
 		} = useTeaFormContext();
 
-	const options = [
-	  { title: "option_1"},
-	  { title: "option_2"},
-	  { title: "option_3"}
-	];
 
-	const straitNum = useRef(null);
+	const straitNum = useRef(1);
 	const aromaStages = useRef({});
 	const tasteStages = useRef({});
 
 	let straitStages = useRef({});
 
 	const [straits, setStraits] = useState([])
-	const [isSubmitted, setIsSubmitted] = useState(false)
+	// const [isSubmitted, setIsSubmitted] = useState(false)
 
 	let [stagesCount, setStagesCount] = useState(1)
 	const stagesArray = []
 
-	useEffect(()=>{
-		const obj_len = Object.keys(aromaStagesFormData).length
-		
-		if (obj_len != 0) {
-			aromaStages.current = aromaStagesFormData
-		}
+	const options = JSON.parse(localStorage.getItem('aromaDB'))
+	
+	// useEffect(()=>{
+	// 	console.log('options: ', options.data.category)
+	// }, [])
 
-	}, [])
+	// useEffect(()=>{
+	// 	const obj_len = Object.keys(aromaStagesFormData).length
+		
+	// 	if (obj_len != 0) {
+	// 		aromaStagesFormData = aromaStagesFormData
+	// 	}
+
+	// }, [])
 
 	useEffect(()=>{
 		const obj_len = Object.keys(tasteStagesFormData).length
@@ -82,12 +83,12 @@ function TeaFormStage2(props) {
 
 	const removeStraitAndUpdateContext = () => {
 		console.log(stagesCount)
-		stagesCount !== 5 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)
+		stagesCount > 1 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)
 		clearStageArraysIf(stagesCount)
 		addStrait(stagesCount)
 		setStraits(stagesArray)
 		updateStraitsStagesFormData(straitsStagesFormData)
-		updateAromaStagesFormData(aromaStages.current)
+		updateAromaStagesFormData(aromaStagesFormData)
 		updateTasteStagesFormData(tasteStages.current)
 	}
 
@@ -105,22 +106,27 @@ function TeaFormStage2(props) {
 	const renderStraitModule = (stageCount) => {
 
 		straitNum.current = stageCount
+		console.log('straitNum.current: ', straitNum.current)
 		return(
 			<section className="form_strait-stages" id={straitNum.current}>
 				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
-				<AromaStages options={options} stagesHandler={handleAromaInputStage} 
+				<AromaStages 
+					options={options} 
+					stagesHandler={handleAromaInputStage} 
 					clearFnc={clearObjByKeyIf}
-					straitNum={straitNum.current}
+					straitNum={stageCount}
 					/>
-				<TasteStages options={options} stagesHandler={handleTasteInputStage} 
+				<TasteStages 
+					options={options} 
+					stagesHandler={handleTasteInputStage} 
 					clearFnc={clearObjByKeyIf} 
 					straitNum={straitNum.current}
 					/>
 				<TeaTextField 
-					commentText={straitsStagesFormData}
 					id={1}
-					stagesHandler={handleStraitInputStage}
+					commentText={straitsStagesFormData}
 					straitNum={straitNum.current}
+					stagesHandler={handleStraitInputStage}
 					woStraitNum = {false}
 					label = 'Комментарий к проливу'
 				/>
@@ -142,7 +148,7 @@ function TeaFormStage2(props) {
 
 	function clearStageArraysIf(stagesCount) {
 		if (straitNum.current > stagesCount){
-			clearObjByKeyIf(straitNum.current, aromaStages.current)
+			clearObjByKeyIf(straitNum.current, aromaStagesFormData)
 			clearObjByKeyIf(straitNum.current, tasteStages.current)
 			clearObjByKeyIf(straitNum.current, straitsStagesFormData)
 		}
@@ -170,8 +176,8 @@ function TeaFormStage2(props) {
 	}
 
 	function handleAromaInputStage(value, id){
-		aromaStages.current[String(id.split('-')[0])] = value
-		updateAromaStagesFormData(aromaStages.current)
+		aromaStagesFormData[String(id.split('-')[0])] = value
+		updateAromaStagesFormData(aromaStagesFormData)
 	}
 
 	function handleTasteInputStage(value, id){
@@ -184,66 +190,6 @@ function TeaFormStage2(props) {
 		updateStraitsStagesFormData(straitsStagesFormData)
 	}
 
-	function postAromaData(formId){
-		// console.log()
-		for (const [key, data] of Object.entries(aromaStages.current)) {
-			const keys = String(key).split('').map(Number)
-			const brewId = keys[0]
-			const aromaShadeId = keys[1]
-			const aromaStage = keys[2]
-			console.log(data)
-			if (aromaStage == 1) {
-				props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
-			} else {
-				props.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
-			}
-		}
-	}
-
-	function postTasteData(formId){
-		// console.log(tasteStages.current)
-		for (const [key, data] of Object.entries(tasteStages.current)) {
-			const keys = String(key).split('').map(Number)
-			const brewId = keys[0]
-			const tasteShadeId = keys[1]
-			const tasteStage = keys[2]
-			console.log(data)
-			if (tasteStage == 1) {
-				props.postFormStage2Taste(data, formId, brewId, tasteShadeId)
-			} else {
-				props.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
-			}
-		}
-	}
-
-	function postStraitData(formId){
-		let checkKey = 1
-		for (const [key, data] of Object.entries(straitsStagesFormData)) {
-			const straitNumKey = String(key).split('').map(Number)[0]
-			
-			if (straitNumKey == checkKey) {
-				const straitData = {
-					description: straitsStagesFormData[String(straitNumKey)+'1'] ? straitsStagesFormData[String(straitNumKey)+'1'] : 'None',
-					brewingTime: straitsStagesFormData[String(straitNumKey)+'2'] ,
-					brewingRating: straitsStagesFormData[String(straitNumKey)+'3'],
-				}
-				// console.log(straitData)
-				checkKey += 1
-
-				if (!isSubmitted){
-					props.postFormStage2Brew(straitData, formId, straitNumKey)
-				} else {
-					props.patchFormStage2Brew(straitData, formId, straitNumKey)
-				}
-
-			}
-
-
-	
-
-		}
-
-	}
 
 	function onSubmit(e){
 		e.preventDefault()

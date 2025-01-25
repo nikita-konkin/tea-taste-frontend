@@ -59,13 +59,33 @@ const TimeBox = ({ id, timeValue, straitNum, stagesHandler }) => {
     const [value, setValue] = useState(dayjs().hour(0).minute(1).second(0));
     const timeFormat = 'HH:mm:ss';
 
+    // useEffect(() => {
+    //     const obj_len = timeValue ? Object.keys(timeValue).length : 0
+    //     if (obj_len != 0) {
+    //       const dayjsTime = dayjs(timeValue[String(straitNum) + String(id)], timeFormat);
+    //       setValue(dayjsTime)
+    //     }
+    // }, [timeValue]);
+
     useEffect(() => {
-        const obj_len = timeValue ? Object.keys(timeValue).length : 0
+        const obj_len = timeValue ? Object.keys(timeValue).length : 0;
+        const dayjsTimeDefault = dayjs().hour(0).minute(1).second(0);
+
         if (obj_len != 0) {
-          const dayjsTime = dayjs(timeValue[String(straitNum) + String(id)], timeFormat);
-          setValue(dayjsTime)
+
+            const keys = Object.keys(timeValue)
+            const dayjsTime = dayjs(timeValue[String(straitNum) + String(id)], timeFormat);
+            
+
+            if (keys.includes(String(straitNum) + String(id))) {
+                setValue(dayjsTime)
+            } else {
+                stagesHandler(dayjsTimeDefault.format('HH:mm:ss'), String(straitNum) + String(id))
+            }
+        } else {
+            stagesHandler(dayjsTimeDefault.format('HH:mm:ss'), String(straitNum) + String(id))
         }
-    }, [timeValue]);
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>

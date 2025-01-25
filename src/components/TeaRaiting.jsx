@@ -11,10 +11,20 @@ function TeaRaiting(props) {
 
   useEffect(() => {
       const obj_len = props.ratingValue ? Object.keys(props.ratingValue).length : 0
+
       if (obj_len != 0) {
-        setValue(props.ratingValue[String(props.straitNum) + String(props.id)]) 
+
+        const keys = Object.keys(props.ratingValue)
+        
+        if (keys.includes(String(props.straitNum) + String(props.id))) {
+          setValue(props.ratingValue[String(props.straitNum) + String(props.id)])
+        } else {
+          props.stagesHandler(value, String(props.straitNum) + String(props.id))
+        }
+      } else {
+        props.stagesHandler(value, String(props.straitNum) + String(props.id))
       }
-  }, [props.ratingValue]);
+  }, []);
 
 
 
@@ -49,12 +59,12 @@ function TeaRaiting(props) {
      }
       }, []);
 
-  useEffect(() => {
-    const obj_len = Object.keys(props.ratingValue).length
-    if (obj_len != 0) {
-      setValue(props.ratingValue[String(props.straitNum) + String(props.id)])
-    }
-  }, [props.ratingValue])
+  // useEffect(() => {
+  //   const obj_len = Object.keys(props.ratingValue).length
+  //   if (obj_len != 0) {
+  //     setValue(props.ratingValue[String(props.straitNum) + String(props.id)])
+  //   }
+  // }, [props.ratingValue])
 
   const ActiveRaitingPial = (props) => (
     <svg
@@ -103,7 +113,6 @@ function TeaRaiting(props) {
   )
 
   const handleRatingChange = (event, newValue, id) => {
-
     setValue(newValue);
     props.stagesHandler(newValue, id)
     console.log(props.ratingValue.current)

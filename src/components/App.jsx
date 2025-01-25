@@ -23,9 +23,7 @@ import MyFormInteraction from './MyFormInteraction.jsx'
 import Navigation from './Navigation.jsx'
 import Blog from './Blog.jsx'
 
-import { FormProvider } from "./TeaFormContext";
-
-
+// import { FormProvider } from "./TeaFormContext";
 
 function App() {
   
@@ -147,7 +145,16 @@ function App() {
     })
     .catch(err => console.log(err))
   }
-  // setLoggedIn(true)
+
+  function getAllFromAromaDB(){
+    formApi.getAllFromAromaDB()
+    .then(res=>{
+      console.log(res)
+      localStorage.setItem('aromaDB', JSON.stringify(res))
+    })
+    .catch(err => console.log(err))
+  }
+
   const FormNavigateNextSatge = () => {
     navigate('/form_2')
   }
@@ -183,7 +190,8 @@ function App() {
           component = {TeaFormStage1} 
           nextStage = {FormNavigateNextSatge}
           navigation = {Navigation}
-          postFormStage1 = {postFormStage1}
+          getAllFromAromaDB = {getAllFromAromaDB}
+          
           />
           }
         />
@@ -197,12 +205,7 @@ function App() {
           nextStage = {FormNavigateToFormInteraction}
           prevStage = {FormNavigatePrevSatge}
           navigation = {Navigation}
-          postFormStage2Aroma = {postFormStage2Aroma}
-          patchFormStage2Aroma = {patchFormStage2Aroma}
-          postFormStage2Taste = {postFormStage2Taste}
-          patchFormStage2Taste = {patchFormStage2Taste}
-          postFormStage2Brew = {postFormStage2Brew}
-          patchFormStage2Brew = {patchFormStage2Brew}
+
           />
           }
         />
@@ -213,6 +216,16 @@ function App() {
           ProtectedRoute
           loggedIn = {loggedIn}
           component={MyFormInteraction}
+          navigateAfterSubmit = {FormNavigatePrevSatge}
+
+          postFormStage1 = {postFormStage1}
+          postFormStage2Aroma = {postFormStage2Aroma}
+          patchFormStage2Aroma = {patchFormStage2Aroma}
+          postFormStage2Taste = {postFormStage2Taste}
+          patchFormStage2Taste = {patchFormStage2Taste}
+          postFormStage2Brew = {postFormStage2Brew}
+          patchFormStage2Brew = {patchFormStage2Brew}
+          
           />
           }
         />

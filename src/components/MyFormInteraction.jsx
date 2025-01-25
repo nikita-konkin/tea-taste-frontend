@@ -10,6 +10,8 @@ import Header from './Header.jsx'
 
 import { useTeaFormContext } from './TeaFormContext.jsx';
 
+
+
 function MyFormInteraction(props) {
 	const [straits, setStraits] = useState([])
 	const aromasRender = useRef({})
@@ -19,8 +21,13 @@ function MyFormInteraction(props) {
 
 	const history = useNavigate();
 
-	const {aromaStagesFormData, tasteStagesFormData, straitsStagesFormData, maxLastStageNumberFnc} = useTeaFormContext();
-	const teaDataLocal = JSON.parse(localStorage.getItem('teaData'))
+	const {aromaStagesFormData, 
+		tasteStagesFormData, 
+		straitsStagesFormData, 
+		maxLastStageNumberFnc,
+		teaInfo, 
+		clearTeaFormData} = useTeaFormContext();
+	// const teaInfo = JSON.parse(localStorage.getItem('teaData'))
 	const currentTimestamp = new Date().toLocaleString()
 	
 	const maxLastStageNumber = maxLastStageNumberFnc(aromaStagesFormData, tasteStagesFormData, straitsStagesFormData)
@@ -40,7 +47,7 @@ function MyFormInteraction(props) {
         const sum = values.reduce((acc, value) => acc + value, 0);
         const average = values.length ? sum / values.length : 0;
 
-        return average;
+        return average.toFixed(1);
 	}
 
 	useEffect(()=>{
@@ -97,7 +104,80 @@ function MyFormInteraction(props) {
 		)
 	}
 
+	function postAromaData(aromaStages, formId){
+		// console.log()
+		for (const [key, data] of Object.entries(aromaStages)) {
+			const keys = String(key).split('').map(Number)
+			const brewId = keys[0]
+			const aromaShadeId = keys[1]
+			const aromaStage = keys[2]
+			console.log(data)
+			console.log(key)
+			if (aromaStage == 1) {
+				props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
+			} else {
+				props.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
+			}
+		}
+	}
 	
+	function postTasteData(tasteStages, formId){
+		for (const [key, data] of Object.entries(tasteStages)) {
+			const keys = String(key).split('').map(Number)
+			const brewId = keys[0]
+			const tasteShadeId = keys[1]
+			const tasteStage = keys[2]
+			if (tasteStage == 1) {
+				props.postFormStage2Taste(data, formId, brewId, tasteShadeId)
+			} else {
+				props.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
+			}
+		}
+	}
+	
+	function postStraitData(straitStages, formId){
+		let checkKey = 1
+		for (const [key, data] of Object.entries(straitStages)) {
+			const straitNumKey = String(key).split('').map(Number)[0]
+			
+			if (straitNumKey == checkKey) {
+				const straitData = {
+					description: straitStages[String(straitNumKey)+'1'] ? straitStages[String(straitNumKey)+'1'] : 'None',
+					brewingTime: straitStages[String(straitNumKey)+'2'] ,
+					brewingRating: straitStages[String(straitNumKey)+'3'],
+				}
+				props.postFormStage2Brew(straitData, formId, straitNumKey)
+				checkKey += 1
+	
+				// if (!isSubmitted){
+				// 	props.postFormStage2Brew(straitData, formId, straitNumKey)
+				// } else {
+				// 	props.patchFormStage2Brew(straitData, formId, straitNumKey)
+				// }
+	
+			}
+
+		}
+	
+	}
+
+	const onSubmit = (e) => {
+		e.preventDefault()
+		const formId = '0C7C95FA02C054C3B96517C0'
+		// localStorage.setItem('isStage2Commit', true)
+		if (teaInfo.teaName != 'undefined'){
+			
+			postAromaData(aromaStagesFormData, formId)
+			postTasteData(tasteStagesFormData, formId)
+			postStraitData(straitsStagesFormData, formId)
+			props.postFormStage1(teaInfo, formId)
+			console.log('SENDED')
+		}
+		else{
+			console.log('NOT SENDED')
+		}
+	}
+
 	return(
 		<>
 		<Header navigation={props.navigation}/>
@@ -105,14 +185,14 @@ function MyFormInteraction(props) {
 
 			<section className="myforminteraction__section"> 
 				<ul className="myforminteraction__list">
-					<li className="myforminteraction__row"><bdi>Название: </bdi>{teaDataLocal.teaName}</li>
-					<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{teaDataLocal.teaType}</li>
-					<li className="myforminteraction__row"><bdi>Вес: </bdi>{teaDataLocal.teaWeight} г</li>
-					<li className="myforminteraction__row"><bdi>Вода: </bdi>{teaDataLocal.waterBrand}</li>
-					<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{teaDataLocal.waterVolume} мл</li>
-					<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{teaDataLocal.waterTemperature} oC</li>
-					<li className="myforminteraction__row"><bdi>Посуда: </bdi>{teaDataLocal.teaWare}</li>
-					<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{teaDataLocal.brewingType}</li>
+					<li className="myforminteraction__row"><bdi>Название: </bdi>{teaInfo.teaName}</li>
+					<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{teaInfo.teaType}</li>
+					<li className="myforminteraction__row"><bdi>Вес: </bdi>{teaInfo.teaWeight} г</li>
+					<li className="myforminteraction__row"><bdi>Вода: </bdi>{teaInfo.waterBrand}</li>
+					<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{teaInfo.waterVolume} мл</li>
+					<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{teaInfo.waterTemperature} oC</li>
+					<li className="myforminteraction__row"><bdi>Посуда: </bdi>{teaInfo.teaWare}</li>
+					<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{teaInfo.brewingType}</li>
 					<li className="myforminteraction__row"><bdi>Дата публикации: </bdi>{currentTimestamp}</li>
 					<li className="myforminteraction__row"><bdi>Итоговый рейтинг: </bdi>{averageRating(straitsStagesFormData, 1, '3')}/10 пиал</li>
 				</ul>
@@ -125,6 +205,10 @@ function MyFormInteraction(props) {
 					buttonName={'Удалить форму'}
 					width={'100%'}
 					margin={'0px'}
+					onClick={()=>{
+						clearTeaFormData()
+						props.navigateAfterSubmit()
+					}}
 				/>
 				<FormButton 
 					buttonName={'Назад'}
@@ -134,10 +218,10 @@ function MyFormInteraction(props) {
 				/>
 
 				<FormButton 
-					buttonName={'Отправить'}
+					buttonName={'Отправить Форму'}
 					width={'100%'}
 					margin={'0px'}
-					
+					onClick={onSubmit}
 				/>
 			</div>
 

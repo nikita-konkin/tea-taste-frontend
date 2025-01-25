@@ -40,19 +40,28 @@ function TeaTextField(props) {
      }
       }, []);
 
-  const [textValue, setValue] = React.useState(props.defaultValue);
+  const [value, setValue] = React.useState('');
+
 
   useEffect(() => {
-    const obj_len = props.commentText ? Object.keys(props.commentText).length : 0
-    if (obj_len != 0) {
-      setValue(props.commentText[String(props.straitNum) + String(props.id)])
-    }
-  }, [props.commentText])
+      const obj_len = props.commentText ? Object.keys(props.commentText).length : 0
+      if (obj_len != 0) {
+        
+        const keys = Object.keys(props.commentText)
+        
+        if (keys.includes(String(props.straitNum) + String(props.id))) {
+          setValue(props.commentText[String(props.straitNum) + String(props.id)])
+        } else {
+          props.stagesHandler(value, String(props.straitNum) + String(props.id))
+        }
+      } else if (props.stageNumber != 1) {
+        props.stagesHandler(value, String(props.straitNum) + String(props.id))
+      }
+  }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
     props.stagesHandler(event.target.value, event.target.id)
-
   };
 
   const handleChangeWoStraitNum = (event)=>{
@@ -68,7 +77,7 @@ function TeaTextField(props) {
         label={props.label}
         multiline
         maxRows={5}
-        value={textValue}
+        value={value}
         onChange={props.woStraitNum ? handleChangeWoStraitNum : handleChange}
       />
 		</ThemeProvider>
