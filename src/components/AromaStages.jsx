@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef  } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SelectBox from './SelectBox.jsx';
 import FormButton from './FormButton.jsx';
 
@@ -6,7 +6,7 @@ import { useTeaFormContext } from './TeaFormContext.jsx';
 
 function AromaStages(props) {
 
-	const categoryList = props.options.data.map((item) => ({title:item.category}));
+	const categoryList = props.options.data.map((item) => ({ title: item.category }));
 
 	const [subcategories, setSubcategories] = useState([]);
 	const [defaultSubcategories, setDefaultSubcategories] = useState([]);
@@ -22,26 +22,26 @@ function AromaStages(props) {
 	let [prevStagesCount, setPrevStagesCount] = useState()
 	const stagesArray = []
 
-	const { 
-		aromaStagesFormData, 
+	const {
+		aromaStagesFormData,
 		updateAromaStagesFormData,
 		subCategory,
 		updateSubCategory,
-        updateDefaultSubcategories
+		updateDefaultSubcategories
 	} = useTeaFormContext();
 
 	useEffect(() => {
-		
+
 		const obj_len = Object.keys(aromaStagesFormData).length
 		const keys = Object.keys(aromaStagesFormData)
 
 		if (obj_len != 0) {
 			let lastStageNumber = 1
-			for (let i = 0; i < obj_len-1; i++) {
-				
+			for (let i = 0; i < obj_len - 1; i++) {
+
 				if (keys[i].split('').map(Number)[0] == props.straitNum) {
 					lastStageNumber = keys[i].split('').map(Number)[1]
-				} 
+				}
 
 			}
 
@@ -67,60 +67,46 @@ function AromaStages(props) {
 		setPrevStagesCount(stagesCount)
 	}
 
-	// useEffect(() => {
-	// 	if (selectedCategory) {
-	// 		const selected = props.options.data.find((item) => item.category === selectedCategory.title);
-	// 		// props.options.data.map((item) => ({title:item.category}));
-
-	// 		const subcategoryList = selected ? selected.subcategories.map((sub) => ({ title: sub.name })) : [];
-
-	// 		// setSubcategories(subcategoryList);
-	// 		updateSubCategory(subcategoryList)
-	// 		updateDefaultSubcategories(subcategoryList)
-	// 		// console.log(subcategoryList)
-	// 		setDescriptors([]); // Reset descriptors
-	// 		setSelectedSubcategory(""); // Reset selected subcategory
-
-	// 	}
-	// }, [selectedCategory]);
-
-	const optionsHandler = (selectedCategory, id) => {
+	const optionsHandler = (selectedCategory, id, event) => {
+		// event.preventDefault()
 		console.log('selectedCategory', selectedCategory)
 		console.log('id', id)
 		const keys = id.split('').map(Number)
 		const stage1key = String(props.straitNum) + String(keys[1]) + '1'
-		const stage2key = String(props.straitNum) +String(keys[1]) + '2'
-		const stage3key = String(props.straitNum) +String(keys[1]) + '3'
-
+		const stage2key = String(props.straitNum) + String(keys[1]) + '2'
+		const stage3key = String(props.straitNum) + String(keys[1]) + '3'
 
 		if (keys[2] == 1) {
-			
-			console.log('stage2key', stage2key)
+
+			// console.log('stage2key', stage2key)
 			const selected = props.options.data.find((item) => item.category === selectedCategory.title);
 			const subcategoryList = selected ? selected.subcategories.map((sub) => ({ title: sub.name })) : [];
-	
+
 			subCategory[stage2key] = subcategoryList
 			updateSubCategory(subCategory)
 
-			aromaStagesFormData[stage1key] = selectedCategory.title
+			aromaStagesFormData[stage2key] = selectedCategory.title
 			updateAromaStagesFormData(aromaStagesFormData)
 		}
 		if (keys[2] == 2) {
-			
 
 			console.log('stage1key', stage1key)
-			console.log('stage3key', stage3key)
+			// console.log('stage3key', stage3key)
+			console.log(aromaStagesFormData)
 			console.log('aromaStagesFormData[stage1key]', aromaStagesFormData[stage1key])
 			console.log('selectedSubcategory', selectedCategory.title)
 			let selected = props.options.data
-			.find((item) => item.category === aromaStagesFormData[stage1key])
-			?.subcategories.find((sub) => sub.name === selectedCategory.title);
+				.find((item) => item.category === aromaStagesFormData[stage1key])
+				?.subcategories.find((sub) => sub.name === selectedCategory.title);
 			console.log('selected', selected)
-			selected = selected.descriptors.map((item) => ({title: item}));
+			selected = selected.descriptors.map((item) => ({ title: item }));
 			const descriptorList = selected ? selected : [];
-			console.log('descriptorList', descriptorList)
+			// console.log('descriptorList', descriptorList)
 			subCategory[stage3key] = descriptorList
 			updateSubCategory(subCategory)
+
+			aromaStagesFormData[stage3key] = selectedCategory.title
+			updateAromaStagesFormData(aromaStagesFormData)
 		}
 
 	}
@@ -128,12 +114,12 @@ function AromaStages(props) {
 
 	const addAromaStagesComponent = () => {
 		// console.log(stagesCount)
-		stagesCount != 5 ? setStagesCount(stagesCount+=1):setStagesCount(stagesCount)
+		stagesCount != 5 ? setStagesCount(stagesCount += 1) : setStagesCount(stagesCount)
 		renderAromaStages()
 	}
 
 	const removeAromaStagesComponent = () => {
-		stagesCount != 1 ? setStagesCount(stagesCount-=1):setStagesCount(stagesCount)
+		stagesCount != 1 ? setStagesCount(stagesCount -= 1) : setStagesCount(stagesCount)
 		renderAromaStages()
 		updateAromaStagesFormData(aromaStagesFormData)
 	}
@@ -144,64 +130,66 @@ function AromaStages(props) {
 		const key2 = String(props.straitNum) + key + '2'
 		const key3 = String(props.straitNum) + key + '3'
 
-		return(
+		return (
 			<section className='form_aroma-stages'>
 				<h4 className="form_stages-header">Аромат №{key}</h4>
-				<SelectBox keyId={key1} 
-					options={categoryList} boxName='Этап №1'
+				<SelectBox keyId={key1}
+					options={categoryList} 
 					optionsHandler={optionsHandler}
+					boxName='Этап №1'
 					handler={props.stagesHandler}
-					boxId = 'AromaStage1'
+					boxId='AromaStage1'
 					defaultValue={aromaStagesFormData[key1]}
-					/>
+					// disable={true}
+				/>
 				<SelectBox keyId={key2}
 					options={subcategories}
 					optionsHandler={optionsHandler}
-					boxName='Этап №2' 
+					boxName='Этап №2'
 					handler={props.stagesHandler}
-					boxId = 'AromaStage2'
+					boxId='AromaStage2'
 					defaultValue={aromaStagesFormData[key2]}
-					/>
-				<SelectBox keyId={key3} 
-					options={props.options} 
+				/>
+				<SelectBox keyId={key3}
+					options={props.options}
 					optionsHandler={optionsHandler}
 					boxName='Этап №3'
-					boxId = 'AromaStage3'
+					boxId='AromaStage3'
 					handler={props.stagesHandler}
-					defaultValue={aromaStagesFormData[key3]}
-					/>
+					defaultValue={aromaStagesFormData[key3]}	
+				/>
 			</section>
-			)
+		)
 
 	}
 
-	const addAromaStages = (stagesCount) =>{
+	const addAromaStages = (stagesCount) => {
 		for (let i = 0; i < stagesCount; i++) {
-			stagesArray.push(aromaStages(i+1))
+			stagesArray.push(aromaStages(i + 1))
 		}
 	}
 
 	function clearStageArraysIf() {
 
-		if (prevStagesCount > stagesCount){
+		if (prevStagesCount > stagesCount) {
 			props.clearFnc(prevStagesCount, aromaStagesFormData, true)
 		}
 	}
 
 
-	return(
+	return (
 		<div className="form_aroma">
 			{stages}
-			<FormButton 
+			<FormButton
 				buttonName={'Добавить еще оттенок аромата'}
 				onClick={addAromaStagesComponent}
 			/>
-			<FormButton 
+			<FormButton
 				buttonName={'Удалить последний оттенок аромата'}
 				onClick={removeAromaStagesComponent}
 			/>
 		</div>
-		)
+	)
 }
 
 export default AromaStages;
