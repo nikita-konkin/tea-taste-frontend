@@ -3,9 +3,17 @@ import { Controller, useForm } from 'react-hook-form';
 import { Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
 
 import Header from './Header.jsx'
+import SliderBox from './SliderBox.jsx';
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+
+import {
+	SLIDER_WEIGHT_DATA,
+	SLIDER_WATER_DATA,
+	SLIDER_TEMPERATURE_DATA
+} from '../utils/utils.js'
 
 const theme = createTheme({
 	typography: {
@@ -34,22 +42,6 @@ const theme = createTheme({
 						},
 						'&.Mui-focused fieldset': {
 							borderColor: '#ffffff',
-						},
-					},
-				},
-			},
-
-			MuiPopper: {
-				styleOverrides: {
-					root: {
-						[`& .${autocompleteClasses.listbox}`]: {
-							boxSizing: 'border-box',
-							backgroundColor: '#425E42',
-							color: '#ffffff',
-							'& ul': {
-								padding: 0,
-								margin: 0,
-							},
 						},
 					},
 				},
@@ -114,14 +106,14 @@ const teaCountryOptions = [
 const TeaFormStage1 = (props) => {
 
 	const [formValues, setFormValues] = useState(() => {
-		// Retrieve saved form values from localStorage
+
 		const savedValues = localStorage.getItem('teaFormValues');
 		return savedValues ? JSON.parse(savedValues) : {
-			teaWeight: 0,
+			teaWeight: 5,
 			teaType: null,
 			waterBrand: null,
-			waterVolume: 0,
-			waterTemperature: 0,
+			waterVolume: 100,
+			waterTemperature: 95,
 			teaWare: null,
 			brewingType: null,
 			teaCountry: null,
@@ -133,7 +125,6 @@ const TeaFormStage1 = (props) => {
 	});
 
 	const onSubmit = (data) => {
-		console.log(data);
 		setFormValues(data); // Save form values
 		localStorage.setItem('teaFormValues', JSON.stringify(data)); // Save to localStorage
 	};
@@ -146,7 +137,6 @@ const TeaFormStage1 = (props) => {
 	}, [watchedValues]);
 
 	useEffect(() => {
-		// Update form values when formValues state changes
 		Object.keys(formValues).forEach((key) => {
 			setValue(key, formValues[key]);
 		});
@@ -158,110 +148,146 @@ const TeaFormStage1 = (props) => {
 
 			<ThemeProvider theme={theme}>
 				<form className="form" onSubmit={handleSubmit(onSubmit)}>
-					
+
 					<Stack direction="column" spacing={2}>
-					<Controller
-						control={control}
-						name="teaName"
-						render={({ field }) =>
+						<Controller
+							control={control}
+							name="teaName"
+							render={({ field }) =>
 
-									<TextField {...field} />
+								<TextField {...field} />
 
-						}
-					/>
-					<Controller
-						control={control}
-						name="teaCountry"
-						render={({ field }) => (
+							}
+						/>
+						<Controller
+							control={control}
+							name="teaCountry"
+							render={({ field }) => (
 
-							<Autocomplete
-								{...field}
-								options={teaCountryOptions}
-								getOptionLabel={(option) => option.label}
-								renderInput={(params) =>
-									<TextField {...params} label="Tea Country" />
-								}
-								onChange={(_, data) => field.onChange(data)}
-								PopperComponent={StyledPopper}
-							/>
+								<Autocomplete
+									{...field}
+									options={teaCountryOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) =>
+										<TextField {...params} label="Tea Country" />
+									}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+								/>
 
-						)}
-					/>
-					<Controller
-						control={control}
-						name="teaWeight"
-						render={({ field }) => <Slider {...field} />}
-					/>
-					<Controller
-						control={control}
-						name="teaType"
-						render={({ field }) => (
-							<Autocomplete
-								{...field}
-								options={teaTypeOptions}
-								getOptionLabel={(option) => option.label}
-								renderInput={(params) => <TextField {...params} label="Tea Type" />}
-								onChange={(_, data) => field.onChange(data)}
-								PopperComponent={StyledPopper}
-							/>
-						)}
-					/>
-					<Controller
-						control={control}
-						name="waterBrand"
-						render={({ field }) => (
-							<Autocomplete
-								{...field}
-								options={waterBrandOptions}
-								getOptionLabel={(option) => option.label}
-								renderInput={(params) => <TextField {...params} label="Water Brand" />}
-								onChange={(_, data) => field.onChange(data)}
-								PopperComponent={StyledPopper}
-							/>
-						)}
-					/>
-					<Controller
-						control={control}
-						name="waterVolume"
-						render={({ field }) => <Slider {...field} />}
-					/>
-					<Controller
-						control={control}
-						name="waterTemperature"
-						render={({ field }) => <Slider {...field} />}
-					/>
-					<Controller
-						control={control}
-						name="brewingType"
-						render={({ field }) => (
-							<Autocomplete
-								{...field}
-								options={brewingTypeOptions}
-								getOptionLabel={(option) => option.label}
-								renderInput={(params) => <TextField {...params} label="Brewing Type" />}
-								onChange={(_, data) => field.onChange(data)}
-								PopperComponent={StyledPopper}
-							/>
-						)}
-					/>
-					<Controller
-						control={control}
-						name="teaWare"
-						render={({ field }) => (
-							<Autocomplete
-								{...field}
-								options={teaWareOptions}
-								getOptionLabel={(option) => option.label}
-								renderInput={(params) => <TextField {...params} label="Tea Ware" />}
-								onChange={(_, data) => field.onChange(data)}
-								PopperComponent={StyledPopper}
-							/>
-						)}
-					/>
+							)}
+						/>
+						<Controller
+							control={control}
+							name="teaWeight"
+							render={({ field }) =>
+								<SliderBox
+									sliderName='Вес чая при заваривании'
+									maxValue={50}
+									// defaultValue={5}
+									units='г'
+									marks={SLIDER_WEIGHT_DATA}
+									boxId='teaWeight'
+									setValue={setValue}
+									{...field}
+								/>
+							}
+						/>
+						<Controller
+							control={control}
+							name="teaType"
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={teaTypeOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Tea Type" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+								/>
+							)}
+						/>
+						<Controller
+							control={control}
+							name="waterBrand"
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={waterBrandOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Water Brand" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+								/>
+							)}
+						/>
+						<Controller
+							control={control}
+							name="waterVolume"
+							render={({ field }) =>
+								<SliderBox
+									sliderName='Объем воды'
+									maxValue={1000}
+									// defaultValue={5}
+									units='мл'
+									marks={SLIDER_WATER_DATA}
+									boxId='waterVolume'
+									setValue={setValue}
+									{...field}
+								/>
+							}
+						/>
+						<Controller
+							control={control}
+							name="waterTemperature"
+							render={({ field }) =>
+								<SliderBox
+									sliderName='Температура воды'
+									maxValue={100}
+									// defaultValue={5}
+									units='°C'
+									marks={SLIDER_TEMPERATURE_DATA}
+									boxId='waterTemperature'
+									setValue={setValue}
+									{...field}
+								/>
+							}
+						/>
+						<Controller
+							control={control}
+							name="brewingType"
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={brewingTypeOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Brewing Type" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+								/>
+							)}
+						/>
+						<Controller
+							control={control}
+							name="teaWare"
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={teaWareOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Tea Ware" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+								/>
+							)}
+						/>
 
-					<Button type="submit" variant="outlined" color="primary">
-						Submit
-					</Button>
+						<Button type="submit" variant="outlined" style={{
+						color: '#ffffff',
+						borderColor: '#ffffff',
+						backgroundColor: 'darkslategray'}}>
+							Submit
+						</Button>
 					</Stack>
 				</form>
 			</ThemeProvider>

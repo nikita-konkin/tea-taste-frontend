@@ -1,235 +1,383 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './Header.jsx'
-import FormButton from './FormButton.jsx';
-import AromaStages from './AromaStages.jsx';
-import TasteStages from './TasteStages.jsx';
-import TeaTextField from './TeaTextField.jsx';
-import TeaRaiting from './TeaRaiting.jsx';
-import TimeBox from './TimeBox.jsx';
+
+import { Controller, useForm, useFieldArray } from 'react-hook-form';
+import { Autocomplete, TextField, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
+
+import { styled } from "@mui/material/styles";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
 
 import dayjs from 'dayjs';
+import AromaStages from './AromaStages.jsx';
 
-import { useTeaFormContext } from './TeaFormContext.jsx';
+const theme = createTheme({
+	typography: {
+		fontFamily: 'jura',
+		fontSize: 16,
+		color: 'white',
+	},
+	components: {
+		MuiTextField: {
+			styleOverrides: {
+				root: {
+					width: '100%',
+					'& label, & label.Mui-focused': {
+						color: '#ffffff',
+						margin: '0 0 0 0px',
+					},
+					'& .MuiInputBase-root': {
+						color: '#ffffff',
+					},
+					'& .MuiOutlinedInput-root': {
+						'& fieldset': {
+							borderColor: '#ffffff',
+						},
+						'&:hover fieldset': {
+							borderColor: '#ffffff',
+						},
+						'&.Mui-focused fieldset': {
+							borderColor: '#ffffff',
+						},
+					},
+				},
+			},
+
+		},
+	},
+});
+
+const StyledPopper = styled(Popper)({
+	[`& .${autocompleteClasses.listbox}`]: {
+		boxSizing: 'border-box',
+		backgroundColor: '#425E42',
+		color: '#ffffff',
+		'& ul': {
+			padding: 0,
+			margin: 0,
+		},
+	},
+});
+
+const btnStyle = {
+	color: '#ffffff',
+	borderColor: '#ffffff',
+	backgroundColor: 'darkslategray'
+}
+
+const teaTypeOptions = [
+	{ label: 'Green Tea', value: 'green' },
+	{ label: 'Black Tea', value: 'black' },
+	{ label: 'Oolong Tea', value: 'oolong' },
+	{ label: 'White Tea', value: 'white' },
+	{ label: 'Herbal Tea', value: 'herbal' },
+];
+
+const waterBrandOptions = [
+	{ label: 'Evian', value: 'evian' },
+	{ label: 'Fiji', value: 'fiji' },
+	{ label: 'Smartwater', value: 'smartwater' },
+	{ label: 'Aquafina', value: 'aquafina' },
+	{ label: 'Dasani', value: 'dasani' },
+];
+
+const teaWareOptions = [
+	{ label: 'Glass Teapot', value: 'glass_teapot' },
+	{ label: 'Ceramic Teapot', value: 'ceramic_teapot' },
+	{ label: 'Stainless Steel Teapot', value: 'stainless_steel_teapot' },
+	{ label: 'Cast Iron Teapot', value: 'cast_iron_teapot' },
+	{ label: 'Porcelain Teapot', value: 'porcelain_teapot' },
+];
+
+const brewingTypeOptions = [
+	{ label: 'Gongfu', value: 'gongfu' },
+	{ label: 'Western', value: 'western' },
+	{ label: 'Grandpa', value: 'grandpa' },
+	{ label: 'Cold Brew', value: 'cold_brew' },
+	{ label: 'Iced', value: 'iced' },
+];
+
+const teaCountryOptions = [
+	{ label: 'China', value: 'china' },
+	{ label: 'India', value: 'india' },
+	{ label: 'Japan', value: 'japan' },
+	{ label: 'Sri Lanka', value: 'sri_lanka' },
+	{ label: 'Taiwan', value: 'taiwan' },
+];
 
 function TeaFormStage2(props) {
 
-	const {
-		straitsStagesFormData,
-		updateStraitsStagesFormData,
-		aromaStagesFormData,
-		updateAromaStagesFormData,
-		tasteStagesFormData,
-		updateTasteStagesFormData,
-		clearTeaFormData,
-		maxLastStageNumberFnc
-	} = useTeaFormContext();
+	// const [formValues, setFormValues] = useState({});
 
+	const { control, handleSubmit, setValue, watch } = useForm({
 
-	const straitNum = useRef(1);
-	const aromaStages = useRef({});
-	const tasteStages = useRef({});
-
-	let straitStages = useRef({});
-
-	const [straits, setStraits] = useState([])
-	// const [isSubmitted, setIsSubmitted] = useState(false)
-
-	let [stagesCount, setStagesCount] = useState(1)
-	const stagesArray = []
-
-	const optionsAroma = JSON.parse(localStorage.getItem('aromaDB'))
-
-	// useEffect(()=>{
-	// 	console.log('options: ', options.data.category)
-	// }, [])
-
-	// useEffect(()=>{
-	// 	const obj_len = Object.keys(aromaStagesFormData).length
-
-	// 	if (obj_len != 0) {
-	// 		aromaStagesFormData = aromaStagesFormData
-	// 	}
-
-	// }, [])
-
-	useEffect(() => {
-		const obj_len = Object.keys(tasteStagesFormData).length
-
-		if (obj_len != 0) {
-			tasteStages.current = tasteStagesFormData
+		defaultValues: {
+			straits: [{
+				aromas: [{
+					aromaStage1: null,
+					aromaStage2: null,
+					aromaStage3: null,
+				}],
+				tastes: [{
+					tasteStage1: null,
+					tasteStage2: null,
+				}],
+				straitDescription: null,
+				straitTime: null,
+				straitRaiting: null
+			}]
 		}
+	});
 
-	}, [])
+	const { fields: straitsFields, append: straitsAppend, remove: straitsRemove } = useFieldArray({
+		name: 'straits',
+		control,
+	});
 
-	useEffect(() => {
+	const onSubmit = (data) => {
+		console.log(data)
+		// setFormValues(data); // Save form values
+		// localStorage.setItem('teaFormValues', JSON.stringify(data)); // Save to localStorage
+	};
 
-		const maxLastStageNumber = maxLastStageNumberFnc(aromaStagesFormData, tasteStagesFormData, straitsStagesFormData)
+	// const watchedValues = watch();
 
-		if (maxLastStageNumber != 0) {
-			setStagesCount(maxLastStageNumber)
-			renderStrait(maxLastStageNumber, stagesArray)
-		} else {
-			renderStrait(stagesCount, stagesArray)
-		}
+	// useEffect(() => {
+	// 	// Update localStorage whenever form values change
+	// 	localStorage.setItem('teaFormValues', JSON.stringify(watchedValues));
+	// }, [watchedValues]);
 
-	}, [])
+	// useEffect(() => {
+	// 	Object.keys(formValues).forEach((key) => {
+	// 		setValue(key, formValues[key]);
+	// 	});
+	// }, [formValues, setValue]);
 
-	const addStraitAndUpdateContext = () => {
+	return (
+		<>
+			<Header navigation={props.navigation} />
 
-		stagesCount !== 5 ? setStagesCount(stagesCount += 1) : setStagesCount(stagesCount)
-		renderStrait(stagesCount, stagesArray)
+			<ThemeProvider theme={theme}>
+				<form className="form" onSubmit={handleSubmit(onSubmit)}>
+				<Stack direction="column" spacing={2}>
+					{straitsFields.map((straitField, straitIndex) => (
+						<Straits
+							key={straitField.id}
+							control={control}
+							straitField={straitField}
+							straitIndex={straitIndex}
+						/>
+					))}
+					<Button
+						type="button"
+						variant="outlined"
+						style={btnStyle}
+						onClick={() => straitsAppend({
+							aromas: [{
+								aromaStage1: null,
+								aromaStage2: null,
+								aromaStage3: null,
+							}],
+							straitDescription: null,
+							straitTime: null,
+							straitRaiting: null
+						})}
+					>
+						Append Straits
+					</Button>
+					<Button type="submit" variant="outlined" style={btnStyle}>
+						Submit
+					</Button>
+				</Stack>
+				</form>
+			</ThemeProvider>
 
-	}
+		</>
+	);
 
-	const removeStraitAndUpdateContext = () => {
-		console.log(stagesCount)
-		stagesCount > 1 ? setStagesCount(stagesCount -= 1) : setStagesCount(stagesCount)
-		clearStageArraysIf(stagesCount)
-		addStrait(stagesCount)
-		setStraits(stagesArray)
-		updateStraitsStagesFormData(straitsStagesFormData)
-		updateAromaStagesFormData(aromaStagesFormData)
-		updateTasteStagesFormData(tasteStages.current)
-	}
+}
 
-	const renderStrait = (stagesCount, stagesArray) => {
-		addStrait(stagesCount)
-		setStraits(stagesArray)
-	}
+function Straits({ control, straitField, straitIndex }) {
 
-	const addStrait = (stagesCount) => {
-		for (let i = 0; i < stagesCount; i++) {
-			stagesArray.push(renderStraitModule(i + 1))
-		}
-	}
-
-	const renderStraitModule = (stageCount) => {
-
-		straitNum.current = stageCount
-		console.log('straitNum.current: ', straitNum.current)
-		return (
-			<section className="form_strait-stages" id={straitNum.current}>
-				<h4 className="form_strait-header">Пролив №{stageCount}</h4>
-				<AromaStages
-					options={optionsAroma}
-					stagesHandler={handleAromaInputStage}
-					clearFnc={clearObjByKeyIf}
-					straitNum={stageCount}
-				/>
-				<TasteStages
-					// options={options}
-					stagesHandler={handleTasteInputStage}
-					clearFnc={clearObjByKeyIf}
-					straitNum={straitNum.current}
-				/>
-				<TeaTextField
-					id={1}
-					commentText={straitsStagesFormData}
-					straitNum={straitNum.current}
-					stagesHandler={handleStraitInputStage}
-					woStraitNum={false}
-					label='Комментарий к проливу'
-				/>
-				<TimeBox
-					id={2}
-					timeValue={straitsStagesFormData}
-					straitNum={straitNum.current}
-					stagesHandler={handleStraitInputStage}
-				/>
-				<TeaRaiting
-					id={3}
-					stagesHandler={handleStraitInputStage}
-					ratingValue={straitsStagesFormData}
-					straitNum={straitNum.current}
-				/>
-			</section>
-		)
-	}
-
-	function clearStageArraysIf(stagesCount) {
-		if (straitNum.current > stagesCount) {
-			clearObjByKeyIf(straitNum.current, aromaStagesFormData)
-			clearObjByKeyIf(straitNum.current, tasteStages.current)
-			clearObjByKeyIf(straitNum.current, straitsStagesFormData)
-		}
-	}
-
-	function clearObjByKeyIf(value, obj, current = false, handleStagesArray = false) {
-		Object.keys(obj).forEach((i) => {
-			const num = String(i).split('').map(Number)
-			console.log('before: ', obj)
-			console.log('before: ', i)
-			if (!current) {
-				if (num[0] == value) {
-					delete obj[i]
-					console.log('after: ', obj[i])
-					console.log('after: ', obj)
-				}
-			} else {
-				if (num[1] == value) {
-					delete obj[i]
-				}
-
-			}
-		});
-
-	}
-
-	function handleAromaInputStage(value, id) {
-		aromaStagesFormData[String(id.split('-')[0])] = value
-		updateAromaStagesFormData(aromaStagesFormData)
-	}
-
-	function handleTasteInputStage(value, id) {
-		tasteStages.current[String(id.split('-')[0])] = value
-		updateTasteStagesFormData(tasteStages.current)
-	}
-
-	function handleStraitInputStage(value, id) {
-		straitsStagesFormData[id] = value
-		updateStraitsStagesFormData(straitsStagesFormData)
-	}
-
-
-	function onSubmit(e) {
-		e.preventDefault()
-		// const formId = '0C7C95FA02C054C3B96517C0'
-		// postAromaData(formId)
-		// postTasteData(formId)
-		// postStraitData(formId)
-		// setIsSubmitted(true)
-
-		props.nextStage()
-
-	}
+	const { fields: aromasFields, append: aromasAppend, remove: aromasRemove } = useFieldArray({
+		name: `straits[${straitIndex}].aromas`,
+		control,
+	});
+	const { fields: tastesFields, append: tastesAppend, remove: tastesRemove } = useFieldArray({
+		name: `straits[${straitIndex}].tastes`,
+		control,
+	});
 
 	return (
 
-		<>
-			<Header navigation={props.navigation} />
-			<form className="form">
-				<h3 className="form_header">Шаг 2 основаня информация</h3>
+		<section key={straitField.id} className="form_strait-stages">
+			<Stack direction="column" spacing={2}>
+				{aromasFields.map((aromaField, aromaIndex) => (
+					<Stack direction="column" spacing={2} key={aromaField.id} style={{border: 'solid 2px #ffffff'
+					,borderRadius:' 6px', padding: '5px', background: '#728A7C'}}>
+						<Controller
+							control={control}
+							name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage1`}
+							render={({ field }) => (
 
-				{straits}
+								<Autocomplete
+									{...field}
+									options={teaCountryOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) =>
+										<TextField {...params} label="Аромат №1" />
+									}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+									value={field.value || null}
+								/>
 
-				<FormButton
-					buttonName={'Добавить еще пролив'}
-					onClick={addStraitAndUpdateContext}
+							)}
+						/>
+						<Controller
+							control={control}
+							name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage2`}
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={teaTypeOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Аромат №2" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+									value={field.value || null}
+								/>
+							)}
+						/>
+						<Controller
+							control={control}
+							name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`}
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={waterBrandOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Аромат №3" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+									value={field.value || null}
+								/>
+							)}
+						/>
+						<Button type="button" variant="outlined" style={btnStyle}
+							onClick={() => aromasRemove(aromaIndex)}	>
+							Удалить оттенок аромата
+						</Button>
+
+					</Stack>
+
+				))}
+
+				<Button type="button" variant="outlined" style={btnStyle}
+					onClick={() => {
+						aromasAppend({
+							aromaStage1: null,
+							aromaStage2: null,
+							aromaStage3: null
+						})
+					}}>
+					Добавить оттенок аромата
+				</Button>
+
+
+
+				{tastesFields.map((tasteField, tasteIndex) => (
+					<Stack direction="column" spacing={2} key={tasteField.id} style={{border: 'solid 2px #ffffff'
+					,borderRadius:' 6px', padding: '5px', background: '#728A7C'}}>
+						<Controller
+							control={control}
+							name={`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage1`}
+							render={({ field }) => (
+
+								<Autocomplete
+									{...field}
+									options={teaCountryOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) =>
+										<TextField {...params} label="Вкус №1" />
+									}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+									value={field.value || null}
+								/>
+
+							)}
+						/>
+						<Controller
+							control={control}
+							name={`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage2`}
+							render={({ field }) => (
+								<Autocomplete
+									{...field}
+									options={teaTypeOptions}
+									getOptionLabel={(option) => option.label}
+									renderInput={(params) => <TextField {...params} label="Вкус №2" />}
+									onChange={(_, data) => field.onChange(data)}
+									PopperComponent={StyledPopper}
+									value={field.value || null}
+								/>
+							)}
+						/>
+
+						<Button type="button" variant="outlined" style={btnStyle}
+							onClick={() => tastesRemove(tasteIndex)}	>
+							Удалить оттенок вкуса
+						</Button>
+
+					</Stack>
+
+				))}
+
+				<Button type="button" variant="outlined" style={btnStyle}
+					onClick={() => {
+						tastesAppend({
+							tasteStage1: null,
+							tasteStage2: null,
+						})
+					}}>
+					Добавить оттенок вкуса
+				</Button>
+
+
+
+
+				<Controller
+					control={control}
+					name={`straits[${straitIndex}].straitDescription`} //{`aromaStages[${index}].aromaStage1`}
+					render={({ straitField }) =>
+
+						<TextField {...straitField} />
+
+					}
 				/>
-				<FormButton
-					buttonName={'Удалить последний пролив'}
-					onClick={removeStraitAndUpdateContext}
+				<Controller
+					control={control}
+					name={`straits[${straitIndex}].straitTime`}
+					render={({ straitField }) =>
+
+						<TextField {...straitField} />
+
+					}
 				/>
-				<FormButton
-					onClick={() => { props.prevStage() }}
-					buttonName={'Назад'}
+				<Controller
+					control={control}
+					name={`straits[${straitIndex}].straitRaiting`}
+					render={({ straitField }) =>
+
+						<TextField {...straitField} />
+
+					}
 				/>
-				<FormButton
-					onClick={(e) => { onSubmit(e) }}
-					buttonName={'Далее (проверка формы)'}
-				/>
-			</form>
-		</>
+
+			</Stack>
+
+		</section>
+
 	)
 }
 
