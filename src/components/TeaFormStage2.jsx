@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import Header from './Header.jsx'
+import TeaRaiting from './TeaRaiting.jsx';
+import TimeBox from './TimeBox.jsx';
 
 import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import { Autocomplete, TextField, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
@@ -9,7 +12,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 
 import dayjs from 'dayjs';
-import AromaStages from './AromaStages.jsx';
+
+
+const optionsAroma = JSON.parse(localStorage.getItem('aromaDB'))
+const categoryList = optionsAroma.response.map((item) => ({ label: item.category }));
+
+
 
 const theme = createTheme({
 	typography: {
@@ -107,26 +115,33 @@ const teaCountryOptions = [
 
 function TeaFormStage2(props) {
 
-	// const [formValues, setFormValues] = useState({});
+    const [formValues, setFormValues] = useState(() => {
+        const savedValues = localStorage.getItem('teaFormStage2');
+        return savedValues ? JSON.parse(savedValues, (key, value) => {
+            if (key === 'straitTime') {
+                return dayjs(value);
+            }
+            return value;
+        }) : {
+            straits: [{
+                aromas: [{
+                    aromaStage1: null,
+                    aromaStage2: null,
+                    aromaStage3: null,
+                }],
+                tastes: [{
+                    tasteStage1: null,
+                    tasteStage2: null,
+                }],
+                straitDescription: '',
+                straitTime: dayjs().hour(0).minute(0).second(10),
+                straitRaiting: 7
+            }]
+        };
+    });
 
-	const { control, handleSubmit, setValue, watch } = useForm({
-
-		defaultValues: {
-			straits: [{
-				aromas: [{
-					aromaStage1: null,
-					aromaStage2: null,
-					aromaStage3: null,
-				}],
-				tastes: [{
-					tasteStage1: null,
-					tasteStage2: null,
-				}],
-				straitDescription: null,
-				straitTime: null,
-				straitRaiting: null
-			}]
-		}
+	const { control, handleSubmit, setValue, watch, getFieldState } = useForm({
+		defaultValues: formValues
 	});
 
 	const { fields: straitsFields, append: straitsAppend, remove: straitsRemove } = useFieldArray({
@@ -134,24 +149,24 @@ function TeaFormStage2(props) {
 		control,
 	});
 
-	const onSubmit = (data) => {
-		console.log(data)
-		// setFormValues(data); // Save form values
-		// localStorage.setItem('teaFormValues', JSON.stringify(data)); // Save to localStorage
-	};
+    const onSubmit = (data) => {
+        localStorage.setItem('teaFormStage2', data);
+        setFormValues(data);
+		console.log((data))
+    };
 
-	// const watchedValues = watch();
+	const watchedValues = watch();
 
-	// useEffect(() => {
-	// 	// Update localStorage whenever form values change
-	// 	localStorage.setItem('teaFormValues', JSON.stringify(watchedValues));
-	// }, [watchedValues]);
+	useEffect(() => {
+		localStorage.setItem('teaFormStage2', JSON.stringify(watchedValues));
 
-	// useEffect(() => {
-	// 	Object.keys(formValues).forEach((key) => {
-	// 		setValue(key, formValues[key]);
-	// 	});
-	// }, [formValues, setValue]);
+	}, [watchedValues]);
+
+	useEffect(() => {
+		Object.keys(formValues).forEach((key) => {
+			setValue(key, formValues[key]);
+		});
+	}, [formValues, setValue]);
 
 	return (
 		<>
@@ -159,36 +174,46 @@ function TeaFormStage2(props) {
 
 			<ThemeProvider theme={theme}>
 				<form className="form" onSubmit={handleSubmit(onSubmit)}>
-				<Stack direction="column" spacing={2}>
-					{straitsFields.map((straitField, straitIndex) => (
-						<Straits
-							key={straitField.id}
-							control={control}
-							straitField={straitField}
-							straitIndex={straitIndex}
-						/>
-					))}
-					<Button
-						type="button"
-						variant="outlined"
-						style={btnStyle}
-						onClick={() => straitsAppend({
-							aromas: [{
-								aromaStage1: null,
-								aromaStage2: null,
-								aromaStage3: null,
-							}],
-							straitDescription: null,
-							straitTime: null,
-							straitRaiting: null
-						})}
-					>
-						Append Straits
-					</Button>
-					<Button type="submit" variant="outlined" style={btnStyle}>
-						Submit
-					</Button>
-				</Stack>
+					<Stack direction="column" spacing={2}>
+						{straitsFields.map((straitField, straitIndex) => (
+							<Straits
+								key={straitField.id}
+								control={control}
+								straitField={straitField}
+								straitIndex={straitIndex}
+								straitsRemove={straitsRemove}
+								setValue={setValue}
+								watch={watch}
+							/>
+						))}
+						<Button
+							type="button"
+							variant="outlined"
+							style={btnStyle}
+							onClick={() => straitsAppend({
+								aromas: [{
+									aromaStage1: null,
+									aromaStage2: null,
+									aromaStage3: null,
+								}],
+								straits: [{
+									tasteStage1: null,
+									tasteStage2: null,
+								}],
+								straitDescription: '',
+								straitTime: dayjs().hour(0).minute(0).second(30),
+								straitRaiting: 7
+							})}
+						>
+							Добавить пролив
+						</Button>
+
+
+
+						<Button type="submit" variant="outlined" style={btnStyle}>
+							Submit
+						</Button>
+					</Stack>
 				</form>
 			</ThemeProvider>
 
@@ -197,7 +222,7 @@ function TeaFormStage2(props) {
 
 }
 
-function Straits({ control, straitField, straitIndex }) {
+function Straits({ control, straitField, straitIndex, straitsRemove, setValue, watch }) {
 
 	const { fields: aromasFields, append: aromasAppend, remove: aromasRemove } = useFieldArray({
 		name: `straits[${straitIndex}].aromas`,
@@ -208,13 +233,31 @@ function Straits({ control, straitField, straitIndex }) {
 		control,
 	});
 
+
+	let aromaStage1Value = watch(`straits[${straitIndex}].aromas[0].aromaStage1`) || [];
+	let selectedCategory = aromaStage1Value ? optionsAroma.response.find((item) => item.category === aromaStage1Value.label) : []
+	let subcategoryList = selectedCategory ? selectedCategory.subcategories.map((sub) => ({ lable: sub.name })) : [];
+
+
+	let aromaStage2Value = watch(`straits[${straitIndex}].aromas[0].aromaStage2`) || [];
+	let selectedSub = aromaStage2Value ? optionsAroma.response
+	.find((item) => item.category === aromaStage1Value.label)
+	?.subcategories.find((sub) => sub.name === aromaStage2Value.lable) : []
+	let subSubcategoryList = selectedSub ? selectedSub.descriptors.map((item) => ({ label: item })) : []
+
+
 	return (
 
 		<section key={straitField.id} className="form_strait-stages">
+			<h4 className="form_strait-header">Пролив №{straitIndex + 1}</h4>
 			<Stack direction="column" spacing={2}>
 				{aromasFields.map((aromaField, aromaIndex) => (
-					<Stack direction="column" spacing={2} key={aromaField.id} style={{border: 'solid 2px #ffffff'
-					,borderRadius:' 6px', padding: '5px', background: '#728A7C'}}>
+
+					<Stack direction="column" spacing={2} key={aromaField.id} style={{
+						border: 'solid 2px #ffffff'
+						, borderRadius: ' 6px', padding: '5px', background: '#728A7C'
+					}}>
+						<h4 className="form_stages-header">Аромат №{aromaIndex+1}</h4>
 						<Controller
 							control={control}
 							name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage1`}
@@ -222,7 +265,7 @@ function Straits({ control, straitField, straitIndex }) {
 
 								<Autocomplete
 									{...field}
-									options={teaCountryOptions}
+									options={categoryList}
 									getOptionLabel={(option) => option.label}
 									renderInput={(params) =>
 										<TextField {...params} label="Аромат №1" />
@@ -240,8 +283,8 @@ function Straits({ control, straitField, straitIndex }) {
 							render={({ field }) => (
 								<Autocomplete
 									{...field}
-									options={teaTypeOptions}
-									getOptionLabel={(option) => option.label}
+									options={subcategoryList}
+									getOptionLabel={(option) => option.lable}
 									renderInput={(params) => <TextField {...params} label="Аромат №2" />}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
@@ -255,7 +298,7 @@ function Straits({ control, straitField, straitIndex }) {
 							render={({ field }) => (
 								<Autocomplete
 									{...field}
-									options={waterBrandOptions}
+									options={subSubcategoryList}
 									getOptionLabel={(option) => option.label}
 									renderInput={(params) => <TextField {...params} label="Аромат №3" />}
 									onChange={(_, data) => field.onChange(data)}
@@ -284,11 +327,12 @@ function Straits({ control, straitField, straitIndex }) {
 					Добавить оттенок аромата
 				</Button>
 
-
-
 				{tastesFields.map((tasteField, tasteIndex) => (
-					<Stack direction="column" spacing={2} key={tasteField.id} style={{border: 'solid 2px #ffffff'
-					,borderRadius:' 6px', padding: '5px', background: '#728A7C'}}>
+					<Stack direction="column" spacing={2} key={tasteField.id} style={{
+						border: 'solid 2px #ffffff'
+						, borderRadius: ' 6px', padding: '5px', background: '#728A7C'
+					}}>
+						<h4 className="form_stages-header">Вкус №{tasteIndex+1}</h4>
 						<Controller
 							control={control}
 							name={`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage1`}
@@ -343,37 +387,42 @@ function Straits({ control, straitField, straitIndex }) {
 					Добавить оттенок вкуса
 				</Button>
 
-
-
-
 				<Controller
 					control={control}
 					name={`straits[${straitIndex}].straitDescription`} //{`aromaStages[${index}].aromaStage1`}
-					render={({ straitField }) =>
+					render={({ field }) =>
 
-						<TextField {...straitField} />
+						<TextField {...field}  multiline label="Описание пролива" />
 
 					}
 				/>
 				<Controller
 					control={control}
 					name={`straits[${straitIndex}].straitTime`}
-					render={({ straitField }) =>
-
-						<TextField {...straitField} />
-
-					}
+					render={({ field }) =>
+						<TimeBox
+							{...field}
+							setValue={setValue}
+						/>}
 				/>
 				<Controller
 					control={control}
 					name={`straits[${straitIndex}].straitRaiting`}
-					render={({ straitField }) =>
+					render={({ field }) =>
 
-						<TextField {...straitField} />
+						<TeaRaiting {...field} 
+						label="Оценка пролива" 
+						setValue={setValue}
+						/>
 
 					}
 				/>
 
+
+				<Button type="button" variant="outlined" style={btnStyle}
+					onClick={() => straitsRemove(straitIndex)}	>
+					Удалить пролив
+				</Button>
 			</Stack>
 
 		</section>

@@ -21,15 +21,10 @@ function valuetext(value) {
 function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, units, marks, setValue }) {
 
 	const [generatedMarks, setMarks] = useState([]);
-	// const [inputValue, setInputValue] = useState(value);
 
 	useEffect(() => {
 		SliderDataGenerator(marks, units);
 	}, [marks, units]);
-
-	// useEffect(() => {
-	// 	setInputValue(value);
-	// }, [value]);
 
 	function SliderDataGenerator(data, units) {
 		const sliderData = [];
@@ -45,14 +40,13 @@ function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, 
 	}
 
 	const handleSliderChange = (event, newValue) => {
-		// setInputValue(newValue);
+
 		onChange(event, newValue);
 		setValue(name, newValue); 
 	};
 
 	const handleInputChange = (event) => {
 		const newValue = Number(event.target.value);
-		// setInputValue(newValue);
 		onChange(event, newValue);
 		setValue(name, newValue); 
 	};

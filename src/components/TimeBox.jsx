@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -8,9 +8,41 @@ import dayjs from 'dayjs';
 
 const theme = createTheme({
     typography: {
-        "fontFamily": `jura`,
-        "fontSize": 16,
-    }
+        fontFamily: 'jura',
+        fontSize: 16,
+    },
+    components: {
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    color: '#ffffff', // Change label color to white
+                },
+            },
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#ffffff', // Change border color to white
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#ffffff', // Change border color to white on hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#ffffff', // Change border color to white when focused
+                    },
+                    color: '#ffffff', // Change text color to white
+                },
+            },
+        },
+        MuiIconButton: {
+            styleOverrides: {
+                root: {
+                    color: '#ffffff', // Change icon button color to white
+                },
+            },
+        },
+    },
 });
 
 const StyledTextField = styled(TextField)({
@@ -35,83 +67,49 @@ const StyledTextField = styled(TextField)({
     },
 });
 
-const StyledTimePicker = styled(TimePicker)({
-    width: '98%',
-    margin: '40px 0 0 0',
-    "& .MuiInputBase-root": {
-        color: "#ffffff",
-    },
-    "& .MuiOutlinedInput-root": {
-        "& fieldset": {
-            borderColor: "#ffffff",
-        },
-        "&:hover fieldset": {
-            borderColor: "#ffffff",
-        },
-        "&.Mui-focused fieldset": {
-            borderColor: "#ffffff",
-        },
-    },
-});
-
-const TimeBox = ({ id, timeValue, straitNum, stagesHandler }) => {
-
-    const [value, setValue] = useState(dayjs().hour(0).minute(1).second(0));
-    const timeFormat = 'HH:mm:ss';
-
-    // useEffect(() => {
-    //     const obj_len = timeValue ? Object.keys(timeValue).length : 0
-    //     if (obj_len != 0) {
-    //       const dayjsTime = dayjs(timeValue[String(straitNum) + String(id)], timeFormat);
-    //       setValue(dayjsTime)
-    //     }
-    // }, [timeValue]);
+const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, ref) => {
+    const [timeValue, setTimeValue] = useState(dayjs(value, timeFormat));
 
     useEffect(() => {
-        const obj_len = timeValue ? Object.keys(timeValue).length : 0;
-        const dayjsTimeDefault = dayjs().hour(0).minute(1).second(0);
-
-        if (obj_len != 0) {
-
-            const keys = Object.keys(timeValue)
-            const dayjsTime = dayjs(timeValue[String(straitNum) + String(id)], timeFormat);
-            
-
-            if (keys.includes(String(straitNum) + String(id))) {
-                setValue(dayjsTime)
-            } else {
-                stagesHandler(dayjsTimeDefault.format('HH:mm:ss'), String(straitNum) + String(id))
-            }
-        } else {
-            stagesHandler(dayjsTimeDefault.format('HH:mm:ss'), String(straitNum) + String(id))
+        if (value) {
+            setTimeValue(dayjs(value, timeFormat));
         }
-    }, []);
+    }, [value, timeFormat]);
+
+    const handleTimeChange = (newValue) => {
+        const formattedTime = dayjs(newValue).format(timeFormat);
+        setTimeValue(dayjs(newValue, timeFormat));
+        setValue(name, formattedTime);
+    };
 
     return (
         <ThemeProvider theme={theme}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <StyledTimePicker
+                <TimePicker
                     ampm={false}
                     views={['hours', 'minutes', 'seconds']}
-                    label={'Time'}
-                    inputFormat="HH:mm:ss"
+                    label={'Время пролива'}
+                    name={name}
+                    inputFormat={timeFormat}
                     mask="__:__:__"
-                    value={value}
-                    onChange={(val) => {
-                        const inputId = String(straitNum) + String(id);
-                        const time = dayjs(val).format('HH:mm:ss');
-                        stagesHandler(time, inputId);
-                        setValue(val);
-                    }}
-                    renderInput={(params) => (
+                    value={timeValue}
+                    onChange={handleTimeChange}
+                    textField={(params) => (
                         <StyledTextField 
                             {...params} 
+                            ref={ref}
+                            InputLabelProps={{
+                                style: { color: '#ffffff' }, // Change label color to white
+                            }}
+                            InputProps={{
+                                style: { color: '#ffffff' }, // Change text color to white
+                            }}
                         />
                     )}
                 />
             </LocalizationProvider>
         </ThemeProvider>
     );
-};
+});
 
 export default TimeBox;

@@ -105,9 +105,13 @@ const teaCountryOptions = [
 
 const TeaFormStage1 = (props) => {
 
+	useEffect(()=>{
+		props.getAllFromAromaDB()
+	}, [])
+
 	const [formValues, setFormValues] = useState(() => {
 
-		const savedValues = localStorage.getItem('teaFormValues');
+		const savedValues = localStorage.getItem('teaFormStage1');
 		return savedValues ? JSON.parse(savedValues) : {
 			teaWeight: 5,
 			teaType: null,
@@ -126,14 +130,14 @@ const TeaFormStage1 = (props) => {
 
 	const onSubmit = (data) => {
 		setFormValues(data); // Save form values
-		localStorage.setItem('teaFormValues', JSON.stringify(data)); // Save to localStorage
+		localStorage.setItem('teaFormStage1', JSON.stringify(data)); // Save to localStorage
 	};
 
 	const watchedValues = watch();
 
 	useEffect(() => {
 		// Update localStorage whenever form values change
-		localStorage.setItem('teaFormValues', JSON.stringify(watchedValues));
+		localStorage.setItem('teaFormStage1', JSON.stringify(watchedValues));
 	}, [watchedValues]);
 
 	useEffect(() => {

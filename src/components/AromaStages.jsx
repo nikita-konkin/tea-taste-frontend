@@ -98,7 +98,6 @@ function AromaStages(props) {
 			let selected = props.options.data
 				.find((item) => item.category === aromaStagesFormData[stage1key])
 				?.subcategories.find((sub) => sub.name === selectedCategory.title);
-			console.log('selected', selected)
 			selected = selected.descriptors.map((item) => ({ title: item }));
 			const descriptorList = selected ? selected : [];
 			// console.log('descriptorList', descriptorList)
