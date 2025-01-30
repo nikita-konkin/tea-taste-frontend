@@ -140,6 +140,16 @@ class FormApi{
 	
 	  }
 
+	getAllFromTasteDB() {
+
+	return fetch(`${this._usersApiUrl}/tastedb`, {
+		method: 'GET',
+		credentials: 'include',
+		headers: this._headers
+	}).then(res => this.error(res));
+
+	}
+
 }
 
 export const formApi = new FormApi({

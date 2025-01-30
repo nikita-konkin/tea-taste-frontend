@@ -155,6 +155,15 @@ function App() {
     .catch(err => console.log(err))
   }
 
+  function getAllFromTasteDB(){
+    formApi.getAllFromTasteDB()
+    .then(res=>{
+      console.log(res)
+      localStorage.setItem('tasteDB', JSON.stringify(res))
+    })
+    .catch(err => console.log(err))
+  }
+
   const FormNavigateNextSatge = () => {
     navigate('/form_2')
   }
@@ -191,6 +200,7 @@ function App() {
           nextStage = {FormNavigateNextSatge}
           navigation = {Navigation}
           getAllFromAromaDB = {getAllFromAromaDB}
+          getAllFromTasteDB = {getAllFromTasteDB}
           
           />
           }

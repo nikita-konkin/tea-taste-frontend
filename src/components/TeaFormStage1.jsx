@@ -107,6 +107,7 @@ const TeaFormStage1 = (props) => {
 
 	useEffect(()=>{
 		props.getAllFromAromaDB()
+		props.getAllFromTasteDB()
 	}, [])
 
 	const [formValues, setFormValues] = useState(() => {
