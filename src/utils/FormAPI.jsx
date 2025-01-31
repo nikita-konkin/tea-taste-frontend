@@ -1,155 +1,178 @@
-class FormApi{
-	constructor(config){
-		this._headers = config.headers;
-		this._usersApiUrl = config.usersApiUrl
-	}
+class FormApi {
+    constructor(config) {
+        this._headers = config.headers;
+        this._usersApiUrl = config.usersApiUrl;
+    }
 
-	error(res){
+    async error(res) {
+        if (res.ok) {
+            return res.json();
+        }
+        throw new Error(`HTTP error! status: ${res.status}`);
+    }
 
-		if (res.ok){
-			return res.json();
-		}
+    async postFormStage1(data, formId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/create-form/${formId}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify({
+                    nameRU: data.teaName,
+                    type: data.teaType.label,
+                    weight: data.teaWeight,
+                    water: data.waterBrand.label,
+                    volume: data.waterVolume,
+                    temperature: data.waterTemperature,
+                    teaware: data.teaWare.label,
+                    brewingtype: data.brewingType.label,
+                    country: data.teaCountry.label
+                })
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error posting form stage 1:', error);
+            throw error;
+        }
+    }
 
-		return Promise.reject({error: res.status})
-	}
+    async postFormStage2Aroma(data, formId, brewId, aromaShadeId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify({
+                    aromaStage1: data
+                })
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error posting form stage 2 aroma:', error);
+            throw error;
+        }
+    }
 
-	postFormStage1(data, formId){
+    async patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStageId) {
+        const key = 'aromaStage' + String(aromaStageId);
+        const obj = {};
+        obj[key] = data;
 
-		return fetch(`${this._usersApiUrl}/create-form/${(formId)}` ,{
-			method: 'POST',
-			credentials: 'include',
-			headers: this._headers,
-			body: JSON.stringify({
-				nameRU: data.teaName,
-				type: data.teaType,
-				weight: data.teaWeight,
-				water: data.waterBrand,
-				volume: data.waterVolume,
-				temperature: data.waterTemperature,
-				teaware: data.teaWare,
-				brewingtype: data.brewingType,
-				country: data.teaCountry
-			})
-		})
-		.then(res=>{this.error(res)})
-	}
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}`, {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify(obj)
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error patching form stage 2 aroma:', error);
+            throw error;
+        }
+    }
 
+    async postFormStage2Taste(data, formId, brewId, tasteShadeId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify({
+                    tasteStage1: data
+                })
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error posting form stage 2 taste:', error);
+            throw error;
+        }
+    }
 
-	postFormStage2Aroma(data, formId, brewId, aromaShadeId){
+    async patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStageId) {
+        const key = 'tasteStage' + String(tasteStageId);
+        const obj = {};
+        obj[key] = data;
 
-		return fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}` ,{
-			method: 'POST',
-			credentials: 'include',
-			headers: this._headers,
-			body: JSON.stringify({
-				aromaStage1: data
-			})
-		})
-		.then(res=>{this.error(res)})
-	}
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}`, {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify(obj)
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error patching form stage 2 taste:', error);
+            throw error;
+        }
+    }
 
-	patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStageId){
-		const key = 'aromaStage'+String(aromaStageId)
-		const obj = {};
+    async postFormStage2Brew(data, formId, brewId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify({
+                    description: data.description,
+                    brewingRating: data.brewingRating,
+                    brewingTime: data.brewingTime
+                })
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error posting form stage 2 brew:', error);
+            throw error;
+        }
+    }
 
-		obj[key] = data
+    async patchFormStage2Brew(data, formId, brewId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}`, {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: this._headers,
+                body: JSON.stringify({
+                    description: data.description,
+                    brewingRating: data.brewingRating,
+                    brewingTime: data.brewingTime
+                })
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error patching form stage 2 brew:', error);
+            throw error;
+        }
+    }
 
-		return fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}` ,{
-			method: 'PATCH',
-			credentials: 'include',
-			headers: this._headers,
-			body: JSON.stringify(obj)
-		})
-		.then(res=>{this.error(res)})
-	}
+    async getAllFromAromaDB() {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/aromadb`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all from aroma DB:', error);
+            throw error;
+        }
+    }
 
-	postFormStage2Taste(data, formId, brewId, tasteShadeId){
-
-		return fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}` ,{
-			method: 'POST',
-			credentials: 'include',
-			headers: this._headers,
-			body: JSON.stringify({
-				tasteStage1: data
-			})
-		})
-		.then(res=>{this.error(res)})
-	}
-
-	patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStageId){
-		const key = 'tasteStage'+String(tasteStageId)
-		const obj = {};
-
-		obj[key] = data
-		console.log(obj)
-		return fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}` ,{
-			method: 'PATCH',
-			credentials: 'include',
-			headers: this._headers,
-			body: JSON.stringify(obj)
-		})
-		.then(res=>{this.error(res)})
-	}
-
-
-	postFormStage2Brew(data, formId, brewId){
-		console.log(data)
-		return fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}` ,{
-			method: 'POST',
-			credentials: 'include',
-			headers: this._headers,
-			body: JSON.stringify({
-				description: data.description,
-				brewingRating: data.brewingRating,
-				brewingTime: data.brewingTime
-			})
-		})
-		.then(res=>{
-			console.log(res.brew)
-			this.error(res)
-		})
-	}
-
-	patchFormStage2Brew(data, formId, brewId){
-		// const key = 'brewStage'+String(brewStageId)
-		// const obj = {};
-
-		// obj[key] = data
-
-		return fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}` ,{
-			method: 'PATCH',
-			credentials: 'include',
-			headers: this._headers,
-			// body: JSON.stringify(obj)
-			body: JSON.stringify({
-				description: data.description,
-				brewingRating: data.brewingRating,
-				brewingTime: data.brewingTime
-			})
-		})
-		.then(res=>{this.error(res)})
-	}
-
-	getAllFromAromaDB() {
-
-		return fetch(`${this._usersApiUrl}/aromadb`, {
-		  method: 'GET',
-		  credentials: 'include',
-		  headers: this._headers
-		}).then(res => this.error(res));
-	
-	  }
-
-	getAllFromTasteDB() {
-
-	return fetch(`${this._usersApiUrl}/tastedb`, {
-		method: 'GET',
-		credentials: 'include',
-		headers: this._headers
-	}).then(res => this.error(res));
-
-	}
-
+    async getAllFromTasteDB() {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/tastedb`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all from taste DB:', error);
+            throw error;
+        }
+    }
 }
 
 export const formApi = new FormApi({

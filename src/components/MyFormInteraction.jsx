@@ -1,7 +1,7 @@
 import {
-  useState,
-  useEffect,
-  useRef
+	useState,
+	useEffect,
+	useRef
 } from 'react'
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
@@ -9,225 +9,288 @@ import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
 
 import { useTeaFormContext } from './TeaFormContext.jsx';
+import { use } from 'react';
 
 
 
 function MyFormInteraction(props) {
+
+	const stage1Data = JSON.parse(localStorage.getItem('teaFormStage1')) != null ? JSON.parse(localStorage.getItem('teaFormStage1')) : [];
+	const stage2Data = JSON.parse(localStorage.getItem('teaFormStage2')) != null ? JSON.parse(localStorage.getItem('teaFormStage1')) : [];
+
+
+	console.log(stage1Data)
+	// console.log(stage2Data.straits)
+
 	const [straits, setStraits] = useState([])
+	const [avrRaiting, setAvrReiting] = useState(0)
+	const [raitingsArrState, setRaitingsArrState] = useState([])
+
+	const raitingsArr = []
+
 	const aromasRender = useRef({})
 	const tastesRender = useRef({})
-	
+
 	let stages = []
 
 	const history = useNavigate();
 
-	const {aromaStagesFormData, 
-		tasteStagesFormData, 
-		straitsStagesFormData, 
-		maxLastStageNumberFnc,
-		teaInfo, 
-		clearTeaFormData} = useTeaFormContext();
-	// const teaInfo = JSON.parse(localStorage.getItem('teaData'))
 	const currentTimestamp = new Date().toLocaleString()
-	
-	const maxLastStageNumber = maxLastStageNumberFnc(aromaStagesFormData, tasteStagesFormData, straitsStagesFormData)
 
-    const getDataByAimKey = (data, position, aimKey, returnOriginKey = false) => {
-        return Object.keys(data)
-            .filter(key => key.length > 1 && key[position] === aimKey)
-            .reduce((acc, key) => {
-                acc[key] = data[key];
-                return acc;
-            }, {});
-    };
+	const averageRating = (arr) => {
 
-	const averageRating = (data, position, aimKey) => {
-        const values = Object.values(getDataByAimKey(data, position, aimKey));
-
-        const sum = values.reduce((acc, value) => acc + value, 0);
-        const average = values.length ? sum / values.length : 0;
-
-        return average.toFixed(1);
+		const sum = arr.reduce((acc, value) => acc + value, 0);
+		const average = arr.length ? sum / arr.length : 0;
+		return average.toFixed(1);
 	}
 
-	useEffect(()=>{
-		addStraitStage(maxLastStageNumber)
-		setStraits(stages)
+	useEffect(() => {
+
+		setAvrReiting(averageRating(raitingsArrState))
+		// console.log(avrRaiting)
+
+	}, [raitingsArrState])
+
+	useEffect(() => {
+		if (stage2Data.straits) {
+			addStraitStage(stage2Data.straits.length)
+			setStraits(stages)
+		}
 	}, [])
 
+
 	const addStraitStage = (maxLastStageNumber) => {
-		for (let i = 1; i <= maxLastStageNumber; i++) {
+		for (let i = 0; i < maxLastStageNumber; i++) {
 			stages.push(renderStraitStage(i))
+			raitingsArr.push(stage2Data.straits[i].straitRaiting)
 		}
+		setRaitingsArrState(raitingsArr)
+
 	}
 
-	const renderAromasAndTastes = (data, aromas=false, taste=false) => {
+	const renderAromasAndTastes = (data, straitNum, aromas = false, tastes = false) => {
+		let arr = []
+		if (aromas) { arr = data.straits[straitNum].aromas }
+		if (tastes) { arr = data.straits[straitNum].tastes }
 		const tempArr = [];
-		for (const key in data) {
-			const rKey = key.split('');
-			tempArr.push(
-				<li className="myforminteraction__row" >
-					<bdi>{rKey[1]}.{rKey[2]}) </bdi>{data[key]}
-				</li>
-			);
+		for (let index = 0; index < arr.length; index++) {
+
+			const dataObj = arr[index]
+			for (const [key, value] of Object.entries(dataObj)) {
+				const data = value != null ? value.label : ''
+				tempArr.push(
+					<li className="myforminteraction__row"><bdi>{`${straitNum + 1}.${key.split('').slice(-1)})`}</bdi>{data}</li>
+				)
+			}
 		}
-		if (aromas) {aromasRender.current = tempArr}
-		if (taste) {tastesRender.current = tempArr}
-		
+		if (aromas) { aromasRender.current = tempArr }
+		if (tastes) { tastesRender.current = tempArr }
+
 	};
 
-	const renderStraitStage = (straitNum) => {
-		const straitsData = getDataByAimKey(straitsStagesFormData, 0, String(straitNum))
-		const aromasData = getDataByAimKey(aromaStagesFormData, 0, String(straitNum))
-		const tastesData = getDataByAimKey(tasteStagesFormData, 0, String(straitNum))
 
-		renderAromasAndTastes(aromasData, true, false)	
-		renderAromasAndTastes(tastesData, false, true)	
+	const renderStraitStage = (straitNum) => {
+
+		renderAromasAndTastes(stage2Data, straitNum, true, false)
+		renderAromasAndTastes(stage2Data, straitNum, false, true)
 
 		return (
-			<section className="myforminteraction__section"> 
+			<section className="myforminteraction__section">
 				<ul className="myform__list">
-					<li className="myforminteraction__row"><bdi>Пролив №</bdi>{straitNum}</li>
-					<li className="myforminteraction__row"><bdi><br/></bdi></li>
+					<li className="myforminteraction__row"><bdi>Пролив №</bdi>{straitNum + 1}</li>
+					<li className="myforminteraction__row"><bdi><br /></bdi></li>
 					<li className="myforminteraction__row"><bdi>Аромат: </bdi></li>
 					{aromasRender.current}
-					<li className="myforminteraction__row"><bdi><br/></bdi></li>
+					<li className="myforminteraction__row"><bdi><br /></bdi></li>
 					<li className="myforminteraction__row"><bdi>Вкус: </bdi></li>
 					{tastesRender.current}
-					<li className="myforminteraction__row"><bdi><br/></bdi></li>
+					<li className="myforminteraction__row"><bdi><br /></bdi></li>
 					<li className="myforminteraction__row"><bdi>Комментарий:</bdi></li>
-					<li className="myforminteraction__row"><bdi>{straitsData[straitNum+'1']}</bdi></li>
-					<li className="myforminteraction__row"><bdi>Время заваривания: </bdi>{(straitsData[straitNum+'2'])}</li>
-					<li className="myforminteraction__row"><bdi>Рейтинг пролива: </bdi>{straitsData[straitNum+'3']}/10 пиал</li>
+					<li className="myforminteraction__row"><bdi>{stage2Data.straits[straitNum].straitDescription}</bdi></li>
+					<li className="myforminteraction__row"><bdi>Время заваривания: </bdi>{dayjs(stage2Data.straits[straitNum].straitTime).format('HH:mm:ss')}</li>
+					<li className="myforminteraction__row"><bdi>Рейтинг пролива: </bdi>{stage2Data.straits[straitNum].straitRaiting}/10 пиал</li>
 				</ul>
 			</section>
 		)
 	}
 
-	function postAromaData(aromaStages, formId){
-		// console.log()
-		for (const [key, data] of Object.entries(aromaStages)) {
-			const keys = String(key).split('').map(Number)
-			const brewId = keys[0]
-			const aromaShadeId = keys[1]
-			const aromaStage = keys[2]
-			console.log(data)
-			console.log(key)
-			if (aromaStage == 1) {
-				props.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
-			} else {
-				props.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
-			}
-		}
-	}
-	
-	function postTasteData(tasteStages, formId){
-		for (const [key, data] of Object.entries(tasteStages)) {
-			const keys = String(key).split('').map(Number)
-			const brewId = keys[0]
-			const tasteShadeId = keys[1]
-			const tasteStage = keys[2]
-			if (tasteStage == 1) {
-				props.postFormStage2Taste(data, formId, brewId, tasteShadeId)
-			} else {
-				props.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
-			}
-		}
-	}
-	
-	function postStraitData(straitStages, formId){
-		let checkKey = 1
-		for (const [key, data] of Object.entries(straitStages)) {
-			const straitNumKey = String(key).split('').map(Number)[0]
-			
-			if (straitNumKey == checkKey) {
-				const straitData = {
-					description: straitStages[String(straitNumKey)+'1'] ? straitStages[String(straitNumKey)+'1'] : 'None',
-					brewingTime: straitStages[String(straitNumKey)+'2'] ,
-					brewingRating: straitStages[String(straitNumKey)+'3'],
+	async function postAromaData(formId) {
+
+		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
+			for (let aromaNum = 0; aromaNum < stage2Data.straits[straitNum].aromas.length; aromaNum++) {
+
+				const aromaDataObj = stage2Data.straits[straitNum].aromas[aromaNum]
+				for (const [key, value] of Object.entries(aromaDataObj)) {
+					let aromaStage = Number(key.split('').slice(-1))
+					const data = value != null ? value.label : ''
+					if (aromaStage == 1) {
+						// props.postFormStage2Aroma(data, formId, straitNum+1, aromaNum+1)
+						try {
+							const result = await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1);
+							// console.log('Aroms data posted successfully:', result);
+						} catch (error) {
+							console.error('Error submitting form:', error);
+						}
+					} else {
+						try {
+							const result1 = await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage);
+
+						} catch (error) {
+							console.error('Error submitting form:', error);
+						}
+					}
 				}
-				props.postFormStage2Brew(straitData, formId, straitNumKey)
-				checkKey += 1
-	
-				// if (!isSubmitted){
-				// 	props.postFormStage2Brew(straitData, formId, straitNumKey)
-				// } else {
-				// 	props.patchFormStage2Brew(straitData, formId, straitNumKey)
-				// }
-	
 			}
-
 		}
-	
+
 	}
 
-	const onSubmit = (e) => {
-		e.preventDefault()
+	async function postTasteData(formId) {
+
+		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
+			for (let tasteNum = 0; tasteNum < stage2Data.straits[straitNum].tastes.length; tasteNum++) {
+
+				const tasteDataObj = stage2Data.straits[straitNum].tastes[tasteNum]
+				for (const [key, value] of Object.entries(tasteDataObj)) {
+					let tasteStage = Number(key.split('').slice(-1))
+					const data = value != null ? value.label : ''
+					if (tasteStage == 1) {
+						try {
+							const result = await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1);
+							// console.log('Taste data posted successfully:', result);
+						} catch (error) {
+							console.error('Error submitting form:', error);
+						}
+					} else {
+						// setTimeout(() => {
+						// 	console.log("Waited for 3 seconds");
+						// }, 3000);
+						try {
+							const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage);
+							// console.log('Taste data posted successfully:', result);
+						} catch (error) {
+							console.error('Error submitting form:', error);
+						}
+
+					}
+				}
+			}
+		}
+
+
+		// for (const [key, data] of Object.entries(tasteStages)) {
+		// 	const keys = String(key).split('').map(Number)
+		// 	const brewId = keys[0]
+		// 	const tasteShadeId = keys[1]
+		// 	const tasteStage = keys[2]
+		// 	if (tasteStage == 1) {
+		// 		props.postFormStage2Taste(data, formId, brewId, tasteShadeId)
+		// 	} else {
+		// 		props.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
+		// 	}
+		// }
+	}
+
+	function postStraitData(formId) {
+
+		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
+
+			const straitData = {
+				description: stage2Data.straits[straitNum].straitDescription ? stage2Data.straits[straitNum].straitDescription : 'None',
+				brewingTime: dayjs(stage2Data.straits[straitNum].straitTime).format('HH:mm:ss'),
+				brewingRating: stage2Data.straits[straitNum].straitRaiting,
+			}
+			props.postFormStage2Brew(straitData, formId, straitNum + 1)
+			// props.patchFormStage2Brew(straitData, formId, straitNum+1)
+
+		}
+
+	}
+
+	function postTeaInfo(formID) {
+		props.postFormStage1(stage1Data, formID)
+	}
+
+	const onSubmit = async (e) => {
+		// e.preventDefault()
 		const formId = '0C7C95FA02C054C3B96517C0'
-		// localStorage.setItem('isStage2Commit', true)
-		if (teaInfo.teaName != 'undefined'){
-			
-			postAromaData(aromaStagesFormData, formId)
-			postTasteData(tasteStagesFormData, formId)
-			postStraitData(straitsStagesFormData, formId)
-			props.postFormStage1(teaInfo, formId)
-			console.log('SENDED')
+		// // localStorage.setItem('isStage2Commit', true)
+		// if (teaInfo.teaName != 'undefined'){
+		try {
+			const result1 = await postTasteData(formId)
+			const result2 = await postTasteData(formId)
+		} catch (error) {
+			console.log(error)
 		}
-		else{
-			console.log('NOT SENDED')
+
+
+		try {
+			const result1 = await postAromaData(formId)
+			const result2 = await postAromaData(formId)
+		} catch (error) {
+			console.log(error)
 		}
+		// postAromaData(formId)
+		postStraitData(formId)
+		postTeaInfo(formId)
+
+		localStorage.removeItem('teaFormStage1');
+		localStorage.removeItem('teaFormStage2');
+
+		props.navigateAfterSubmit()
 	}
 
-	return(
+	return (
 		<>
-		<Header navigation={props.navigation}/>
-		<div className="myforminteraction">
+			<Header navigation={props.navigation} />
+			<div className="myforminteraction">
 
-			<section className="myforminteraction__section"> 
-				<ul className="myforminteraction__list">
-					<li className="myforminteraction__row"><bdi>Название: </bdi>{teaInfo.teaName}</li>
-					<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{teaInfo.teaType}</li>
-					<li className="myforminteraction__row"><bdi>Вес: </bdi>{teaInfo.teaWeight} г</li>
-					<li className="myforminteraction__row"><bdi>Вода: </bdi>{teaInfo.waterBrand}</li>
-					<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{teaInfo.waterVolume} мл</li>
-					<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{teaInfo.waterTemperature} oC</li>
-					<li className="myforminteraction__row"><bdi>Посуда: </bdi>{teaInfo.teaWare}</li>
-					<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{teaInfo.brewingType}</li>
-					<li className="myforminteraction__row"><bdi>Дата публикации: </bdi>{currentTimestamp}</li>
-					<li className="myforminteraction__row"><bdi>Итоговый рейтинг: </bdi>{averageRating(straitsStagesFormData, 1, '3')}/10 пиал</li>
-				</ul>
-			</section>
+				<section className="myforminteraction__section">
+					<ul className="myforminteraction__list">
+						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName : ''}</li>
+						<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{stage1Data.teaType != null ? stage1Data.teaType.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>Вес: </bdi>{stage1Data.teaWeight} г</li>
+						<li className="myforminteraction__row"><bdi>Вода: </bdi>{stage1Data.waterBrand  != null ? stage1Data.waterBrand.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{stage1Data.waterVolume} мл</li>
+						<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{stage1Data.waterTemperature} oC</li>
+						<li className="myforminteraction__row"><bdi>Посуда: </bdi>{stage1Data.teaWare  != null ? stage1Data.teaWare.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{stage1Data.brewingType != null ? stage1Data.brewingType.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>Дата публикации: </bdi>{currentTimestamp}</li>
+						<li className="myforminteraction__row"><bdi>Итоговый рейтинг: </bdi>{avrRaiting}/10 пиал</li>
+					</ul>
+				</section>
 
-			{straits}
+				{straits}
 
-			<div className="myforminteraction__buttons">
-				<FormButton 
-					buttonName={'Удалить форму'}
-					width={'100%'}
-					margin={'0px'}
-					onClick={()=>{
-						clearTeaFormData()
-						props.navigateAfterSubmit()
-					}}
-				/>
-				<FormButton 
-					buttonName={'Назад'}
-					width={'100%'}
-					margin={'0px'}
-					onClick={()=>{history(-1)}}
-				/>
+				<div className="myforminteraction__buttons">
+					<FormButton
+						buttonName={'Удалить форму'}
+						width={'100%'}
+						margin={'0px'}
+						onClick={() => {
+							localStorage.removeItem('teaFormStage1');
+							localStorage.removeItem('teaFormStage2');
+							props.navigateAfterSubmit()
+						}}
+					/>
+					<FormButton
+						buttonName={'Назад'}
+						width={'100%'}
+						margin={'0px'}
+						onClick={() => { history(-1) }}
+					/>
 
-				<FormButton 
-					buttonName={'Отправить Форму'}
-					width={'100%'}
-					margin={'0px'}
-					onClick={onSubmit}
-				/>
+					<FormButton
+						buttonName={'Отправить Форму'}
+						width={'100%'}
+						margin={'0px'}
+						onClick={onSubmit}
+					/>
+				</div>
+
 			</div>
-
-		</div>
 		</>
-		)
+	)
 }
 
 export default MyFormInteraction;

@@ -132,12 +132,14 @@ const TeaFormStage1 = (props) => {
 	const onSubmit = (data) => {
 		setFormValues(data); // Save form values
 		localStorage.setItem('teaFormStage1', JSON.stringify(data)); // Save to localStorage
+		props.nextStage()
 	};
 
 	const watchedValues = watch();
 
 	useEffect(() => {
 		// Update localStorage whenever form values change
+		console.log(watchedValues)
 		localStorage.setItem('teaFormStage1', JSON.stringify(watchedValues));
 	}, [watchedValues]);
 
@@ -158,26 +160,41 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaName"
-							render={({ field }) =>
+							rules={{ required: 'Введите название чая' }}
+							render={({ field, fieldState: { error } }) =>
 
-								<TextField {...field} />
+								<TextField {...field} 
+									label="Название чая" 
+									required
+									error={!!error}
+									helperText={error ? error.message : ''}
+								/>
 
 							}
 						/>
 						<Controller
 							control={control}
 							name="teaCountry"
-							render={({ field }) => (
+							rules={{ required: 'Введите страну' }}
+							render={({ field, fieldState: { error } }) => (
 
 								<Autocomplete
 									{...field}
 									options={teaCountryOptions}
 									getOptionLabel={(option) => option.label}
 									renderInput={(params) =>
-										<TextField {...params} label="Tea Country" />
+										<TextField {...params} 
+										label="Страна" 
+										required
+										error={!!error}
+										helperText={error ? error.message : ''}
+										/>
 									}
-									onChange={(_, data) => field.onChange(data)}
+									onChange={(_, data) =>field.onChange(data)}
+
 									PopperComponent={StyledPopper}
+                                    // onChange={(_, data) => field.onChange(data ? data.value : '')} // Return only the value
+                                    // value={field.value.label}
 								/>
 
 							)}
@@ -201,12 +218,19 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaType"
-							render={({ field }) => (
+							rules={{ required: 'Введите тип чая' }}
+							render={({ field, fieldState: { error } }) => (
 								<Autocomplete
 									{...field}
 									options={teaTypeOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => <TextField {...params} label="Tea Type" />}
+									renderInput={(params) => 
+									<TextField {...params} 
+									label="Тип чая" 
+									required
+									error={!!error}
+									helperText={error ? error.message : ''}
+									/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -215,12 +239,18 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="waterBrand"
-							render={({ field }) => (
+							render={({ field, fieldState: { error } }) => (
 								<Autocomplete
 									{...field}
 									options={waterBrandOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => <TextField {...params} label="Water Brand" />}
+									renderInput={(params) => 
+									<TextField {...params} 
+									label="Марка воды" 
+									required
+									error={!!error}
+									helperText={error ? error.message : ''}
+									/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -261,12 +291,18 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="brewingType"
-							render={({ field }) => (
+							render={({ field, fieldState: { error } }) => (
 								<Autocomplete
 									{...field}
 									options={brewingTypeOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => <TextField {...params} label="Brewing Type" />}
+									renderInput={(params) => 
+									<TextField {...params} 
+									label="Способ заваривания" 
+									required
+									error={!!error}
+									helperText={error ? error.message : ''}
+									/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -275,12 +311,18 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaWare"
-							render={({ field }) => (
+							render={({ field, fieldState: { error } }) => (
 								<Autocomplete
 									{...field}
 									options={teaWareOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => <TextField {...params} label="Tea Ware" />}
+									renderInput={(params) => 
+									<TextField {...params} 
+									label="Посуда для заваривания" 
+									required
+									error={!!error}
+									helperText={error ? error.message : ''}
+									/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -291,7 +333,7 @@ const TeaFormStage1 = (props) => {
 						color: '#ffffff',
 						borderColor: '#ffffff',
 						backgroundColor: 'darkslategray'}}>
-							Submit
+							Далее
 						</Button>
 					</Stack>
 				</form>

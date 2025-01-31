@@ -55,7 +55,7 @@ function App() {
 
     mainApi.handleRegistration(data.name, data.pass, data.email)
     .then(res => {
-      console.log(res)
+      // console.log(res)
       handleAuthorization(res)
       navigate('/form_1')
     })
@@ -66,7 +66,7 @@ function App() {
     console.log(data)
     mainApi.handleAuthorization(data.email, data.password)
     .then(res => {
-      console.log(res)
+      // console.log(res)
       // setLoggedIn(true)
       localStorage.setItem('token', res.token);
       localStorage.setItem('loggedIn', res.ok)
@@ -79,24 +79,24 @@ function App() {
 
     formApi.postFormStage1(data, formId)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
   }
 
   function postFormStage2Aroma(data, formId, brewId, aromaShadeId){
-    console.log(data)
+    // console.log(data)
     formApi.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
   }
   
   function patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage){
-    console.log(data)
+    // console.log(data)
     formApi.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
     .then(res=>{
       console.log(res)
@@ -107,20 +107,20 @@ function App() {
 
 
   function postFormStage2Taste(data, formId, brewId, tasteShadeId){
-    console.log(data)
+    // console.log(data)
     formApi.postFormStage2Taste(data, formId, brewId, tasteShadeId)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
   }
   
   function patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage){
-    console.log(data)
+    // console.log(data)
     formApi.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
@@ -130,7 +130,7 @@ function App() {
     // console.log(data)
     formApi.postFormStage2Brew(data, formId, brewId)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
@@ -140,7 +140,7 @@ function App() {
     // console.log(data)
     formApi.patchFormStage2Brew(data, formId, brewId)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
@@ -149,7 +149,7 @@ function App() {
   function getAllFromAromaDB(){
     formApi.getAllFromAromaDB()
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       localStorage.setItem('aromaDB', JSON.stringify(res))
     })
     .catch(err => console.log(err))
@@ -158,7 +158,7 @@ function App() {
   function getAllFromTasteDB(){
     formApi.getAllFromTasteDB()
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       localStorage.setItem('tasteDB', JSON.stringify(res))
     })
     .catch(err => console.log(err))

@@ -133,13 +133,13 @@ const FormProvider = ({ children }) => {
     }
 	}
 
-  useEffect(() => {
-    console.log("Updated straitsStagesFormData:", straitsStagesFormData);
-    console.log("Updated aromaStagesFormData:", aromaStagesFormData);
-    console.log("Updated tasteStagesFormData:", tasteStagesFormData);
-    console.log("Updated teaInfo:", teaInfo);
-    console.log("Updated subCategory:", subCategory);
-  }, [straitsStagesFormData, aromaStagesFormData, tasteStagesFormData, teaInfo, subCategory]);
+  // useEffect(() => {
+  //   console.log("Updated straitsStagesFormData:", straitsStagesFormData);
+  //   console.log("Updated aromaStagesFormData:", aromaStagesFormData);
+  //   console.log("Updated tasteStagesFormData:", tasteStagesFormData);
+  //   console.log("Updated teaInfo:", teaInfo);
+  //   console.log("Updated subCategory:", subCategory);
+  // }, [straitsStagesFormData, aromaStagesFormData, tasteStagesFormData, teaInfo, subCategory]);
 
   return (
     <TeaFormContext.Provider

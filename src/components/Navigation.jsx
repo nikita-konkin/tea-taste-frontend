@@ -1,10 +1,10 @@
 import React, {
-  useState,
-  useEffect,
-  useRef
+	useState,
+	useEffect,
+	useRef
 } from 'react'
 import {
-  NavLink,
+	NavLink,
 } from "react-router-dom";
 // import hamburgerBtn from '../images/menu_icon_mobile.svg';
 
@@ -31,72 +31,72 @@ function Navigation(props) {
 		// loc.includes('my_forms') ? setCurrentLocation('ЛК') : setCurrentLocation('None')
 		// loc.includes('blog') ? 	setCurrentLocation('Блог'): setCurrentLocation('None')
 
-		loc.includes('form_1') ? setCurrentLocation('Форма №1') : loc.includes('form_2') ? 
-		setCurrentLocation('Форма №2') : loc.includes('profile') ? 
-		setCurrentLocation('ЛК') : loc.includes('my_forms') ? 
-		setCurrentLocation('ЛК') : loc.includes('blog') ? 
-		setCurrentLocation('Блог') : loc.includes('form_submit') ?	
-		setCurrentLocation('Проверка формы') : setCurrentLocation('None')
+		loc.includes('form_1') ? setCurrentLocation('Форма №1') : loc.includes('form_2') ?
+			setCurrentLocation('Форма №2') : loc.includes('profile') ?
+				setCurrentLocation('ЛК') : loc.includes('my_forms') ?
+					setCurrentLocation('ЛК') : loc.includes('blog') ?
+						setCurrentLocation('Блог') : loc.includes('form_submit') ?
+							setCurrentLocation('Проверка формы') : setCurrentLocation('None')
 
 
 	}
 
 	const handleClickOutside = (event) => {
-		
-	  if (ref.current && !ref.current.contains(event.target) && event.path[0].tagName !== 'BUTTON') {
-	    setMenuState(false)
-	  }
+
+		if (ref.current && !ref.current.contains(event.target) && event.target.tagName !== 'BUTTON') {
+			setMenuState(false)
+		}
 
 	};
 
 	useEffect(() => {
 		handleLocation()
-	  document.body.addEventListener('click', handleClickOutside, true);
-	  return () => {
-	      document.body.removeEventListener('click', handleClickOutside, true);
-	  };
+		document.body.addEventListener('click', handleClickOutside, true);
+		return () => {
+			document.body.removeEventListener('click', handleClickOutside, true);
+		};
 	}, []);
 
-	const openMenu = () =>{
+	const openMenu = () => {
 
-    menuState ? setMenuState(false) : setMenuState(true) 
+		menuState ? setMenuState(false) : setMenuState(true)
 
-  }
+	}
 
-  function navBtn(){
-  	
-  	return(
-  		<>
-  		<h2 className="header__navigation">{currentLocation}</h2>
-      <button className='navigation__hamburger' 
-      onClick={openMenu} alt="Кнопка меню"></button>
-      </>
+	function navBtn() {
+
+		return (
+			<>
+				<h2 className="header__navigation">{currentLocation}</h2>
+				<button className='navigation__hamburger'
+					onClick={openMenu} alt="Кнопка меню"></button>
+			</>
 		)
 
-  }
+	}
 
-  function sideMenu(addMenuBackground){
-    return(
-      <>
-      {addMenuBackground}
-      <nav className={navStyle} ref={ref}>
-      	<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_1">Форма этап №1</NavLink>
-      	{/*<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_2">Форма этап №2</NavLink>*/}
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/profile">Профиль</NavLink>
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/my_forms">Мои формы</NavLink>
-        <NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/blog">Блог</NavLink>
-      </nav>
-      </>
+	function sideMenu(addMenuBackground) {
+		return (
+			<>
+				{addMenuBackground}
+				<nav className={navStyle} ref={ref}>
+					<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_1">Форма этап №1</NavLink>
+					<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/form_2">Форма этап №2</NavLink>
+					<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/profile">Профиль</NavLink>
+					<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/my_forms">Мои формы</NavLink>
+					<NavLink className={({ isActive }) => (isActive ? `${navLinkStyleActive}` : `${navLinkStyle}`)} to="/blog">Блог</NavLink>
+				</nav>
+			</>
 
-    )
-  }
+		)
+	}
 
-	return(
+	return (
 		<>
 			{navBtn()}
 			{menuState ? sideMenu() : ''}
 		</>
-		)
+	)
 }
 
 export default Navigation;

@@ -79,7 +79,7 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
     const handleTimeChange = (newValue) => {
         const formattedTime = dayjs(newValue).format(timeFormat);
         setTimeValue(dayjs(newValue, timeFormat));
-        setValue(name, formattedTime);
+        setValue(name, newValue);
     };
 
     return (
