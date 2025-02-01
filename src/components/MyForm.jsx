@@ -5,18 +5,15 @@ import React, {
 } from 'react'
 import FormButton from './FormButton.jsx';
 
-function MyForm(props) {
+function MyForm({formData, navigation}) {
 
-	function EditForm() {
-
-	}
 
 	return(
-		<section className="myform"> 
+		<section className="myform" key={formData.sessionId}> 
 			<ul className="myform__list">
-			   <li className="myform__row"><bdi>Название: </bdi>Шу Шен</li>
-			   <li className="myform__row"><bdi>Дата публикации: </bdi>06.03.2022 17:47</li>
-			   <li className="myform__row"><bdi>Итоговый рейтинг: </bdi>8/10 пиал</li>
+			   <li className="myform__row"><bdi>Название: </bdi>{formData.nameRU}</li>
+			   <li className="myform__row"><bdi>Дата публикации: </bdi>{formData.createdAt}</li>
+			   <li className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
 			</ul>
 			<div className="myform__buttons">
 				<FormButton 
@@ -34,7 +31,7 @@ function MyForm(props) {
 					buttonName={'Просмотр'}
 					width={'32%'}
 					margin={'0px'}
-					onClick={()=>{props.navigation()}}
+					onClick={()=>{navigation()}}
 				/>
 			</div>
 

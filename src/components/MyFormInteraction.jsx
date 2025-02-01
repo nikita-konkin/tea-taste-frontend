@@ -1,26 +1,28 @@
 import {
 	useState,
 	useEffect,
-	useRef
+	useRef,
 } from 'react'
+import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
 
-import { useTeaFormContext } from './TeaFormContext.jsx';
-import { use } from 'react';
+// import { useTeaFormContext } from './TeaFormContext.jsx';
+// import { use } from 'react';
 
 
 
 function MyFormInteraction(props) {
 
 	const stage1Data = JSON.parse(localStorage.getItem('teaFormStage1')) != null ? JSON.parse(localStorage.getItem('teaFormStage1')) : [];
-	const stage2Data = JSON.parse(localStorage.getItem('teaFormStage2')) != null ? JSON.parse(localStorage.getItem('teaFormStage1')) : [];
+	const stage2Data = JSON.parse(localStorage.getItem('teaFormStage2')) != null ? JSON.parse(localStorage.getItem('teaFormStage2')) : [];
 
+	const [formId, setFormId] = useState(uuidv4());
 
-	console.log(stage1Data)
-	// console.log(stage2Data.straits)
+	// console.log(stage1Data)
+	// console.log(stage2Data)
 
 	const [straits, setStraits] = useState([])
 	const [avrRaiting, setAvrReiting] = useState(0)
@@ -79,7 +81,7 @@ function MyFormInteraction(props) {
 			for (const [key, value] of Object.entries(dataObj)) {
 				const data = value != null ? value.label : ''
 				tempArr.push(
-					<li className="myforminteraction__row"><bdi>{`${straitNum + 1}.${key.split('').slice(-1)})`}</bdi>{data}</li>
+					<li className="myforminteraction__row" key={key}><bdi>{`${straitNum + 1}.${key.split('').slice(-1)})`}</bdi>{data}</li>
 				)
 			}
 		}
@@ -95,7 +97,7 @@ function MyFormInteraction(props) {
 		renderAromasAndTastes(stage2Data, straitNum, false, true)
 
 		return (
-			<section className="myforminteraction__section">
+			<section className="myforminteraction__section" key={straitNum}>
 				<ul className="myform__list">
 					<li className="myforminteraction__row"><bdi>Пролив №</bdi>{straitNum + 1}</li>
 					<li className="myforminteraction__row"><bdi><br /></bdi></li>
@@ -162,9 +164,6 @@ function MyFormInteraction(props) {
 							console.error('Error submitting form:', error);
 						}
 					} else {
-						// setTimeout(() => {
-						// 	console.log("Waited for 3 seconds");
-						// }, 3000);
 						try {
 							const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage);
 							// console.log('Taste data posted successfully:', result);
@@ -177,18 +176,6 @@ function MyFormInteraction(props) {
 			}
 		}
 
-
-		// for (const [key, data] of Object.entries(tasteStages)) {
-		// 	const keys = String(key).split('').map(Number)
-		// 	const brewId = keys[0]
-		// 	const tasteShadeId = keys[1]
-		// 	const tasteStage = keys[2]
-		// 	if (tasteStage == 1) {
-		// 		props.postFormStage2Taste(data, formId, brewId, tasteShadeId)
-		// 	} else {
-		// 		props.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
-		// 	}
-		// }
 	}
 
 	function postStraitData(formId) {
@@ -212,10 +199,8 @@ function MyFormInteraction(props) {
 	}
 
 	const onSubmit = async (e) => {
-		// e.preventDefault()
-		const formId = '0C7C95FA02C054C3B96517C0'
-		// // localStorage.setItem('isStage2Commit', true)
-		// if (teaInfo.teaName != 'undefined'){
+		e.preventDefault()
+		
 		try {
 			const result1 = await postTasteData(formId)
 			const result2 = await postTasteData(formId)
@@ -223,19 +208,24 @@ function MyFormInteraction(props) {
 			console.log(error)
 		}
 
-
 		try {
 			const result1 = await postAromaData(formId)
 			const result2 = await postAromaData(formId)
 		} catch (error) {
 			console.log(error)
 		}
-		// postAromaData(formId)
-		postStraitData(formId)
-		postTeaInfo(formId)
+
+		try {
+			postStraitData(formId)
+			postTeaInfo(formId)
+		} catch (error) {
+			console.log(error)
+		}
 
 		localStorage.removeItem('teaFormStage1');
 		localStorage.removeItem('teaFormStage2');
+
+		alert("Форма успешно отправлена =)");
 
 		props.navigateAfterSubmit()
 	}

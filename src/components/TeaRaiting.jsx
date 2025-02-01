@@ -1,6 +1,7 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Typography, Rating } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 const theme = createTheme({
     typography: {
@@ -11,8 +12,9 @@ const theme = createTheme({
 
 const ActiveRaitingPial = (props) => (
     <svg
-        width={50}
+        width={30}
         height={18}
+        // viewBox="0 0 34 4"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         {...props}
@@ -34,8 +36,9 @@ const ActiveRaitingPial = (props) => (
 
 const DiactiveRaitingPial = (props) => (
     <svg
-        width={50}
+        width={30}
         height={18}
+        // viewBox="0 0 34 4"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         {...props}
@@ -59,6 +62,19 @@ const handleRatingChange = (event, newValue, name, setValue) => {
     setValue(name, newValue);
 };
 
+const CustomRaiting = styled(Rating)(({ theme }) => ({
+    [theme.breakpoints.down('sm')]: {
+        '& .MuiRating-icon': {
+            marginRight: '8px',
+        },
+    },
+    [theme.breakpoints.up('sm')]: {
+        '& .MuiRating-icon': {
+            marginRight: '20px',
+        },
+    },
+}));
+
 const TeaRaiting = React.forwardRef(({ name, label, value, setValue }, ref) => {
     const legendStyle = {
         color: "#FFFFFF",
@@ -74,7 +90,7 @@ const TeaRaiting = React.forwardRef(({ name, label, value, setValue }, ref) => {
         <ThemeProvider theme={theme}>
             <Box style={boxStyle}>
                 <Typography component="legend" style={legendStyle}>Общий рейтинг пролива</Typography>
-                <Rating
+                <CustomRaiting
                     name={name}
                     label={label}
                     icon={<ActiveRaitingPial />}
@@ -84,6 +100,9 @@ const TeaRaiting = React.forwardRef(({ name, label, value, setValue }, ref) => {
                     min={1}
                     onChange={(event, newValue) => handleRatingChange(event, newValue, name, setValue)}
                     ref={ref}
+                // sx={{
+                //     width: '100%',
+                // }}
                 />
             </Box>
         </ThemeProvider>

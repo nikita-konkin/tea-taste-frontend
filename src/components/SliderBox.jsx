@@ -18,6 +18,16 @@ function valuetext(value) {
 	return `${value}°C`;
 }
 
+
+const CustomSlider = styled(Slider)(({ theme }) => ({
+	padding: '0px', // Disable padding
+	// minWidth: '100%',
+	[theme.breakpoints.up('xs')]: {
+	  padding: '0px', // Disable padding for larger screens
+	//   minWidth: '300px',
+	},
+  }));
+
 function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, units, marks, setValue }) {
 
 	const [generatedMarks, setMarks] = useState([]);
@@ -57,7 +67,8 @@ function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, 
 			<Typography style={{ color: 'white', margin: '0' }} gutterBottom>{sliderName}</Typography>
 			<Grid container spacing={0}>
 				<Grid item sx={{ mt: 0, mb: 2, ml: 2 }} xs={10}>
-					<Slider
+					<CustomSlider
+						disableGutters
 						valueLabelDisplay="auto"
 						defaultValue={defaultValue}
 						getAriaValueText={valuetext}
@@ -120,11 +131,11 @@ function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, 
 							'aria-labelledby': 'input-slider',
 						}}
 						sx={{
-							width: '55px',
+							width: '45px',
 							color: '#FFFFFF',
 							'&::before': {
 								borderBottom: '1px solid rgba(255, 255, 255, 0.42);',
-								width: '55px',
+								width: '45px',
 							}
 						}}
 					/>

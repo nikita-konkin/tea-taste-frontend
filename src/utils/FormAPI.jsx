@@ -173,11 +173,26 @@ class FormApi {
             throw error;
         }
     }
+    async getAllMyForms() {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-forms`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
 }
 
 export const formApi = new FormApi({
   // usersApiUrl: 'https://api.movie.mesto.konkin.nomoredomains.work',
-  usersApiUrl: 'http://localhost:3000',
+  usersApiUrl: 'http://192.168.50.33:3000',
+//   usersApiUrl: 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json'
   }

@@ -58,7 +58,7 @@ class MainApi{
 
 export const mainApi = new MainApi({
   // usersApiUrl: 'https://api.movie.mesto.konkin.nomoredomains.work',
-  usersApiUrl: 'http://localhost:3000',
+  usersApiUrl: 'http://192.168.50.33:3000',
   headers: {
     'Content-Type': 'application/json'
   }

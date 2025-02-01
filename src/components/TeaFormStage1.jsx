@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
+import {useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+
 
 
 import {
@@ -103,7 +105,11 @@ const teaCountryOptions = [
 	{ label: 'Taiwan', value: 'taiwan' },
 ];
 
+
+
 const TeaFormStage1 = (props) => {
+
+	const matches = useMediaQuery('(min-width:300px)');
 
 	useEffect(()=>{
 		props.getAllFromAromaDB()
@@ -139,7 +145,7 @@ const TeaFormStage1 = (props) => {
 
 	useEffect(() => {
 		// Update localStorage whenever form values change
-		console.log(watchedValues)
+		// console.log(watchedValues)
 		localStorage.setItem('teaFormStage1', JSON.stringify(watchedValues));
 	}, [watchedValues]);
 
@@ -154,7 +160,7 @@ const TeaFormStage1 = (props) => {
 			<Header navigation={props.navigation} />
 
 			<ThemeProvider theme={theme}>
-				<form className="form" onSubmit={handleSubmit(onSubmit)}>
+				<form className="form" onSubmit={handleSubmit(onSubmit)} style={{ minWidth: matches ? '300px' : 'auto' }}>
 
 					<Stack direction="column" spacing={2}>
 						<Controller
@@ -332,7 +338,9 @@ const TeaFormStage1 = (props) => {
 						<Button type="submit" variant="outlined" style={{
 						color: '#ffffff',
 						borderColor: '#ffffff',
-						backgroundColor: 'darkslategray'}}>
+						backgroundColor: 'darkslategray',
+						margin: '20px 0 20px 0'
+						}}>
 							Далее
 						</Button>
 					</Stack>

@@ -1,5 +1,4 @@
 import React, {
-  useState,
   useEffect
 } from 'react'
 import {
@@ -14,7 +13,7 @@ import {formApi} from "../utils/FormAPI.jsx"
 
 import TeaFormStage1 from './TeaFormStage1.jsx'
 import TeaFormStage2 from './TeaFormStage2.jsx'
-import MyForm from './MyForm.jsx';
+// import MyForm from './MyForm.jsx';
 import Login from './Login.jsx'
 import Registration from './Registration.jsx'
 import Profile from './Profile.jsx'
@@ -40,7 +39,7 @@ function App() {
       mainApi.handleTokenValidation(token).then(data => {
         localStorage.setItem('loggedIn', true)
       }).catch(err => {
-        console.log(err)
+        // console.log(err)
         localStorage.removeItem('token')
         localStorage.removeItem('loggedIn')
       })
@@ -55,15 +54,17 @@ function App() {
 
     mainApi.handleRegistration(data.name, data.pass, data.email)
     .then(res => {
-      // console.log(res)
-      handleAuthorization(res)
-      navigate('/form_1')
+      const authData = {email: data.email,
+                        password: data.pass
+                      }
+      handleAuthorization(authData)
+      // navigate('/form_1')
     })
     .catch(err => {console.log(err)})
   }
 
   function handleAuthorization(data){
-    console.log(data)
+    // console.log(data)
     mainApi.handleAuthorization(data.email, data.password)
     .then(res => {
       // console.log(res)
@@ -99,7 +100,7 @@ function App() {
     // console.log(data)
     formApi.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
     .then(res=>{
-      console.log(res)
+      // console.log(res)
       // FormNavigateNextSatge()
     })
     .catch(err => console.log(err))
@@ -146,8 +147,8 @@ function App() {
     .catch(err => console.log(err))
   }
 
-  function getAllFromAromaDB(){
-    formApi.getAllFromAromaDB()
+  async function getAllFromAromaDB(){
+    await formApi.getAllFromAromaDB()
     .then(res=>{
       // console.log(res)
       localStorage.setItem('aromaDB', JSON.stringify(res))
@@ -155,13 +156,22 @@ function App() {
     .catch(err => console.log(err))
   }
 
-  function getAllFromTasteDB(){
-    formApi.getAllFromTasteDB()
+  async function getAllFromTasteDB(){
+   await formApi.getAllFromTasteDB()
     .then(res=>{
       // console.log(res)
       localStorage.setItem('tasteDB', JSON.stringify(res))
     })
     .catch(err => console.log(err))
+  }
+
+  async function getAllMyForms() {
+    await formApi.getAllMyForms()
+    .then(res=>{
+      // console.log(res)
+      localStorage.setItem('myForms', JSON.stringify(res))
+    })
+    .catch(err=>{console.log(err)})
   }
 
   const FormNavigateNextSatge = () => {
@@ -256,6 +266,7 @@ function App() {
           loggedIn = {loggedIn}
           component = {MyForms}
           navigation = {FormNavigateToInteracion}
+          getAllMyForms = {getAllMyForms}
           />
           }
         />

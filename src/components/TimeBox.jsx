@@ -93,6 +93,7 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
                     inputFormat={timeFormat}
                     mask="__:__:__"
                     value={timeValue}
+                    timeSteps={{'minutes':1, 'seconds':1}}
                     onChange={handleTimeChange}
                     textField={(params) => (
                         <StyledTextField 
