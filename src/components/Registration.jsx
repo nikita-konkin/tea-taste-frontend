@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 
-function Registration(props) {
+function Registration({auth, regValidError}) {
 
 
 	const [name, setName] = useState('')
@@ -21,11 +21,22 @@ function Registration(props) {
 
 	function handleOnSubmit(e){
 		e.preventDefault()
-		props.auth({
+		auth({
 			name: name,
 			pass: pass,
 			email: email,
 		})
+	}
+
+	const Test = ()=>{
+		console.log(regValidError)
+		if (regValidError.password) {
+			return(
+				<>
+				<span>{regValidError.password}</span>
+				</>
+			)
+		}
 	}
 
 
@@ -45,6 +56,7 @@ function Registration(props) {
 					type="password" name="password"
 					onChange={e => handlePass(e)}
 					placeholder="Пароль" required />
+				<Test/>
 				<button type="submit" className="registration__submit">Зарегистрироваться</button>
 
 				<h2 className="registration__check-text">Уже зарегистрированы?</h2>

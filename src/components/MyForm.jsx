@@ -31,7 +31,10 @@ function MyForm({formData, navigation}) {
 					buttonName={'Просмотр'}
 					width={'32%'}
 					margin={'0px'}
-					onClick={()=>{navigation()}}
+					onClick={()=>{
+						// navigation()
+						alert('Скоро можно будет полнотсь просмотреть форму =)')
+					}}
 				/>
 			</div>
 

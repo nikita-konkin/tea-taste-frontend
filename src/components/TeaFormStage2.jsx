@@ -78,13 +78,13 @@ const lastBtnStyle = {
 function TeaFormStage2(props) {
 
 	const [optionsAroma, setOptionsAroma] = useState(() => {
-        const savedAromaDB = localStorage.getItem('aromaDB');
-        return savedAromaDB ? JSON.parse(savedAromaDB) : [];
-    });
+		const savedAromaDB = localStorage.getItem('aromaDB');
+		return savedAromaDB ? JSON.parse(savedAromaDB) : [];
+	});
 	const [optionsTaste, setOptionsTate] = useState(() => {
-        const savedTasteDB = localStorage.getItem('tasteDB');
-        return savedTasteDB ? JSON.parse(savedTasteDB) : [];
-    });
+		const savedTasteDB = localStorage.getItem('tasteDB');
+		return savedTasteDB ? JSON.parse(savedTasteDB) : [];
+	});
 
 
 	const [formValues, setFormValues] = useState(() => {
@@ -123,12 +123,6 @@ function TeaFormStage2(props) {
 	});
 
 	const onSubmit = (data) => {
-		// JSON.parse(data, (key, value) => {
-		// 	if (key === 'straitTime') {
-		// 		return dayjs(value);
-		// 	}
-		// 	return value;
-		// })
 		localStorage.setItem('teaFormStage2', JSON.stringify(data));
 		setFormValues(data);
 		props.nextStage()
@@ -326,54 +320,37 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 
 const tasteOptionsHandler = (watch, straitIndex, index, optionsTaste) => {
 
-		// const optionsTaste = JSON.parse(localStorage.getItem('tasteDB'))
 	const tasteCategoryList = optionsTaste.response.map((item) => ({ label: item.category }));
 
+	let stage1ValueTaste = watch(`straits[${straitIndex}].tastes[${index}].tasteStage1`) || [];
+	let selectedCategoryTaste = stage1ValueTaste ? optionsTaste.response.find((item) => item.category === stage1ValueTaste.label) : [];
+	let subcategoryListTaste = selectedCategoryTaste ? selectedCategoryTaste.subcategories.map((sub) => ({ label: sub.name })) : [];
 
-	// if (!Array.isArray(optionsAroma)) {
-		let stage1ValueTaste = watch(`straits[${straitIndex}].tastes[${index}].tasteStage1`) || [];
-		let selectedCategoryTaste = stage1ValueTaste ? optionsTaste.response.find((item) => item.category === stage1ValueTaste.label) : [];
-		let subcategoryListTaste = selectedCategoryTaste ? selectedCategoryTaste.subcategories.map((sub) => ({ label: sub.name })) : [];
+	let stage2ValueTaste = watch(`straits[${straitIndex}].tastes[${index}].tasteStage2`) || [];
+	let selectedSubCategoryTaste = stage2ValueTaste ? optionsTaste.response
+		.find((item) => item.category === stage1ValueTaste.label)
+		?.subcategories.find((sub) => sub.name === stage2ValueTaste.label) : [];
+	let subSubcategoryListTaste = selectedSubCategoryTaste ? selectedSubCategoryTaste.descriptors.map((item) => ({ label: item })) : [];
 
-		let stage2ValueTaste = watch(`straits[${straitIndex}].tastes[${index}].tasteStage2`) || [];
-		let selectedSubCategoryTaste = stage2ValueTaste ? optionsTaste.response
-			.find((item) => item.category === stage1ValueTaste.label)
-			?.subcategories.find((sub) => sub.name === stage2ValueTaste.label) : [];
-		let subSubcategoryListTaste = selectedSubCategoryTaste ? selectedSubCategoryTaste.descriptors.map((item) => ({ label: item })) : [];
+	return { tasteCategoryList, subcategoryListTaste, subSubcategoryListTaste }
 
-		return { tasteCategoryList, subcategoryListTaste, subSubcategoryListTaste }
-	// } else {
-
-	// 	const subcategoryListTaste = []
-	// 	const subSubcategoryListTaste = []
-
-	// 	return { tasteCategoryList, subcategoryListTaste, subSubcategoryListTaste }
-	// }
 }
 
 const aromaOptionsHandler = (watch, straitIndex, index, optionsAroma) => {
 
-	// const optionsAroma = JSON.parse(localStorage.getItem('aromaDB'));
 	const aromaCategoryList = optionsAroma.response.map((item) => ({ label: item.category }));
-	
-	// if (!Array.isArray(optionsAroma)) {
-		let stage1Value = watch(`straits[${straitIndex}].aromas[${index}].aromaStage1`) || [];
-		let selectedCategory = stage1Value ? optionsAroma.response.find((item) => item.category === stage1Value.label) : [];
-		let subcategoryList = selectedCategory ? selectedCategory.subcategories.map((sub) => ({ label: sub.name })) : [];
 
-		let stage2Value = watch(`straits[${straitIndex}].aromas[${index}].aromaStage2`) || [];
-		let selectedSub = stage2Value ? optionsAroma.response
-			.find((item) => item.category === stage1Value.label)
-			?.subcategories.find((sub) => sub.name === stage2Value.label) : [];
-		let subSubcategoryList = selectedSub ? selectedSub.descriptors.map((item) => ({ label: item })) : [];
+	let stage1Value = watch(`straits[${straitIndex}].aromas[${index}].aromaStage1`) || [];
+	let selectedCategory = stage1Value ? optionsAroma.response.find((item) => item.category === stage1Value.label) : [];
+	let subcategoryList = selectedCategory ? selectedCategory.subcategories.map((sub) => ({ label: sub.name })) : [];
 
-		return { aromaCategoryList, subcategoryList, subSubcategoryList }
-	// } else {
-	// 	const subcategoryList = []
-	// 	const subSubcategoryList = []
+	let stage2Value = watch(`straits[${straitIndex}].aromas[${index}].aromaStage2`) || [];
+	let selectedSub = stage2Value ? optionsAroma.response
+		.find((item) => item.category === stage1Value.label)
+		?.subcategories.find((sub) => sub.name === stage2Value.label) : [];
+	let subSubcategoryList = selectedSub ? selectedSub.descriptors.map((item) => ({ label: item })) : [];
 
-	// 	return { aromaCategoryList, subcategoryList, subSubcategoryList }
-	// }
+	return { aromaCategoryList, subcategoryList, subSubcategoryList }
 
 }
 
@@ -398,7 +375,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 						options={aromaCategoryList}
 						getOptionLabel={(option) => option.label}
 						renderInput={(params) =>
-							<TextField {...params} label="Аромат №1" />
+							<TextField {...params} label="Аромат" />
 						}
 						onChange={(_, data) => field.onChange(data)}
 						PopperComponent={StyledPopper}
@@ -418,7 +395,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 						renderInput={(params) =>
 							<TextField {...params}
 								required
-								label="Аромат №2"
+								label="Аромат (Оттенок №1)"
 								error={!!error}
 								helperText={error ? error.message : ''}
 							/>}
@@ -440,7 +417,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 						renderInput={(params) =>
 							<TextField {...params}
 								required
-								label="Аромат №3"
+								label="Аромат (Оттенок №2)"
 								error={!!error}
 								helperText={error ? error.message : ''}
 							/>}
@@ -484,7 +461,7 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 						options={tasteCategoryList}
 						getOptionLabel={(option) => option.label}
 						renderInput={(params) =>
-							<TextField {...params} label="Вкус №1" />
+							<TextField {...params} label="Вкус" />
 						}
 						onChange={(_, data) => field.onChange(data)}
 						PopperComponent={StyledPopper}
@@ -504,7 +481,7 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 						renderInput={(params) =>
 							<TextField {...params}
 								required
-								label="Вкус №2"
+								label="Вкус (Оттенок вкуса №1)"
 								error={!!error}
 								helperText={error ? error.message : ''}
 							/>}
@@ -527,7 +504,7 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 						renderInput={(params) =>
 							<TextField {...params}
 								required
-								label="Вкус №3"
+								label="Вкус (Оттенок вкуса №2)"
 								error={!!error}
 								helperText={error ? error.message : ''}
 							/>}

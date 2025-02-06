@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import {useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
+import { useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-
-
-
 
 import {
 	SLIDER_WEIGHT_DATA,
@@ -66,43 +63,121 @@ const StyledPopper = styled(Popper)({
 });
 
 const teaTypeOptions = [
-	{ label: 'Green Tea', value: 'green' },
-	{ label: 'Black Tea', value: 'black' },
-	{ label: 'Oolong Tea', value: 'oolong' },
-	{ label: 'White Tea', value: 'white' },
-	{ label: 'Herbal Tea', value: 'herbal' },
+	{ label: 'Зелёный чай (Lǜ chá)', value: 'green' },
+	{ label: 'Белый чай (Bái chá)', value: 'white' },
+	{ label: 'Жёлтый чай (Huáng chá)', value: 'yellow' },
+	{ label: 'Улун (Wūlóng chá)', value: 'oolong' },
+	{ label: 'Красный чай (Hóng chá)', value: 'red' },
+	{ label: 'Чёрный чай (Hēi chá)', value: 'black' },
 ];
 
 const waterBrandOptions = [
 	{ label: 'Evian', value: 'evian' },
-	{ label: 'Fiji', value: 'fiji' },
-	{ label: 'Smartwater', value: 'smartwater' },
-	{ label: 'Aquafina', value: 'aquafina' },
-	{ label: 'Dasani', value: 'dasani' },
+	{ label: 'Сестрица', value: 'suster' },
+	{ label: 'Домашняя (из под крана)', value: 'home' },
+	{ label: 'Святой Источник', value: 'svyatoi_istochnik' },
+	{ label: 'Acqua Panna', value: 'acqua_panna' },
+	{ label: 'Baikal430', value: 'baikal430' },
+	{ label: 'Шишкин Лес', value: 'shishkin_les' },
+	{ label: 'Леденёв', value: 'ledenev' },
+	{ label: 'Архыз', value: 'arkhyz' },
+	{ label: 'Bonaqua', value: 'bonaqua' },
+	{ label: 'Aqua Minerale', value: 'aqua_minerale' },
+	{ label: 'Сенежская', value: 'senezhskaya' },
+	{ label: 'Fiji Water', value: 'fiji_water' },
+	{ label: 'Vittel', value: 'vittel' },
+	{ label: 'Voss', value: 'voss' },
+	{ label: 'Nestlé Pure Life', value: 'nestle_pure_life' },
+	{ label: 'Volvic', value: 'volvic' },
+	{ label: 'Sairme', value: 'sairme' },
+	{ label: 'Акваника', value: 'aquanika' },
+	{ label: 'Волжанка', value: 'volzhanka' },
+	{ label: 'Stelmas', value: 'stelmas' },
+	{ label: 'Липецкий Бювет', value: 'lipeckiy_byuve' },
+	{ label: 'Эдельвейс', value: 'edelweiss' },
+	{ label: 'Sulinka', value: 'sulinka' },
+	{ label: 'Ессентуки', value: 'essentuki' },
+	{ label: 'Новотерская', value: 'novoterskaya' },
+	{ label: 'Омская', value: 'omskaya' },
+	{ label: 'Рычал-Су', value: 'rychal_su' },
+	{ label: 'ФрутоНяня', value: 'fruto_nyanya' },
+	{ label: 'Черноголовка', value: 'chernogolovka' },
+	{ label: 'Бабушкино лукошко', value: 'babushkino_lukoshko' },
+	{ label: 'Donat', value: 'donat' },
+	{ label: 'Perrier', value: 'perrier' },
+	{ label: 'San Benedetto', value: 'san_benedetto' },
+	{ label: 'S.Pellegrino', value: 's_pellegrino' },
+	{ label: 'Fiuggi', value: 'fiuggi' },
+	{ label: 'Gerolsteiner', value: 'gerolsteiner' },
+	{ label: 'Antipodes', value: 'antipodes' },
+	{ label: 'Harrogate Spa', value: 'harrogate_spa' },
+	{ label: 'Пилигрим', value: 'piligrim' },
 ];
 
+
 const teaWareOptions = [
-	{ label: 'Glass Teapot', value: 'glass_teapot' },
-	{ label: 'Ceramic Teapot', value: 'ceramic_teapot' },
-	{ label: 'Stainless Steel Teapot', value: 'stainless_steel_teapot' },
-	{ label: 'Cast Iron Teapot', value: 'cast_iron_teapot' },
-	{ label: 'Porcelain Teapot', value: 'porcelain_teapot' },
+	{ label: 'Чайник', value: 'teapot' },
+	{ label: 'Гайвань', value: 'gaiwan' },
+	{ label: 'Типот', value: 'teapot_with_button' },
+	{ label: 'Чахай (сливник)', value: 'chahai' },
+	{ label: 'Пиала', value: 'tea_bowl' },
+	{ label: 'Чайник из исинской глины', value: 'yixing_teapot' },
+	{ label: 'Стеклянный чайник', value: 'glass_teapot' },
+	{ label: 'Чугунный чайник (тэцубин)', value: 'cast_iron_teapot' },
+	// { label: 'Чайная доска (чабань)', value: 'tea_tray' },
+	{ label: 'Ситечко', value: 'tea_strainer' },
+	{ label: 'Термос', value: 'thermos' },
+	{ label: 'Самовар', value: 'samovar' },
+	{ label: 'Кружка-заварник', value: 'infuser_mug' },
+	{ label: 'Колба для заваривания', value: 'tea_flask' },
+	{ label: 'Люйчаван', value: 'luichawan' },
 ];
 
 const brewingTypeOptions = [
-	{ label: 'Gongfu', value: 'gongfu' },
-	{ label: 'Western', value: 'western' },
-	{ label: 'Grandpa', value: 'grandpa' },
-	{ label: 'Cold Brew', value: 'cold_brew' },
-	{ label: 'Iced', value: 'iced' },
+	{ label: 'Настаивание (по-европейски)', value: 'steeping' },
+	{ label: 'Проливы (по-китайски)', value: 'gongfu_brewing' },
+	{ label: 'Заваривание в термосе', value: 'thermos_brewing' },
+	{ label: 'Холодное заваривание (Cold Brew)', value: 'cold_brew' },
+	{ label: 'Варка чая', value: 'tea_decoction' },
+	{ label: 'Заваривание в пуровере', value: 'pourover_brewing' },
+	{ label: 'Заваривание в сифоне', value: 'siphon_brewing' },
+	{ label: 'Заваривание в аэропрессе', value: 'aeropress_brewing' },
 ];
 
+
 const teaCountryOptions = [
-	{ label: 'China', value: 'china' },
-	{ label: 'India', value: 'india' },
-	{ label: 'Japan', value: 'japan' },
-	{ label: 'Sri Lanka', value: 'sri_lanka' },
-	{ label: 'Taiwan', value: 'taiwan' },
+	{ label: 'Китай', value: 'china' },
+	{ label: 'Индия', value: 'india' },
+	{ label: 'Кения', value: 'kenya' },
+	{ label: 'Шри-Ланка', value: 'sri_lanka' },
+	{ label: 'Вьетнам', value: 'vietnam' },
+	{ label: 'Индонезия', value: 'indonesia' },
+	{ label: 'Япония', value: 'japan' },
+	{ label: 'Турция', value: 'turkey' },
+	{ label: 'Иран', value: 'iran' },
+	{ label: 'Аргентина', value: 'argentina' },
+	{ label: 'Непал', value: 'nepal' },
+	{ label: 'Тайвань', value: 'taiwan' },
+	{ label: 'Малайзия', value: 'malaysia' },
+	{ label: 'Мьянма', value: 'myanmar' },
+	{ label: 'Бангладеш', value: 'bangladesh' },
+	{ label: 'Уганда', value: 'uganda' },
+	{ label: 'Танзания', value: 'tanzania' },
+	{ label: 'Малави', value: 'malawi' },
+	{ label: 'Руанда', value: 'rwanda' },
+	{ label: 'Южная Корея', value: 'south_korea' },
+	{ label: 'Грузия', value: 'georgia' },
+	{ label: 'Россия', value: 'russia' },
+	{ label: 'Бразилия', value: 'brazil' },
+	{ label: 'Мозамбик', value: 'mozambique' },
+	{ label: 'Камерун', value: 'cameroon' },
+	{ label: 'Зимбабве', value: 'zimbabwe' },
+	{ label: 'Папуа — Новая Гвинея', value: 'papua_new_guinea' },
+	{ label: 'Таиланд', value: 'thailand' },
+	{ label: 'Лаос', value: 'laos' },
+	{ label: 'Мексика', value: 'mexico' },
+	{ label: 'США', value: 'usa' },
+	{ label: 'Австралия', value: 'australia' },
 ];
 
 
@@ -111,7 +186,7 @@ const TeaFormStage1 = (props) => {
 
 	const matches = useMediaQuery('(min-width:300px)');
 
-	useEffect(()=>{
+	useEffect(() => {
 		props.getAllFromAromaDB()
 		props.getAllFromTasteDB()
 	}, [])
@@ -144,8 +219,6 @@ const TeaFormStage1 = (props) => {
 	const watchedValues = watch();
 
 	useEffect(() => {
-		// Update localStorage whenever form values change
-		// console.log(watchedValues)
 		localStorage.setItem('teaFormStage1', JSON.stringify(watchedValues));
 	}, [watchedValues]);
 
@@ -169,8 +242,8 @@ const TeaFormStage1 = (props) => {
 							rules={{ required: 'Введите название чая' }}
 							render={({ field, fieldState: { error } }) =>
 
-								<TextField {...field} 
-									label="Название чая" 
+								<TextField {...field}
+									label="Название чая"
 									required
 									error={!!error}
 									helperText={error ? error.message : ''}
@@ -189,18 +262,18 @@ const TeaFormStage1 = (props) => {
 									options={teaCountryOptions}
 									getOptionLabel={(option) => option.label}
 									renderInput={(params) =>
-										<TextField {...params} 
-										label="Страна" 
-										required
-										error={!!error}
-										helperText={error ? error.message : ''}
+										<TextField {...params}
+											label="Страна"
+											required
+											error={!!error}
+											helperText={error ? error.message : ''}
 										/>
 									}
-									onChange={(_, data) =>field.onChange(data)}
+									onChange={(_, data) => field.onChange(data)}
 
 									PopperComponent={StyledPopper}
-                                    // onChange={(_, data) => field.onChange(data ? data.value : '')} // Return only the value
-                                    // value={field.value.label}
+								// onChange={(_, data) => field.onChange(data ? data.value : '')} // Return only the value
+								// value={field.value.label}
 								/>
 
 							)}
@@ -230,13 +303,13 @@ const TeaFormStage1 = (props) => {
 									{...field}
 									options={teaTypeOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => 
-									<TextField {...params} 
-									label="Тип чая" 
-									required
-									error={!!error}
-									helperText={error ? error.message : ''}
-									/>}
+									renderInput={(params) =>
+										<TextField {...params}
+											label="Тип чая"
+											required
+											error={!!error}
+											helperText={error ? error.message : ''}
+										/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -250,13 +323,13 @@ const TeaFormStage1 = (props) => {
 									{...field}
 									options={waterBrandOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => 
-									<TextField {...params} 
-									label="Марка воды" 
-									required
-									error={!!error}
-									helperText={error ? error.message : ''}
-									/>}
+									renderInput={(params) =>
+										<TextField {...params}
+											label="Марка воды"
+											required
+											error={!!error}
+											helperText={error ? error.message : ''}
+										/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -302,13 +375,13 @@ const TeaFormStage1 = (props) => {
 									{...field}
 									options={brewingTypeOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => 
-									<TextField {...params} 
-									label="Способ заваривания" 
-									required
-									error={!!error}
-									helperText={error ? error.message : ''}
-									/>}
+									renderInput={(params) =>
+										<TextField {...params}
+											label="Способ заваривания"
+											required
+											error={!!error}
+											helperText={error ? error.message : ''}
+										/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -322,13 +395,13 @@ const TeaFormStage1 = (props) => {
 									{...field}
 									options={teaWareOptions}
 									getOptionLabel={(option) => option.label}
-									renderInput={(params) => 
-									<TextField {...params} 
-									label="Посуда для заваривания" 
-									required
-									error={!!error}
-									helperText={error ? error.message : ''}
-									/>}
+									renderInput={(params) =>
+										<TextField {...params}
+											label="Посуда для заваривания"
+											required
+											error={!!error}
+											helperText={error ? error.message : ''}
+										/>}
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
@@ -336,10 +409,10 @@ const TeaFormStage1 = (props) => {
 						/>
 
 						<Button type="submit" variant="outlined" style={{
-						color: '#ffffff',
-						borderColor: '#ffffff',
-						backgroundColor: 'darkslategray',
-						margin: '20px 0 20px 0'
+							color: '#ffffff',
+							borderColor: '#ffffff',
+							backgroundColor: 'darkslategray',
+							margin: '20px 0 20px 0'
 						}}>
 							Далее
 						</Button>

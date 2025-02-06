@@ -37,13 +37,8 @@ function MyForms(props) {
 
 	}, [])
 	
-	// useEffect(()=>{
-
-
-	// }, [myFormsData])
 
 	const prepareFormsRender = (myFormsData) => {
-		// console.log(myFormsData)
 		for (let formData of Object.values(myFormsData)[0]) {
 			forms.push(<MyForm navigation={props.navigation} formData={formData}/>)
 		}
@@ -57,7 +52,6 @@ function MyForms(props) {
 			<Header navigation={props.navigation}/>
 			<div className="myforms">
 				<h2 className="header__myforms">Ищем ваши формы...</h2>
-				{/* {renderForms} */}
 			</div>
 		</>
 		)

@@ -1,5 +1,6 @@
 import React, {
-  useEffect
+  useEffect,
+  useState
 } from 'react'
 import {
   Route,
@@ -29,7 +30,11 @@ function App() {
   const loggedIn = localStorage.getItem("loggedIn");
 
   const navigate = useNavigate();
-  // const [loggedIn, setLoggedIn] = useState(false)
+  const [regValidError, setRegValidError] = useState({
+    name: '',
+    password: '',
+    email: ''
+  })
 
 
   useEffect(() => {
@@ -49,18 +54,36 @@ function App() {
     }
   }, []);
 
+  const registrationEroresHandler = (error) => {
+    console.log(error)
+    const errorMsg = error.details.body[0]
+    let failedField = errorMsg.split('\"')[1]
+    if (failedField == 'пароль') {
+      failedField = 'password'
+    }
+    console.log(failedField)
+    setRegValidError({
+      ...regValidError,
+      [failedField]: errorMsg
+    })
+
+  }
 
   function handleRegistration(data){
 
     mainApi.handleRegistration(data.name, data.pass, data.email)
     .then(res => {
+      console.log(res)
       const authData = {email: data.email,
                         password: data.pass
                       }
       handleAuthorization(authData)
       // navigate('/form_1')
     })
-    .catch(err => {console.log(err)})
+    .catch(err => {
+      registrationEroresHandler(err)
+    })
+
   }
 
   function handleAuthorization(data){
@@ -296,7 +319,11 @@ function App() {
         />
         <Route path = "/sign-up"
         element = {
-          <Registration auth = {handleRegistration}/>
+          <Registration 
+          auth = {handleRegistration}
+          regValidError = {regValidError}
+          
+          />
           }
         />
       </Routes>
