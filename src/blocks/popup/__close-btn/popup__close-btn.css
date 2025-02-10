@@ -1,0 +1,11 @@
+.popup__close-btn {
+    /* Styles for the close button element */
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute; /* Set position to absolute */
+    bottom: 10px; /* Adjust bottom position */
+    right: 10px; /* Adjust right position */
+    color: aliceblue;
+}

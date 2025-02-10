@@ -1,200 +1,156 @@
-import React, {
-  useEffect,
-  useState
-} from 'react'
-import {
-  Route,
-  Routes,
-  useNavigate
-} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import ProtectedRoute from "./ProtectedRoute";
-
-import {mainApi} from "../utils/MainAPI.jsx"
-import {formApi} from "../utils/FormAPI.jsx"
-
-import TeaFormStage1 from './TeaFormStage1.jsx'
-import TeaFormStage2 from './TeaFormStage2.jsx'
-// import MyForm from './MyForm.jsx';
-import Login from './Login.jsx'
-import Registration from './Registration.jsx'
-import Profile from './Profile.jsx'
-import MyForms from './MyForms.jsx'
-import MyFormInteraction from './MyFormInteraction.jsx'
-import Navigation from './Navigation.jsx'
-import Blog from './Blog.jsx'
-
-// import { FormProvider } from "./TeaFormContext";
+import { mainApi } from "../utils/MainAPI.jsx";
+import { formApi } from "../utils/FormAPI.jsx";
+import TeaFormStage1 from './TeaFormStage1.jsx';
+import TeaFormStage2 from './TeaFormStage2.jsx';
+import Login from './Login.jsx';
+import Registration from './Registration.jsx';
+import Profile from './Profile.jsx';
+import MyForms from './MyForms.jsx';
+import MyFormInteraction from './MyFormInteraction.jsx';
+import Navigation from './Navigation.jsx';
+import Blog from './Blog.jsx';
+import PopupMsg from './Popup.jsx';
+import { PopupProvider, usePopup } from './PopupContext.jsx';
 
 function App() {
-  
   const loggedIn = localStorage.getItem("loggedIn");
-
   const navigate = useNavigate();
-  const [regValidError, setRegValidError] = useState({
-    name: '',
-    password: '',
-    email: ''
-  })
-
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      console.log('token')
-      mainApi.handleTokenValidation(token).then(data => {
-        localStorage.setItem('loggedIn', true)
-      }).catch(err => {
-        // console.log(err)
-        localStorage.removeItem('token')
-        localStorage.removeItem('loggedIn')
-      })
+      mainApi.handleTokenValidation(token)
+        .then(data => {
+          localStorage.setItem('loggedIn', true);
+        })
+        .catch(err => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('loggedIn');
+        });
     } else {
-      localStorage.removeItem('token')
-      localStorage.removeItem('loggedIn')
+      localStorage.removeItem('token');
+      localStorage.removeItem('loggedIn');
     }
   }, []);
 
+  return (
+    <PopupProvider>
+      <AppContent loggedIn={loggedIn} navigate={navigate} />
+      <PopupMsg />
+    </PopupProvider>
+  );
+}
+
+function AppContent({ loggedIn, navigate }) {
+  const { openPopup } = usePopup();
+
   const registrationEroresHandler = (error) => {
-    console.log(error)
-    const errorMsg = error.details.body[0]
-    let failedField = errorMsg.split('\"')[1]
-    if (failedField == 'пароль') {
-      failedField = 'password'
-    }
-    console.log(failedField)
-    setRegValidError({
-      ...regValidError,
-      [failedField]: errorMsg
-    })
+    console.log(error);
+    // const errorMsg = error.message;
+    openPopup(error.message);
+  };
 
-  }
-
-  function handleRegistration(data){
-
+  function handleRegistration(data) {
     mainApi.handleRegistration(data.name, data.pass, data.email)
-    .then(res => {
-      console.log(res)
-      const authData = {email: data.email,
-                        password: data.pass
-                      }
-      handleAuthorization(authData)
-      // navigate('/form_1')
-    })
-    .catch(err => {
-      registrationEroresHandler(err)
-    })
-
+      .then(res => {
+        const authData = {
+          email: data.email,
+          password: data.pass
+        };
+        handleAuthorization(authData);
+      })
+      .catch(err => {
+        registrationEroresHandler(err);
+      });
   }
 
-  function handleAuthorization(data){
-    // console.log(data)
+  function handleAuthorization(data) {
     mainApi.handleAuthorization(data.email, data.password)
-    .then(res => {
-      // console.log(res)
-      // setLoggedIn(true)
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('loggedIn', res.ok)
-      if (res.ok) {navigate('/form_1')}
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('loggedIn', res.ok);
+        if (res.ok) {
+          navigate('/form_1');
+        }
+      })
+      .catch(err => console.log(err));
   }
 
-  function postFormStage1(data, formId){
+  function postFormStage1(data, formId) {
 
     formApi.postFormStage1(data, formId)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+      })
+      .catch(err => console.log(err))
   }
 
-  function postFormStage2Aroma(data, formId, brewId, aromaShadeId){
-    // console.log(data)
+  function postFormStage2Aroma(data, formId, brewId, aromaShadeId) {
     formApi.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+      })
+      .catch(err => console.log(err))
   }
-  
-  function patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage){
-    // console.log(data)
+
+  function patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage) {
     formApi.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+      })
+      .catch(err => console.log(err))
   }
 
-
-  function postFormStage2Taste(data, formId, brewId, tasteShadeId){
-    // console.log(data)
+  function postFormStage2Taste(data, formId, brewId, tasteShadeId) {
     formApi.postFormStage2Taste(data, formId, brewId, tasteShadeId)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+      })
+      .catch(err => console.log(err))
   }
-  
-  function patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage){
-    // console.log(data)
+
+  function patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage) {
     formApi.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
-  }  
+      .then(res => {
+      })
+      .catch(err => console.log(err))
+  }
 
-  function postFormStage2Brew(data, formId, brewId){
-    // console.log(data)
+  function postFormStage2Brew(data, formId, brewId) {
     formApi.postFormStage2Brew(data, formId, brewId)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
-  }  
-  
-  function patchFormStage2Brew(data, formId, brewId){
-    // console.log(data)
+      .then(res => {
+      })
+      .catch(err => console.log(err))
+  }
+
+  function patchFormStage2Brew(data, formId, brewId) {
     formApi.patchFormStage2Brew(data, formId, brewId)
-    .then(res=>{
-      // console.log(res)
-      // FormNavigateNextSatge()
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+      })
+      .catch(err => console.log(err))
   }
 
-  async function getAllFromAromaDB(){
+  async function getAllFromAromaDB() {
     await formApi.getAllFromAromaDB()
-    .then(res=>{
-      // console.log(res)
-      localStorage.setItem('aromaDB', JSON.stringify(res))
-    })
-    .catch(err => console.log(err))
+      .then(res => {
+        localStorage.setItem('aromaDB', JSON.stringify(res))
+      })
+      .catch(err => console.log(err))
   }
 
-  async function getAllFromTasteDB(){
-   await formApi.getAllFromTasteDB()
-    .then(res=>{
-      // console.log(res)
-      localStorage.setItem('tasteDB', JSON.stringify(res))
-    })
-    .catch(err => console.log(err))
+  async function getAllFromTasteDB() {
+    await formApi.getAllFromTasteDB()
+      .then(res => {
+        localStorage.setItem('tasteDB', JSON.stringify(res))
+      })
+      .catch(err => console.log(err))
   }
 
   async function getAllMyForms() {
     await formApi.getAllMyForms()
-    .then(res=>{
-      // console.log(res)
-      localStorage.setItem('myForms', JSON.stringify(res))
-    })
-    .catch(err=>{console.log(err)})
+      .then(res => {
+        localStorage.setItem('myForms', JSON.stringify(res))
+      })
+      .catch(err => { console.log(err) })
   }
 
   const FormNavigateNextSatge = () => {
@@ -210,125 +166,22 @@ function App() {
     navigate('/form_submit')
   }
 
-  return (
-    <div className="root">
-      <Routes>
+    return (
+      <div className="root">
+        <Routes>
+          <Route path="/" element={<ProtectedRoute loggedIn={loggedIn} />} />
+          <Route path="/form_1" element={<ProtectedRoute loggedIn={loggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} />} />
+          <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
+          <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
+          <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} component={Profile} />} />
+          <Route path="/my_forms" element={<ProtectedRoute loggedIn={loggedIn} component={MyForms} navigation={FormNavigateToInteracion} getAllMyForms={getAllMyForms} />} />
+          <Route path="/my_forms/formID" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} />} />
+          <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} component={Blog} />} />
+          <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
+          <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
+        </Routes>
+      </div>
+    );
+  }
 
-
-        <Route path = "/"
-        element = {
-          < 
-          ProtectedRoute 
-          loggedIn = {loggedIn}
-          />
-          }
-        />
-        
-        <Route path = "/form_1"
-        element = {
-          < 
-          ProtectedRoute 
-          loggedIn = {loggedIn}
-          component = {TeaFormStage1} 
-          nextStage = {FormNavigateNextSatge}
-          navigation = {Navigation}
-          getAllFromAromaDB = {getAllFromAromaDB}
-          getAllFromTasteDB = {getAllFromTasteDB}
-          
-          />
-          }
-        />
-
-        <Route path = "/form_2"
-        element = {
-          < 
-          ProtectedRoute
-          loggedIn = {loggedIn}
-          component = {TeaFormStage2}
-          nextStage = {FormNavigateToFormInteraction}
-          prevStage = {FormNavigatePrevSatge}
-          navigation = {Navigation}
-
-          />
-          }
-        />
-
-        <Route path = "/form_submit"
-        element = {
-          < 
-          ProtectedRoute
-          loggedIn = {loggedIn}
-          component={MyFormInteraction}
-          navigateAfterSubmit = {FormNavigatePrevSatge}
-
-          postFormStage1 = {postFormStage1}
-          postFormStage2Aroma = {postFormStage2Aroma}
-          patchFormStage2Aroma = {patchFormStage2Aroma}
-          postFormStage2Taste = {postFormStage2Taste}
-          patchFormStage2Taste = {patchFormStage2Taste}
-          postFormStage2Brew = {postFormStage2Brew}
-          patchFormStage2Brew = {patchFormStage2Brew}
-          
-          />
-          }
-        />
-
-        <Route path = "/profile"
-        element = {
-          < 
-          ProtectedRoute
-          loggedIn = {loggedIn}
-          component = {Profile}
-          />
-          }
-        />
-        <Route path = "/my_forms"
-        element = {
-          < 
-          ProtectedRoute
-          loggedIn = {loggedIn}
-          component = {MyForms}
-          navigation = {FormNavigateToInteracion}
-          getAllMyForms = {getAllMyForms}
-          />
-          }
-        />
-        <Route path = "/my_forms/formID"
-        element = {
-          < 
-          ProtectedRoute
-          loggedIn = {loggedIn}
-          component = {MyFormInteraction}
-          />
-          }
-        />
-        <Route path = "/blog"
-        element = {
-          < 
-          ProtectedRoute
-          loggedIn = {loggedIn}
-          component = {Blog}
-          />
-          }
-        />
-
-        <Route path = "/sign-in"
-        element = {
-          <Login auth = {handleAuthorization}/>
-        }
-        />
-        <Route path = "/sign-up"
-        element = {
-          <Registration 
-          auth = {handleRegistration}
-          regValidError = {regValidError}
-          
-          />
-          }
-        />
-      </Routes>
-    </div>
-  );
-}
-
-export default App;
+  export default App;

@@ -66,3 +66,8 @@
 @import url(./blocks/navigation/__link/navigation__link.css);
 @import url(./blocks/navigation/__link/_active/navigation__link_active.css);
 
+
+@import url(./blocks/popup/popup.css);
+@import url(./blocks/popup/__content/popup__content.css);
+@import url(./blocks/popup/__close-btn/popup__close-btn.css);
+@import url(./blocks/popup/__content-header/popup__content-header.css);
