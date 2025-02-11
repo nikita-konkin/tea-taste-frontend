@@ -8,6 +8,15 @@ const theme = createTheme({
         fontFamily: 'jura',
         fontSize: 16
     },
+    breakpoints: {
+        values: {
+          xs: 265,
+          sm: 600,
+          md: 900,
+          lg: 1200,
+          xl: 1536,
+        },
+      },
 });
 
 const ActiveRaitingPial = (props) => (
@@ -63,14 +72,30 @@ const handleRatingChange = (event, newValue, name, setValue) => {
 };
 
 const CustomRaiting = styled(Rating)(({ theme }) => ({
-    [theme.breakpoints.down('sm')]: {
+    
+    // [theme.breakpoints.down('sm')]: {
+    //     '& .MuiRating-icon': {
+    //         marginRight: '9px',
+    //     },
+    // },
+    [theme.breakpoints.up('xs')]: {
         '& .MuiRating-icon': {
-            marginRight: '8px',
+            marginRight: '12px',
+            width: '25px',
+            height: '15px',
+        },
+    },
+    [theme.breakpoints.down('xs')]: {
+        '& .MuiRating-icon': {
+            marginRight: '-8px',
+            width: '25px',
+            height: '15px',
         },
     },
     [theme.breakpoints.up('sm')]: {
         '& .MuiRating-icon': {
             marginRight: '20px',
+            width: '30px',
         },
     },
 }));

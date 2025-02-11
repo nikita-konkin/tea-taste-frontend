@@ -4,7 +4,11 @@ import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
+
+import timerSound from '../sounds/timer_30s.mp3';
+
 
 const theme = createTheme({
     typography: {
@@ -66,9 +70,18 @@ const StyledTextField = styled(TextField)({
         },
     },
 });
+const btnStyle = {
+	color: '#ffffff',
+	borderColor: '#ffffff',
+	backgroundColor: '#367272', 
+    // width: '95%',
 
+}
 const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, ref) => {
     const [timeValue, setTimeValue] = useState(dayjs(value, timeFormat));
+    const [timer, setTimer] = useState(null);
+    const [isRunning, setIsRunning] = useState(false);
+    const [soundTimer, setSoundTimer] = useState(null);
 
     useEffect(() => {
         if (value) {
@@ -79,7 +92,37 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
     const handleTimeChange = (newValue) => {
         const formattedTime = dayjs(newValue).format(timeFormat);
         setTimeValue(dayjs(newValue, timeFormat));
+        console.log('formattedTime', dayjs(newValue, timeFormat));
         setValue(name, newValue);
+    };
+
+    const playSound = () => {
+        const audio = new Audio(timerSound); // Replace with the path to your sound file
+        audio.play();
+    };
+
+    const handleStartStop = () => {
+        if (isRunning) {
+            clearInterval(timer);
+            clearInterval(soundTimer);
+            setTimer(null);
+            setSoundTimer(null);
+            setIsRunning(false);
+        } else {
+            const newTimer = setInterval(() => {
+                setTimeValue(prevTime => {
+                    const newTime = prevTime.add(1, 'second');
+                    setValue(name, dayjs(newTime, timeFormat));
+                    return newTime;
+                });
+            }, 1000);
+            const newSoundTimer = setInterval(() => {
+                playSound();
+            }, 30000); // Play sound every 30 seconds
+            setTimer(newTimer);
+            setSoundTimer(newSoundTimer);
+            setIsRunning(true);
+        }
     };
 
     return (
@@ -108,6 +151,14 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
                         />
                     )}
                 />
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={handleStartStop}
+                    style={btnStyle}
+                >
+                    {isRunning ? 'Остановить таймер' : 'Запустить таймер'}
+                </Button>
             </LocalizationProvider>
         </ThemeProvider>
     );

@@ -243,6 +243,7 @@ function MyFormInteraction(props) {
 						<li className="myforminteraction__row"><bdi>Вода: </bdi>{stage1Data.waterBrand  != null ? stage1Data.waterBrand.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{stage1Data.waterVolume} мл</li>
 						<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{stage1Data.waterTemperature} oC</li>
+						<li className="myforminteraction__row"><bdi>Цена чая за грамм: </bdi>{stage1Data.price} ₽</li>
 						<li className="myforminteraction__row"><bdi>Посуда: </bdi>{stage1Data.teaWare  != null ? stage1Data.teaWare.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{stage1Data.brewingType != null ? stage1Data.brewingType.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Дата публикации: </bdi>{currentTimestamp}</li>

@@ -32,7 +32,7 @@ function App() {
         });
     } else {
       localStorage.removeItem('token');
-      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('loggedIn');  
     }
   }, []);
 
@@ -47,11 +47,11 @@ function App() {
 function AppContent({ loggedIn, navigate }) {
   const { openPopup } = usePopup();
 
-  const registrationEroresHandler = (error) => {
-    console.log(error);
-    // const errorMsg = error.message;
-    openPopup(error.message);
-  };
+  // const registrationEroresHandler = (error) => {
+  //   console.log(error);
+  //   // const errorMsg = error.message;
+  //   openPopup(error.message);
+  // };
 
   function handleRegistration(data) {
     mainApi.handleRegistration(data.name, data.pass, data.email)
@@ -63,7 +63,8 @@ function AppContent({ loggedIn, navigate }) {
         handleAuthorization(authData);
       })
       .catch(err => {
-        registrationEroresHandler(err);
+        // registrationEroresHandler(err);
+        openPopup(err.message);
       });
   }
 
@@ -72,11 +73,15 @@ function AppContent({ loggedIn, navigate }) {
       .then(res => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('loggedIn', res.ok);
+        console.log(res);
         if (res.ok) {
           navigate('/form_1');
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        openPopup(err.message);
+      });
   }
 
   function postFormStage1(data, formId) {

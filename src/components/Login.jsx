@@ -22,7 +22,6 @@ function Login(props) {
 		})
 	}
 
-
 	return(
 
 		<form className="authorization" onSubmit={e=>handleOnSubmit(e)}>

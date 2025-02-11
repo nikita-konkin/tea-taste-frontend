@@ -43,32 +43,12 @@ class MainApi {
 		})
 		  .then(res => this.error(res))
 		  .catch((error) => {
-			console.error('Error:', error);
+			// console.error('Error:', error);
 			throw error; // Re-throw the error to be handled by the calling function
 		  });
   
 	}
 
-
-	// fetch('/your-api-endpoint', {
-	// 	method: 'POST',
-	// 	headers: {
-	// 	  'Content-Type': 'application/json',
-	// 	},
-	// 	body: JSON.stringify(yourData),
-	//   })
-	// 	.then(response => response.json())
-		// .then(data => {
-		//   if (data.status === 'error') {
-		// 	console.error('Error:', data.message);
-		// 	console.error('Details:', data.details);
-		//   } else {
-		// 	console.log('Success:', data);
-		//   }
-		// })
-		// .catch(error => {
-		//   console.error('Error:', error);
-		// });
 
 	handleAuthorization(email, pass) {
 
@@ -81,6 +61,11 @@ class MainApi {
 				password: pass
 			})
 		})
+		.then(res => this.error(res))
+		  .catch((error) => {
+			// console.error('Error:', error);
+			throw error; // Re-throw the error to be handled by the calling function
+		  });
 
 	}
 

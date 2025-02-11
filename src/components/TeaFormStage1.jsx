@@ -11,7 +11,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
 	SLIDER_WEIGHT_DATA,
 	SLIDER_WATER_DATA,
-	SLIDER_TEMPERATURE_DATA
+	SLIDER_TEMPERATURE_DATA,
+	SLIDER_PRICE_DATA
 } from '../utils/utils.js'
 
 const theme = createTheme({
@@ -200,6 +201,7 @@ const TeaFormStage1 = (props) => {
 			waterBrand: null,
 			waterVolume: 100,
 			waterTemperature: 95,
+			price: 5,
 			teaWare: null,
 			brewingType: null,
 			teaCountry: null,
@@ -362,6 +364,22 @@ const TeaFormStage1 = (props) => {
 									units='°C'
 									marks={SLIDER_TEMPERATURE_DATA}
 									boxId='waterTemperature'
+									setValue={setValue}
+									{...field}
+								/>
+							}
+						/>
+						<Controller
+							control={control}
+							name="price"
+							render={({ field }) =>
+								<SliderBox
+									sliderName='Цена за  грамм чая'
+									maxValue={150}
+									// defaultValue={5}
+									units='₽'
+									marks={SLIDER_PRICE_DATA}
+									boxId='price'
 									setValue={setValue}
 									{...field}
 								/>

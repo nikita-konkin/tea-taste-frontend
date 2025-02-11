@@ -91,8 +91,16 @@ function TeaFormStage2(props) {
 		const savedValues = localStorage.getItem('teaFormStage2');
 		return savedValues ? JSON.parse(savedValues, (key, value) => {
 			if (key === 'straitTime') {
-				return dayjs(value);
+				
+				if (value === null) {
+					return dayjs().hour(0).minute(0).second(0);
+				} else	{
+					// console.log((value));
+					// console.log(dayjs(value, 'HH:mm:ss'));
+					return dayjs(value, 'HH:mm:ss');
+				}
 			}
+			// console.log(value);
 			return value;
 		}) : {
 			straits: [{
@@ -107,7 +115,7 @@ function TeaFormStage2(props) {
 					tasteStage3: null,
 				}],
 				straitDescription: '',
-				straitTime: dayjs().hour(0).minute(0).second(10),
+				straitTime: dayjs().hour(0).minute(0).second(0),
 				straitRaiting: 7
 			}]
 		};
