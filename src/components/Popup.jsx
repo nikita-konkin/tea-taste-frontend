@@ -7,19 +7,19 @@ export default function PopupMsg() {
     const { open, content, closePopup } = usePopup();
     // const [localContent, setLocalContent] = useState(content)
     // const [localOpenPopup, setLocalOpenPopup] = useState(open)
-    useEffect(() => {
-        console.log(content)
-    }, [content])
-    useEffect(() => {
-        console.log(open)
-    }, [open])
+    // useEffect(() => {
+    //     console.log(content)
+    // }, [content])
+    // useEffect(() => {
+    //     console.log(open)
+    // }, [open])
 
     return (
         <>
 
             <Popup open={open}
                 modal nested closeOnDocumentClick
-                contentStyle={{ width: '40%', height: '20%', background: 'none', border: 'none' }}
+                contentStyle={{ width: '80%', height: '50%', background: 'none', border: 'none' }}
                 onClose={closePopup}>
                 {
                     close => (

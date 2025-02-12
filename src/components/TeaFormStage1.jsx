@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
+import { useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses, createFilterOptions } from '@mui/material';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
+import AutocompleteBox from './AutocompleteBox.jsx';
+
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -181,11 +183,127 @@ const teaCountryOptions = [
 	{ label: 'Австралия', value: 'australia' },
 ];
 
+const teaNamesChina = [
+
+	{ label: 'Лунцзин (Колодец Дракона)', value: 'longjing' },
+	{ label: 'Билочунь (Изумрудные Спирали Весны)', value: 'bilochun' },
+	{ label: 'Те Гуаньинь (Железная Богиня Милосердия)', value: 'tieguanyin' },
+	{ label: 'Да Хун Пао (Большой Красный Халат)', value: 'dahongpao' },
+	{ label: 'Бай Хао Инь Чжэнь (Серебряные Иглы с Белым Ворсом)', value: 'baihao_yinzhen' },
+	{ label: 'Хуаншань Маофэн (Ворсистые Пики Желтой Горы)', value: 'huangshan_maofeng' },
+	{ label: 'Цзюньшань Иньчжэнь (Серебряные Иглы с Горы Цзюньшань)', value: 'junshan_yinzhen' },
+	{ label: 'Ци Мэнь Хун Ча (Красный Чай из Цимэнь)', value: 'qimen_hongcha' },
+	{ label: 'Лю Ань Гуа Пянь (Тыквенные Семечки из Лю Ань)', value: 'liu_an_guapian' },
+	{ label: 'Тай Пин Хоу Куй (Главарь Обезьян из Тайпин)', value: 'taiping_houkui' },
+	{ label: 'Синьян Мао Цзянь (Ворсистые Острия из Синьяна)', value: 'xinyang_maojian' },
+	{ label: 'Дянь Хун (Красный Чай из Юньнани)', value: 'dian_hong' },
+	{ label: 'Лю Бао Ча (Чай из Шести Холмов)', value: 'liu_bao_cha' },
+	{ label: 'Фэн Хуан Дань Цун (Одинокие Кусты с Горы Феникса)', value: 'feng_huang_dan_cong' },
+	{ label: 'Шу Пуэр (Созревший Пуэр)', value: 'shu_puer' },
+	{ label: 'Шэн Пуэр (Сырой Пуэр)', value: 'sheng_puer' },
+	{ label: 'Цзинь Цзюнь Мэй (Золотые Брови)', value: 'jin_jun_mei' },
+	{ label: 'Бай Му Дань (Белый Пион)', value: 'bai_mu_dan' },
+	{ label: 'Шоу Мэй (Брови Долголетия)', value: 'shou_mei' },
+	{ label: 'Гу Хуа Ча (Османтусовый Чай)', value: 'gu_hua_cha' },
+	{ label: 'Моли Хуа Ча (Жасминовый Чай)', value: 'moli_hua_cha' },
+	{ label: 'Люань Гуапянь (Тыквенные Семечки из Люаня)', value: 'luan_guapian' },
+	{ label: 'Мао Се (Ворсистый Краб)', value: 'mao_xie' },
+	{ label: 'Бай Линь Гунфу (Белый Лесной Гунфу)', value: 'bai_lin_gongfu' },
+	{ label: 'Чжэн Шань Сяо Чжун (Лапсанг Сушонг)', value: 'zheng_shan_xiao_zhong' },
+	{ label: 'Си Ху Лун Цзин (Колодец Дракона с озера Си Ху)', value: 'xi_hu_long_jing' },
+	{ label: 'Дунтин Би Ло Чунь (Изумрудные Спирали Весны с Дунтина)', value: 'dongting_bi_luo_chun' },
+	{ label: 'Уи Янь Ча (Скальный Чай из Уи)', value: 'wuyi_yan_cha' },
+	{ label: 'Дуюнь Мао Цзянь (Ворсистые Острия из Дуюнь)', value: 'duyun_maojian' },
+	{ label: 'Цзинь Я Дянь Хун (Золотые Почки Юньнаньского Красного Чая)', value: 'jin_ya_dian_hong' },
+	{ label: 'Е Шен Люй Ча (Дикий Зелёный Чай)', value: 'ye_sheng_lv_cha' },
+	{ label: 'Фэн Янь (Глаз Феникса)', value: 'feng_yan' },
+	{ label: 'Хуа Лун Чжу (Жасминовая Жемчужина Дракона)', value: 'hua_long_zhu' },
+	{ label: 'Моли Хоу Ван (Жасминовый Повелитель Обезьян)', value: 'moli_hou_wang' },
+	{ label: 'Моли Хэй Цзинь (Жасминовое Чёрное Золото)', value: 'moli_hei_jin' },
+	{ label: 'Моли Цзинь Лун Фэн Янь (Жасминовый Золотой Дракон и Глаз Феникса)', value: 'moli_jin_long_feng_yan' },
+	{ label: 'Моли Цзинь Сы Инь Гоу (Жасминовые Золотые Нити и Серебряные Крючки)', value: 'moli_jin_si_yin_gou' },
+	{ label: 'Моли Цзинь Ло (Жасминовые Золотые Спирали)', value: 'moli_jin_luo' },
+	{ label: 'Моли Цзинь Чжэнь (Жасминовые Золотые Иглы)', value: 'moli_jin_zhen' },
+];
+
+
+const teaNamesRetail = [
+	{ label: 'Ahmad Tea English Breakfast', value: 'ahmad_tea_english_breakfast' },
+	{ label: 'Ahmad Tea Earl Grey', value: 'ahmad_tea_earl_grey' },
+	{ label: 'Ahmad Tea Green Tea', value: 'ahmad_tea_green_tea' },
+	{ label: 'Ahmad Tea Ceylon Tea', value: 'ahmad_tea_ceylon_tea' },
+	{ label: 'Greenfield Golden Ceylon', value: 'greenfield_golden_ceylon' },
+	{ label: 'Greenfield Earl Grey Fantasy', value: 'greenfield_earl_grey_fantasy' },
+	{ label: 'Greenfield Flying Dragon', value: 'greenfield_flying_dragon' },
+	{ label: 'Greenfield Summer Bouquet', value: 'greenfield_summer_bouquet' },
+	{ label: 'Dilmah Ceylon Supreme', value: 'dilmah_ceylon_supreme' },
+	{ label: 'Dilmah Earl Grey', value: 'dilmah_earl_grey' },
+	{ label: 'Dilmah English Breakfast', value: 'dilmah_english_breakfast' },
+	{ label: 'Dilmah Green Tea', value: 'dilmah_green_tea' },
+	{ label: 'Riston English Elite', value: 'riston_english_elite' },
+	{ label: 'Riston Earl Grey', value: 'riston_earl_grey' },
+	{ label: 'Riston Golden Ceylon', value: 'riston_golden_ceylon' },
+	{ label: 'Riston Green Tea', value: 'riston_green_tea' },
+	{ label: 'Tess Pleasure', value: 'tess_pleasure' },
+	{ label: 'Tess Sunrise', value: 'tess_sunrise' },
+	{ label: 'Tess Earl Grey', value: 'tess_earl_grey' },
+	{ label: 'Tess Green Tea', value: 'tess_green_tea' },
+	{ label: 'Lipton Yellow Label', value: 'lipton_yellow_label' },
+	{ label: 'Lipton Earl Grey', value: 'lipton_earl_grey' },
+	{ label: 'Lipton Green Tea', value: 'lipton_green_tea' },
+	{ label: 'Lipton Forest Fruit', value: 'lipton_forest_fruit' },
+	{ label: 'Майский чай Высокогорный', value: 'mayskiy_chay_vysokogorny' },
+	{ label: 'Майский чай Классический', value: 'mayskiy_chay_klassicheskiy' },
+	{ label: 'Майский чай Ассам', value: 'mayskiy_chay_assam' },
+	{ label: 'Майский чай Зеленый', value: 'mayskiy_chay_zelenyy' },
+	{ label: 'Curtis Original Ceylon', value: 'curtis_original_ceylon' },
+	{ label: 'Curtis Earl Grey', value: 'curtis_earl_grey' },
+	{ label: 'Curtis Green Tea', value: 'curtis_green_tea' },
+	{ label: 'Curtis Mango Green', value: 'curtis_mango_green' },
+	{ label: 'Akbar Gold', value: 'akbar_gold' },
+	{ label: 'Akbar Earl Grey', value: 'akbar_earl_grey' },
+	{ label: 'Akbar Green Tea', value: 'akbar_green_tea' },
+	{ label: 'Akbar Pure Ceylon', value: 'akbar_pure_ceylon' },
+	{ label: 'Азерчай Букет', value: 'azerchay_buket' },
+	{ label: 'Азерчай с бергамотом', value: 'azerchay_s_bergamotom' },
+	{ label: 'Азерчай с чабрецом', value: 'azerchay_s_chabrecom' },
+	{ label: 'Азерчай Зеленый', value: 'azerchay_zelenyy' },
+	{ label: 'ISLA Английский Завтрак', value: 'isla_english_breakfast' },
+	{ label: 'ISLA Ганпаудер', value: 'isla_ganpauder' },
+	{ label: 'ISLA Жасмин', value: 'isla_jasmin' },
+	{ label: 'ISLA Молочный Улун', value: 'isla_molokhniy_ulun' },
+	{ label: 'Newby English Breakfast', value: 'newby_english_breakfast' },
+	{ label: 'Newby Earl Grey', value: 'newby_earl_grey' },
+	{ label: 'Newby Green Tea', value: 'newby_green_tea' },
+	{ label: 'Newby Darjeeling', value: 'newby_darjeeling' },
+	{ label: 'Pickwick English Breakfast', value: 'pickwick_english_breakfast' },
+	{ label: 'Pickwick Earl Grey', value: 'pickwick_earl_grey' },
+	{ label: 'Pickwick Green Tea', value: 'pickwick_green_tea' },
+	{ label: 'Pickwick Rooibos', value: 'pickwick_rooibos' },
+	{ label: 'Basilur Ceylon', value: 'basilur_ceylon' },
+	{ label: 'Basilur Earl Grey', value: 'basilur_earl_grey' },
+	{ label: 'Basilur Green Tea', value: 'basilur_green_tea' },
+	{ label: 'Basilur White Tea', value: 'basilur_white_tea' },
+	{ label: 'Althaus English Breakfast', value: 'althaus_english_breakfast' },
+	{ label: 'Althaus Earl Grey', value: 'althaus_earl_grey' },
+	{ label: 'Althaus Green Tea', value: 'althaus_green_tea' },
+	{ label: 'Althaus Darjeeling', value: 'althaus_darjeeling' },
+	{ label: 'Lovare English Breakfast', value: 'lovare_english_breakfast' },
+	{ label: 'Lovare Earl Grey', value: 'lovare_earl_grey' },
+	{ label: 'Lovare Green Tea', value: 'lovare_green_tea' },
+	{ label: 'Lovare Rooibos', value: 'lovare_rooibos' },
+	{ label: 'Westminster Ostfriesische', value: 'westminster_ostfriesische' },
+	{ label: 'Westminster Earl Grey', value: 'westminster_earl_grey' },
+];
+   
+const teaNames = teaNamesChina.concat(teaNamesRetail);
 
 
 const TeaFormStage1 = (props) => {
 
 	const matches = useMediaQuery('(min-width:300px)');
+
+	const filter = createFilterOptions();
 
 	useEffect(() => {
 		props.getAllFromAromaDB()
@@ -243,13 +361,18 @@ const TeaFormStage1 = (props) => {
 							name="teaName"
 							rules={{ required: 'Введите название чая' }}
 							render={({ field, fieldState: { error } }) =>
-
-								<TextField {...field}
-									label="Название чая"
-									required
-									error={!!error}
-									helperText={error ? error.message : ''}
+								<AutocompleteBox
+									optionsObj={teaNames}
+									name='teaName'
+									label='Название чая'
+									setValue={setValue}
 								/>
+								// <TextField {...field}
+								// 	label="Название чая"
+								// 	required
+								// 	error={!!error}
+								// 	helperText={error ? error.message : ''}
+								// />
 
 							}
 						/>
@@ -321,20 +444,14 @@ const TeaFormStage1 = (props) => {
 							control={control}
 							name="waterBrand"
 							render={({ field, fieldState: { error } }) => (
-								<Autocomplete
-									{...field}
-									options={waterBrandOptions}
-									getOptionLabel={(option) => option.label}
-									renderInput={(params) =>
-										<TextField {...params}
-											label="Марка воды"
-											required
-											error={!!error}
-											helperText={error ? error.message : ''}
-										/>}
-									onChange={(_, data) => field.onChange(data)}
-									PopperComponent={StyledPopper}
+
+								<AutocompleteBox
+									optionsObj={waterBrandOptions}
+									name='waterBrand'
+									label='Бренд воды'
+									setValue={setValue}
 								/>
+
 							)}
 						/>
 						<Controller

@@ -95,7 +95,7 @@ function MyFormInteraction(props) {
 
 		renderAromasAndTastes(stage2Data, straitNum, true, false)
 		renderAromasAndTastes(stage2Data, straitNum, false, true)
-
+		// console.log(dayjs(stage2Data.straits[straitNum].straitTime).format('HH:mm:ss'))
 		return (
 			<section className="myforminteraction__section" key={straitNum}>
 				<ul className="myform__list">
@@ -237,7 +237,7 @@ function MyFormInteraction(props) {
 
 				<section className="myforminteraction__section">
 					<ul className="myforminteraction__list">
-						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName : ''}</li>
+						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{stage1Data.teaType != null ? stage1Data.teaType.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Вес: </bdi>{stage1Data.teaWeight} г</li>
 						<li className="myforminteraction__row"><bdi>Вода: </bdi>{stage1Data.waterBrand  != null ? stage1Data.waterBrand.label : ''}</li>

@@ -158,6 +158,62 @@ function AppContent({ loggedIn, navigate }) {
       .catch(err => { console.log(err) })
   }
 
+  async function getAllMyBrewingsById(id) {
+    await formApi.getAllMyBrewingsById(id)
+      .then(res => {
+        localStorage.setItem(`brews_${id}`, JSON.stringify(res))
+      })
+      .catch(err => { console.log(err) })
+  }
+
+  async function getAllMyTastesById(id) {
+    await formApi.getAllMyTastesById(id)
+      .then(res => {
+        localStorage.setItem(`tastes_${id}`, JSON.stringify(res))
+      })
+      .catch(err => { console.log(err) })
+  }
+
+  async function getAllMyAromasById(id) {
+    await formApi.getAllMyAromasById(id)
+      .then(res => {
+        localStorage.setItem(`aromas_${id}`, JSON.stringify(res))
+      })
+      .catch(err => { console.log(err) })
+  }
+
+  async function delMyFormById(id) {
+    await formApi.delMyFormById(id)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => { console.log(err) })
+  }
+
+  async function delMyBrewsById(id) {
+    await formApi.delMyBrewsById(id)
+      .then(res => {
+        console.log(res)
+      }) 
+      .catch(err => { console.log(err) })
+  }
+
+  async function delMyTastesById(id) {
+    await formApi.delMyTastesById(id)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => { console.log(err) })
+  }
+
+  async function delMyAromasById(id) {
+    await formApi.delMyAromasById(id)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => { console.log(err) })
+  }
+
   const FormNavigateNextSatge = () => {
     navigate('/form_2')
   }
@@ -179,8 +235,16 @@ function AppContent({ loggedIn, navigate }) {
           <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
           <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
           <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} component={Profile} />} />
-          <Route path="/my_forms" element={<ProtectedRoute loggedIn={loggedIn} component={MyForms} navigation={FormNavigateToInteracion} getAllMyForms={getAllMyForms} />} />
-          <Route path="/my_forms/formID" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} />} />
+          <Route path="/my_forms" element={<ProtectedRoute 
+          loggedIn={loggedIn} 
+          component={MyForms} 
+          navigation={FormNavigateToInteracion} 
+          getAllMyForms={getAllMyForms} 
+          getAllMyBrewingsById={getAllMyBrewingsById}
+          getAllMyTastesById={getAllMyTastesById}
+          getAllMyAromasById={getAllMyAromasById}
+          />} />
+          {/* <Route path="/my_forms/formID" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} />} /> */}
           <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} component={Blog} />} />
           <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
           <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />

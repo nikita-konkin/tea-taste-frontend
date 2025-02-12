@@ -9,7 +9,7 @@ import Header from './Header.jsx'
 import MyForm from './MyForm.jsx'
 import { useForm } from 'react-hook-form'
 
-function MyForms(props) {
+function MyForms({getAllMyForms, navigation, getAllMyBrewingsById, getAllMyAromasById, getAllMyTastesById}) {
 
 	const forms = []
 	const [checkLS, setCheckLS] = useState(false)
@@ -17,7 +17,7 @@ function MyForms(props) {
 	// const [myFormsData, setMyFormsData] = useState([])	
 
 	useEffect(()=>{
-		props.getAllMyForms()
+		getAllMyForms()
 		// console.log('tyt')
 	}, [])
 
@@ -40,7 +40,15 @@ function MyForms(props) {
 
 	const prepareFormsRender = (myFormsData) => {
 		for (let formData of Object.values(myFormsData)[0]) {
-			forms.push(<MyForm navigation={props.navigation} formData={formData}/>)
+			forms.push(
+			<MyForm 
+			navigation={navigation} 
+			formData={formData}
+			getAllMyBrewingsById={getAllMyBrewingsById}
+			getAllMyAromasById={getAllMyAromasById}
+			getAllMyTastesById={getAllMyTastesById}
+			/>
+		)
 		}
 	}
 
@@ -49,7 +57,7 @@ function MyForms(props) {
 		
 		return(
 			<>
-			<Header navigation={props.navigation}/>
+			<Header navigation={navigation}/>
 			<div className="myforms">
 				<h2 className="header__myforms">Ищем ваши формы...</h2>
 			</div>
@@ -59,7 +67,7 @@ function MyForms(props) {
 
 	return(
 		<>
-			<Header navigation={props.navigation}/>
+			<Header navigation={navigation}/>
 			<div className="myforms">
 				<h2 className="header__myforms">Мои формы</h2>
 				{renderForms}

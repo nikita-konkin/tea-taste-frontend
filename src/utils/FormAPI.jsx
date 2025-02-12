@@ -18,12 +18,13 @@ class FormApi {
                 credentials: 'include',
                 headers: this._headers,
                 body: JSON.stringify({
-                    nameRU: data.teaName,
+                    nameRU: data.teaName.label,
                     type: data.teaType.label,
                     weight: data.teaWeight,
                     water: data.waterBrand.label,
                     volume: data.waterVolume,
                     temperature: data.waterTemperature,
+                    price: data.price,
                     teaware: data.teaWare.label,
                     brewingtype: data.brewingType.label,
                     country: data.teaCountry.label
@@ -177,6 +178,107 @@ class FormApi {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-forms`, {
                 method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+    async getAllMyBrewingsById(brewId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-brewings/${brewId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+    async getAllMyTastesById(tasteId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-tastes/${tasteId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+
+    async getAllMyAromasById(aromaId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-aromas/${aromaId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+
+    async delMyFormById(formId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-form/${formId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+    async delMyBrewsById(brewId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-brews/${brewId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+    async delAllMyTastesById(tasteId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-tastes/${tasteId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+
+    async delAllMyAromasById(aromaId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/my-aromas/${aromaId}`, {
+                method: 'DELETE',
                 credentials: 'include',
                 headers: this._headers
             });

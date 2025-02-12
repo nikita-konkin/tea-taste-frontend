@@ -240,6 +240,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 						control={control}
 						key={aromaField.id}
 						optionsAroma={optionsAroma}
+						setValue={setValue}
 					/>
 
 				))}
@@ -266,6 +267,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 						control={control}
 						key={tasteField.id}
 						optionsTaste={optionsTaste}
+						setValue={setValue}
 					/>
 
 				))}
@@ -362,9 +364,23 @@ const aromaOptionsHandler = (watch, straitIndex, index, optionsAroma) => {
 
 }
 
-function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, control, optionsAroma }) {
+function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, control, optionsAroma, setValue }) {
+
 
 	let { aromaCategoryList, subcategoryList, subSubcategoryList } = aromaOptionsHandler(watch, straitIndex, aromaIndex, optionsAroma)
+	
+	useEffect(() => {
+		if (subcategoryList.length === 0) {
+			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage2`, null);
+			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`, null);
+		}
+	}, [subcategoryList.length, straitIndex, aromaIndex, setValue]);
+	
+	useEffect(() => {
+		if (subSubcategoryList.length === 0) {
+			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`, null);
+		}
+	}, [subSubcategoryList.length, straitIndex, aromaIndex, setValue]);
 
 	return (
 
@@ -448,9 +464,23 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 
 }
 
-function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, control, optionsTaste }) {
+function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, control, optionsTaste, setValue }) {
 
 	let { tasteCategoryList, subcategoryListTaste, subSubcategoryListTaste } = tasteOptionsHandler(watch, straitIndex, tasteIndex, optionsTaste)
+
+	useEffect(() => {
+		if (subcategoryListTaste.length === 0) {
+			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage2`, null);
+			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`, null);
+		}
+	}, [subcategoryListTaste.length, straitIndex, tasteIndex, setValue]);
+	
+	useEffect(() => {
+		if (subSubcategoryListTaste.length === 0) {
+			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`, null);
+		}
+	}, [subSubcategoryListTaste.length, straitIndex, tasteIndex, setValue]);
+	
 
 	return (
 
