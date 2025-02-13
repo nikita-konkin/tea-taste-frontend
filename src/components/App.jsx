@@ -14,6 +14,8 @@ import Navigation from './Navigation.jsx';
 import Blog from './Blog.jsx';
 import PopupMsg from './Popup.jsx';
 import { PopupProvider, usePopup } from './PopupContext.jsx';
+import { MyFormConextProvider, useMyFormConext} from './MyFormConext.jsx';
+import { set } from 'react-hook-form';
 
 function App() {
   const loggedIn = localStorage.getItem("loggedIn");
@@ -38,15 +40,24 @@ function App() {
 
   return (
     <PopupProvider>
-      <AppContent loggedIn={loggedIn} navigate={navigate} />
-      <PopupMsg />
+      <MyFormConextProvider>
+        <AppContent loggedIn={loggedIn} navigate={navigate} />
+        <PopupMsg />
+      </MyFormConextProvider>
     </PopupProvider>
   );
 }
 
 function AppContent({ loggedIn, navigate }) {
   const { openPopup } = usePopup();
+  const { updateAromasById, updateTastesById, updateBrewsById } = useMyFormConext();
 
+  // const [aromasLoad, setAromasLoad] = useState(true);
+  // const [tastesLoad, setTastesLoad] = useState(true);
+  const [myFormsLoad, setMyFormsLoad] = useState(true);
+  // const [myBrewsLoad, setMyBrewsLoad] = useState(true);
+
+  const [myForms, setMyForms] = useState(null);
   // const registrationEroresHandler = (error) => {
   //   console.log(error);
   //   // const errorMsg = error.message;
@@ -154,6 +165,9 @@ function AppContent({ loggedIn, navigate }) {
     await formApi.getAllMyForms()
       .then(res => {
         localStorage.setItem('myForms', JSON.stringify(res))
+        setMyFormsLoad(false)
+        setMyForms((JSON.stringify(res)))
+        // console.log(JSON.stringify(res))
       })
       .catch(err => { console.log(err) })
   }
@@ -161,7 +175,11 @@ function AppContent({ loggedIn, navigate }) {
   async function getAllMyBrewingsById(id) {
     await formApi.getAllMyBrewingsById(id)
       .then(res => {
+        // setMyBrewsLoad(false)
         localStorage.setItem(`brews_${id}`, JSON.stringify(res))
+        // setBrewsById(JSON.stringify(res))
+        
+        updateBrewsById((res))
       })
       .catch(err => { console.log(err) })
   }
@@ -169,7 +187,10 @@ function AppContent({ loggedIn, navigate }) {
   async function getAllMyTastesById(id) {
     await formApi.getAllMyTastesById(id)
       .then(res => {
+        // setTastesLoad(false)
         localStorage.setItem(`tastes_${id}`, JSON.stringify(res))
+        // setTastesById(JSON.stringify(res))
+        updateTastesById((res))
       })
       .catch(err => { console.log(err) })
   }
@@ -177,7 +198,13 @@ function AppContent({ loggedIn, navigate }) {
   async function getAllMyAromasById(id) {
     await formApi.getAllMyAromasById(id)
       .then(res => {
+        
         localStorage.setItem(`aromas_${id}`, JSON.stringify(res))
+        // setAromasLoad(false) 
+        // setAromasById(JSON.stringify(res))
+        // console.log(JSON.stringify(res))
+        updateAromasById((res)) 
+
       })
       .catch(err => { console.log(err) })
   }
@@ -240,9 +267,26 @@ function AppContent({ loggedIn, navigate }) {
           component={MyForms} 
           navigation={FormNavigateToInteracion} 
           getAllMyForms={getAllMyForms} 
+
+          myFormsLoad={myFormsLoad}
+          myForms={myForms}
+
+          // tastesLoad={tastesLoad}
+          // aromasLoad={aromasLoad}
+          // myBrewsLoad={myBrewsLoad}
+
+          // aromasById={aromasById}
+          // tastesById={tastesById}
+          // brewsById={brewsById}
+
+
           getAllMyBrewingsById={getAllMyBrewingsById}
           getAllMyTastesById={getAllMyTastesById}
           getAllMyAromasById={getAllMyAromasById}
+          delMyFormById={delMyFormById}
+          delMyBrewsById={delMyBrewsById}
+          delMyTastesById={delMyTastesById}
+          delMyAromasById={delMyAromasById}
           />} />
           {/* <Route path="/my_forms/formID" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} />} /> */}
           <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} component={Blog} />} />

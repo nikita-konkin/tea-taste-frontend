@@ -260,7 +260,7 @@ class FormApi {
         }
     }
 
-    async delAllMyTastesById(tasteId) {
+    async delMyTastesById(tasteId) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-tastes/${tasteId}`, {
                 method: 'DELETE',
@@ -275,7 +275,7 @@ class FormApi {
     }
 
 
-    async delAllMyAromasById(aromaId) {
+    async delMyAromasById(aromaId) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-aromas/${aromaId}`, {
                 method: 'DELETE',
