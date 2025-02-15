@@ -1,48 +1,53 @@
 import React, {
-  useState,
-  useEffect,
-  useRef
+	useState,
+	useEffect,
+	useRef
 } from 'react'
 
 
 import Header from './Header.jsx'
 import MyForm from './MyForm.jsx'
-import { useForm } from 'react-hook-form'
+import { useMyFormConext } from './MyFormConext.jsx';
 
-function MyForms({getAllMyForms, navigation, myFormsLoad, myForms,
+function MyForms({ getAllMyForms, navigation,
+	// myFormsLoad, myForms,
 	getAllMyBrewingsById, getAllMyAromasById, getAllMyTastesById,
 	delMyFormById, delMyBrewsById, delMyTastesById, delMyAromasById,
-	tastesLoad, brewsLoad, aromasLoad,
-	aromasById, tastesById, brewsById}) {
+	// tastesLoad, brewsLoad, aromasLoad,
+	// aromasById, tastesById, brewsById
+}) {
 
-	const forms = []
+	const { myForms, removedFormById, removedBrewsById, removedTastesById, removedAromasById
+
+	} = useMyFormConext();
+	// const forms = []
 	const [checkLS, setCheckLS] = useState(false)
 	const [renderForms, setRenderForms] = useState([])
-	// const [myFormsData, setMyFormsData] = useState([])	
+	const [removed, setRemoved] = useState(false)
 
-	useEffect(()=>{
+	useEffect(() => {
+		// console.log('myFormsUP!')
 		getAllMyForms()
 		// console.log('tyt')
 	}, [])
 
-	useEffect(()=>{
-		// const timeoutId = setTimeout(() => {
-			// const savedMyFormsData = localStorage.getItem('myForms');
-			if (myForms) {
-				
-				// setMyFormsData(JSON.parse(savedMyFormsData))
-				setCheckLS(true)
-				// console.log(myForms)
-				// console.log(JSON.parse(myForms))
-				prepareFormsRender(JSON.parse(myForms))
-				// setRenderForms(forms)
-				// console.log(forms)
-			}
-		//   }, 1);
+	useEffect(() => {
+		// console.log('myForms')
+		if (myForms) {
+			setCheckLS(true)
+			prepareFormsRender(myForms)
+		}
+	}, [myForms])
 
-		//   return () => clearTimeout(timeoutId);
-
-	}, [myFormsLoad, myForms])
+	useEffect(() => {
+		// console.log('removedUP')
+		if (removedFormById && removed) {
+			// console.log('removed')
+			setCheckLS(false)
+			
+			// getAllMyForms();
+		}
+	}, [removedFormById, removedAromasById, removedBrewsById, removedTastesById, removed])
 
 	// useEffect(() => {
 
@@ -51,81 +56,88 @@ function MyForms({getAllMyForms, navigation, myFormsLoad, myForms,
 	// 	console.log(aromasById)
 
 	// }, [brewsById, tastesById, aromasById])
-	
+
 	const removeFormFromArrById = (id) => {
-		
-		const updatedForms = renderForms.filter(form => form.key !== id);
-		// console.log(id);
-		// console.log(forms[0].key);
-		setRenderForms(updatedForms);
-		
+
+		setCheckLS(false)
+		setRemoved(true)
+
+		delMyBrewsById(id);
+		delMyTastesById(id);
+		delMyAromasById(id);
+		delMyFormById(id);
+
+		// removeFormFromArrById(id);
+
+		if (localStorage.getItem(`brews_${id}`)) {
+			localStorage.removeItem(`brews_${id}`);
+		}
+		if (localStorage.getItem(`aromas_${id}`)) {
+			localStorage.removeItem(`aromas_${id}`);
+		}
+		if (localStorage.getItem(`tastes_${id}`)) {
+			localStorage.removeItem(`tastes_${id}`);
+		}
+		localStorage.removeItem(`myForms`);
+
+
+
 	}
 
 
-    const prepareFormsRender = (myFormsData) => {
-
-        for (let formData of Object.values(myFormsData)[0]) {
-            forms.push(
-                <MyForm
-                    navigation={navigation}
-                    formData={formData}
-                    getAllMyBrewingsById={getAllMyBrewingsById}
-                    getAllMyAromasById={getAllMyAromasById}
-                    getAllMyTastesById={getAllMyTastesById}
-                    delMyFormById={delMyFormById}
-                    delMyBrewsById={delMyBrewsById}
-                    delMyTastesById={delMyTastesById}
-                    delMyAromasById={delMyAromasById}
-                    // tastesLoad={tastesLoad}
-                    // brewsLoad={brewsLoad}
-                    // aromasLoad={aromasLoad}
-                    // aromasById={aromasById}
-                    // tastesById={tastesById}
-                    // brewsById={brewsById}
-                    getAllMyForms={getAllMyForms}
-                    key={formData.sessionId}
-                    removeFormFromArrById={removeFormFromArrById}
-                />
-            );
-        }
-        setRenderForms(forms);
-    };
+	const prepareFormsRender = (myFormsData) => {
+		const forms = []
+		for (let formData of Object.values(myFormsData)[0]) {
+			forms.push(
+				<MyForm
+					navigation={navigation}
+					formData={formData}
+					getAllMyBrewingsById={getAllMyBrewingsById}
+					getAllMyAromasById={getAllMyAromasById}
+					getAllMyTastesById={getAllMyTastesById}
+					removeFormFromArrById={removeFormFromArrById}
+					key={formData.sessionId}
+				/>
+			);
+		}
+		setRenderForms(forms);
+	};
 
 
 	if (!checkLS) {
 		// if (myFormsLoad ) {
-		
-		return(
+
+		return (
 			<>
-			<Header navigation={navigation}/>
-			<div className="myforms">
-				<h2 className="header__myforms">Ищем ваши формы...</h2>
-			</div>
-		</>
+				<Header navigation={navigation} />
+				<div className="myforms">
+					<h2 className="header__myforms">Ищем ваши формы...</h2>
+				</div>
+			</>
 		)
 	}
 
 	if (renderForms.length === 0) {
-		return(
+		return (
 			<>
-			<Header navigation={navigation}/>
-			<div className="myforms">
-				<h2 className="header__myforms">У вас пока нет форм</h2>
-			</div>
-		</>
+				<Header navigation={navigation} />
+				<div className="myforms">
+					<h2 className="header__myforms">У вас пока нет форм</h2>
+				</div>
+			</>
 		)
 	}
 
-	return(
+	return (
 		<>
-			<Header navigation={navigation}/>
+			<Header navigation={navigation} />
 			<div className="myforms">
 				<h2 className="header__myforms">Мои формы</h2>
 				{renderForms}
 			</div>
 		</>
 
-		)
+	)
 }
 
 export default MyForms;

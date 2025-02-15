@@ -3,56 +3,49 @@ import FormButton from './FormButton.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { v4 as uuidv4 } from 'uuid';
+import { set } from 'react-hook-form';
 
 function MyForm({
     formData,
     getAllMyBrewingsById,
     getAllMyAromasById,
     getAllMyTastesById,
-    delMyFormById,
-    delMyBrewsById,
-    delMyTastesById,
-    delMyAromasById,
-    getAllMyForms,
+    // delMyFormById,
+    // delMyBrewsById,
+    // delMyTastesById,
+    // delMyAromasById,
+    // getAllMyForms,
     removeFormFromArrById,
 }) {
     const { openPopup } = usePopup();
     const { aromasById, tastesById, brewsById } = useMyFormConext();
     const brewsRender = useRef([]);
+    const [openDetails, setOpenDetails] = React.useState(false);
+    const [brewsContent, setBrewsContent] = React.useState([]);
 
     useEffect(() => {
-        if (aromasById != null && tastesById != null && brewsById != null) {
-            brewingsContent(formData.sessionId);
-            openPopup(popupContent);
-        }
+
+        if (aromasById != null && tastesById != null && brewsById != null && openDetails) {
+            brewsRender.current = brewingsContent(formData.sessionId);
+            openPopup(popupContent(brewsRender.current));
+        }   
     }, [aromasById, tastesById, brewsById]);
 
-    const deleteForm = () => {
-        delMyFormById(formData.sessionId);
-        delMyBrewsById(formData.sessionId);
-        delMyTastesById(formData.sessionId);
-        delMyAromasById(formData.sessionId);
+    // useEffect(() => {
+    //     console.log(brewsContent.length)
+    //     if (brewsContent.length > 0 && openDetails) {
+    //         brewsRender.current = brewsContent;
+    //         openPopup(popupContent);
+    //         setOpenDetails(false);
+    //         setBrewsContent([]);
+    //     }
+    // }, [brewsContent]);
 
-        removeFormFromArrById(formData.sessionId);
-
-        if (localStorage.getItem(`brews_${formData.sessionId}`)) {
-            localStorage.removeItem(`brews_${formData.sessionId}`);
-        }
-        if (localStorage.getItem(`aromas_${formData.sessionId}`)) {
-            localStorage.removeItem(`aromas_${formData.sessionId}`);
-        }
-        if (localStorage.getItem(`tastes_${formData.sessionId}`)) {
-            localStorage.removeItem(`tastes_${formData.sessionId}`);
-        }
-        localStorage.removeItem(`myForms`);
-
-        getAllMyForms();
-    };
 
     const brewingsContent = (sessionId) => {
-        const brewsLocalData = JSON.parse(localStorage.getItem(`brews_${sessionId}`)) || [];
-        const aromasLocalData = JSON.parse(localStorage.getItem(`aromas_${sessionId}`)) || [];
-        const tastesLocalData = JSON.parse(localStorage.getItem(`tastes_${sessionId}`)) || [];
+        // const brewsLocalData = JSON.parse(localStorage.getItem(`brews_${sessionId}`)) || [];
+        // const aromasLocalData = JSON.parse(localStorage.getItem(`aromas_${sessionId}`)) || [];
+        // const tastesLocalData = JSON.parse(localStorage.getItem(`tastes_${sessionId}`)) || [];
 
         const tempArr = [];
 
@@ -73,6 +66,9 @@ function MyForm({
                     }
                 }
             }
+            tempArr.push(
+                <li className="myforminteraction__row"><bdi><br /></bdi></li>
+            );
         };
 
         for (let index = 0; index < brewsById.data.length; index++) {
@@ -80,10 +76,6 @@ function MyForm({
             tempArr.push(
                 <li className="myforminteraction__row" key={uuidv4()}><bdi>{`Пролив №`}</bdi>{brew.brewingCount}</li>
             );
-
-            renderAromasAndTastes(aromasById.data, brew.brewingCount, true, false);
-            renderAromasAndTastes(tastesById.data, brew.brewingCount, false, true);
-
             tempArr.push(
                 <React.Fragment key={uuidv4()}>
                     <li className="myforminteraction__row"><bdi>{`Время заваривания: `}</bdi>{brew.brewingTime}</li>
@@ -91,12 +83,21 @@ function MyForm({
                     <li className="myforminteraction__row"><bdi>{`Рейтинг пролива: `}</bdi>{brew.brewingRating}</li>
                 </React.Fragment>
             );
+            tempArr.push(
+                <li className="myforminteraction__row"><bdi><br /></bdi></li>
+            );
+            renderAromasAndTastes(aromasById.data, brew.brewingCount, true, false);
+            renderAromasAndTastes(tastesById.data, brew.brewingCount, false, true);
+
         }
 
-        brewsRender.current = tempArr;
+        // brewsRender.current = tempArr;
+        // setBrewsContent(tempArr);
+        return tempArr;
     };
 
-    const popupContent = () => {
+    const popupContent = (test) => {
+        brewingsContent(formData.sessionId);
         return (
             <section key={formData.sessionId} className="myforminteraction__section">
                 <ul className="myforminteraction__list">
@@ -111,7 +112,9 @@ function MyForm({
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Посуда: </bdi>{formData.teaware != null ? formData.teaware : ''}</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{formData.brewingtype != null ? formData.brewingtype : ''}</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Дата публикации: </bdi>{formData.createdAt}</li>
-                    {brewsRender.current}
+                    <li className="myforminteraction__row"><bdi><br /></bdi></li>
+                    {/* {brewsRender.current} */}
+                    {test}
                 </ul>
             </section>
         );
@@ -130,7 +133,8 @@ function MyForm({
                     width={'32%'}
                     margin={'0px'}
                     onClick={() => {
-                        deleteForm();
+                        // deleteForm();
+                        removeFormFromArrById(formData.sessionId)
                     }}
                 />
                 <FormButton
@@ -142,10 +146,12 @@ function MyForm({
                     buttonName={'Просмотр'}
                     width={'32%'}
                     margin={'0px'}
-                    onClick={() => {
+                    onClick={(e) => {
+                        e.preventDefault();
                         getAllMyBrewingsById(formData.sessionId);
                         getAllMyAromasById(formData.sessionId);
                         getAllMyTastesById(formData.sessionId);
+                        setOpenDetails(true);
                     }}
                 />
             </div>

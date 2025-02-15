@@ -9,6 +9,10 @@ import Header from './Header.jsx'
 
 function Profile(props) {
 
+    const handleLogout = () => {
+
+        props.handleLogout();
+    };
 
 	return(
 		<>
@@ -27,6 +31,7 @@ function Profile(props) {
 				/>
 				<FormButton 
 					buttonName={'Logout'}
+					onClick={handleLogout}
 				/>
 
 			</div>

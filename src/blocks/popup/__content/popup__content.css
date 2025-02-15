@@ -1,4 +1,20 @@
 .popup__content {
     /* Styles for the content element */
     /* margin-top: 10px; */
+    font-family: 'Jura';
+    max-height: 70vh;
+    min-height: 50px;
+    overflow-y: scroll;
+    color: aliceblue;
+    /* cursor: grab; */
 }
+/* Hide scrollbar for Chrome, Safari and Opera */
+.popup__content::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .popup__content {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }

@@ -12,6 +12,13 @@ export const MyFormConextProvider = ({ children }) => {
     const [tastesById, setTastesById] = useState(null);
     const [brewsById, setBrewsById] = useState(null);
 
+    const [myForms, setMyForms] = useState(null);
+
+    const [removedFormById, setRemovedFormById] = useState(false);
+    const [removedBrewsById, setRemovedBrewsById] = useState(false);
+    const [removedTastesById, setRemovedTastesById] = useState(false);
+    const [removedAromasById, setRemovedAromasById] = useState(false);
+
     const updateAromasById = (content) => {
         // console.log(content)
         setAromasById(prev => ({
@@ -34,14 +41,37 @@ export const MyFormConextProvider = ({ children }) => {
         }));
     };
 
+    const updateMyForms = (content) => {
+        setMyForms(prev => ({
+            ...prev,
+            ...content
+        }));
+    };
+
+    const updateRemovedFormById = (content) => {
+        setRemovedFormById(content);
+    };
+    const updateRemovedBrewsById = (content) => {
+        setRemovedBrewsById(content);
+    };
+    const updateRemovedTastesById = (content) => {
+        setRemovedTastesById(content);
+    };
+    const updateRemovedAromasById = (content) => {
+        setRemovedAromasById(content);
+    };
+
+
     // const closePopup = () => {
     //     setOpen(false);
     //     setContent('');
     // };
 
     return (
-        <MyFormConext.Provider value={{ aromasById, tastesById, brewsById, 
-            updateAromasById, updateTastesById, updateBrewsById }}>
+        <MyFormConext.Provider value={{ aromasById, tastesById, brewsById, myForms,
+            updateAromasById, updateTastesById, updateBrewsById, updateMyForms,
+            removedFormById, removedBrewsById, removedTastesById, removedAromasById,
+            updateRemovedFormById, updateRemovedBrewsById, updateRemovedTastesById, updateRemovedAromasById }}>
             {children}
         </MyFormConext.Provider>
     );

@@ -109,7 +109,7 @@ function MyFormInteraction(props) {
 					<li className="myforminteraction__row"><bdi><br /></bdi></li>
 					<li className="myforminteraction__row"><bdi>Комментарий:</bdi></li>
 					<li className="myforminteraction__row"><bdi>{stage2Data.straits[straitNum].straitDescription}</bdi></li>
-					<li className="myforminteraction__row"><bdi>Время заваривания: </bdi>{dayjs(stage2Data.straits[straitNum].straitTime).format('HH:mm:ss')}</li>
+					<li className="myforminteraction__row"><bdi>Время заваривания: </bdi>{stage2Data.straits[straitNum].straitTime}</li>
 					<li className="myforminteraction__row"><bdi>Рейтинг пролива: </bdi>{stage2Data.straits[straitNum].straitRaiting}/10 пиал</li>
 				</ul>
 			</section>
@@ -124,21 +124,24 @@ function MyFormInteraction(props) {
 				const aromaDataObj = stage2Data.straits[straitNum].aromas[aromaNum]
 				for (const [key, value] of Object.entries(aromaDataObj)) {
 					let aromaStage = Number(key.split('').slice(-1))
-					const data = value != null ? value.label : ''
-					if (aromaStage == 1) {
-						// props.postFormStage2Aroma(data, formId, straitNum+1, aromaNum+1)
-						try {
-							const result = await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1);
-							// console.log('Aroms data posted successfully:', result);
-						} catch (error) {
-							console.error('Error submitting form:', error);
-						}
-					} else {
-						try {
-							const result1 = await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage);
+					let data = value != null ? value.label : 'none'
+					data = data != '' ? data : 'none'
+					if (stage2Data.straits[straitNum].aromas.length > 0) {
+						if (aromaStage == 1) {
+							// props.postFormStage2Aroma(data, formId, straitNum+1, aromaNum+1)
+							try {
+								const result = await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1);
+								// console.log('Aroms data posted successfully:', result);
+							} catch (error) {
+								console.error('Error submitting form:', error);
+							}
+						} else {
+							try {
+								const result1 = await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage);
 
-						} catch (error) {
-							console.error('Error submitting form:', error);
+							} catch (error) {
+								console.error('Error submitting form:', error);
+							}
 						}
 					}
 				}
@@ -155,22 +158,25 @@ function MyFormInteraction(props) {
 				const tasteDataObj = stage2Data.straits[straitNum].tastes[tasteNum]
 				for (const [key, value] of Object.entries(tasteDataObj)) {
 					let tasteStage = Number(key.split('').slice(-1))
-					const data = value != null ? value.label : ''
-					if (tasteStage == 1) {
-						try {
-							const result = await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1);
-							// console.log('Taste data posted successfully:', result);
-						} catch (error) {
-							console.error('Error submitting form:', error);
-						}
-					} else {
-						try {
-							const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage);
-							// console.log('Taste data posted successfully:', result);
-						} catch (error) {
-							console.error('Error submitting form:', error);
-						}
+					let data = value != null ? value.label : 'none'
+					data = data != '' ? data : 'none'
+					if (stage2Data.straits[straitNum].tastes.length > 0) {
+						if (tasteStage == 1) {
+							try {
+								const result = await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1);
+								// console.log('Taste data posted successfully:', result);
+							} catch (error) {
+								console.error('Error submitting form:', error);
+							}
+						} else {
+							try {
+								const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage);
+								// console.log('Taste data posted successfully:', result);
+							} catch (error) {
+								console.error('Error submitting form:', error);
+							}
 
+						}
 					}
 				}
 			}
@@ -183,8 +189,8 @@ function MyFormInteraction(props) {
 		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
 
 			const straitData = {
-				description: stage2Data.straits[straitNum].straitDescription ? stage2Data.straits[straitNum].straitDescription : 'None',
-				brewingTime: dayjs(stage2Data.straits[straitNum].straitTime).format('HH:mm:ss'),
+				description: stage2Data.straits[straitNum].straitDescription ? stage2Data.straits[straitNum].straitDescription : 'none',
+				brewingTime: stage2Data.straits[straitNum].straitTime,
 				brewingRating: stage2Data.straits[straitNum].straitRaiting,
 			}
 			props.postFormStage2Brew(straitData, formId, straitNum + 1)
@@ -200,7 +206,7 @@ function MyFormInteraction(props) {
 
 	const onSubmit = async (e) => {
 		e.preventDefault()
-		
+
 		try {
 			const result1 = await postTasteData(formId)
 			const result2 = await postTasteData(formId)
@@ -240,11 +246,11 @@ function MyFormInteraction(props) {
 						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{stage1Data.teaType != null ? stage1Data.teaType.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Вес: </bdi>{stage1Data.teaWeight} г</li>
-						<li className="myforminteraction__row"><bdi>Вода: </bdi>{stage1Data.waterBrand  != null ? stage1Data.waterBrand.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>Вода: </bdi>{stage1Data.waterBrand != null ? stage1Data.waterBrand.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{stage1Data.waterVolume} мл</li>
 						<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{stage1Data.waterTemperature} oC</li>
 						<li className="myforminteraction__row"><bdi>Цена чая за грамм: </bdi>{stage1Data.price} ₽</li>
-						<li className="myforminteraction__row"><bdi>Посуда: </bdi>{stage1Data.teaWare  != null ? stage1Data.teaWare.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>Посуда: </bdi>{stage1Data.teaWare != null ? stage1Data.teaWare.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{stage1Data.brewingType != null ? stage1Data.brewingType.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Дата публикации: </bdi>{currentTimestamp}</li>
 						<li className="myforminteraction__row"><bdi>Итоговый рейтинг: </bdi>{avrRaiting}/10 пиал</li>

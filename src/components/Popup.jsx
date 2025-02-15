@@ -13,23 +13,24 @@ export default function PopupMsg() {
     // useEffect(() => {
     //     console.log(open)
     // }, [open])
-
+    // console.log(content)
     return (
         <>
 
             <Popup open={open}
                 modal nested closeOnDocumentClick
-                contentStyle={{ width: '80%', height: '50%', background: 'none', border: 'none' }}
+                contentStyle={{ width: '80%', maxWidth: '600px', background: 'none', border: 'none' }}
                 onClose={closePopup}>
                 {
                     close => (
                         <div className='popup'>
+                            {/* <h5 className='popup__content-header'></h5> */}
                             <div className='popup__content'>
-                                <h5 className='popup__content-header'>{
-                                    content
+                                
+                                    {content
                                         ? content
-                                        : '...'
-                                }</h5>
+                                        : '...'}
+                                
                             </div>
                             <button className='popup__close-btn' onClick=
                                 {() => {

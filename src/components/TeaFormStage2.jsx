@@ -97,7 +97,8 @@ function TeaFormStage2(props) {
 				} else	{
 					// console.log((value));
 					// console.log(dayjs(value, 'HH:mm:ss'));
-					return dayjs(value, 'HH:mm:ss');
+					// return dayjs(value, 'HH:mm:ss');
+					return value;
 				}
 			}
 			// console.log(value);
@@ -115,7 +116,8 @@ function TeaFormStage2(props) {
 					tasteStage3: null,
 				}],
 				straitDescription: '',
-				straitTime: dayjs().hour(0).minute(0).second(0),
+				// straitTime: dayjs().hour(0).minute(0).second(0),
+				straitTime: '00:00:00',
 				straitRaiting: 7
 			}]
 		};
@@ -185,7 +187,8 @@ function TeaFormStage2(props) {
 									tasteStage3: null,
 								}],
 								straitDescription: '',
-								straitTime: dayjs().hour(0).minute(0).second(30),
+								// straitTime: dayjs().hour(0).minute(0).second(0),
+								straitTime: '00:00:00',
 								straitRaiting: 7
 							})}
 						>

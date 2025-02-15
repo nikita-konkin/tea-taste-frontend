@@ -12,7 +12,7 @@ const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label }
             {...field}
 
             onChange={(event, newValue) => {
-                console.log(newValue)
+                // console.log(newValue)
                 if (typeof newValue === 'string') {
                     setValue(name, newValue);
                     // field.onChange(newValue)

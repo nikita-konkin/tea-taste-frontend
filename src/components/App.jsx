@@ -15,11 +15,34 @@ import Blog from './Blog.jsx';
 import PopupMsg from './Popup.jsx';
 import { PopupProvider, usePopup } from './PopupContext.jsx';
 import { MyFormConextProvider, useMyFormConext} from './MyFormConext.jsx';
-import { set } from 'react-hook-form';
+// import { set } from 'react-hook-form';
 
 function App() {
-  const loggedIn = localStorage.getItem("loggedIn");
+  
   const navigate = useNavigate();
+
+
+  return (
+    <PopupProvider>
+      <MyFormConextProvider>
+        {/* <Routes> */}
+        <AppContent navigate={navigate} />
+        <PopupMsg />
+        {/* </Routes> */}
+      </MyFormConextProvider>
+    </PopupProvider>
+  );
+}
+
+function AppContent({ navigate }) {
+  const { openPopup } = usePopup();
+  const { updateAromasById, updateTastesById, updateBrewsById, updateMyForms,
+    updateRemovedFormById, updateRemovedBrewsById, updateRemovedTastesById, updateRemovedAromasById
+   } = useMyFormConext();
+
+  const [loggedIn, setLoggedIn] = useState(false);
+  const localStorageLoggedIn = localStorage.getItem('loggedIn');
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,37 +50,26 @@ function App() {
       mainApi.handleTokenValidation(token)
         .then(data => {
           localStorage.setItem('loggedIn', true);
+          setLoggedIn(true)
         })
         .catch(err => {
           localStorage.removeItem('token');
-          localStorage.removeItem('loggedIn');
+          localStorage.setItem('loggedIn', false);
+          setLoggedIn(false)
         });
     } else {
       localStorage.removeItem('token');
-      localStorage.removeItem('loggedIn');  
+      localStorage.setItem('loggedIn', false);  
+      setLoggedIn(false)
     }
   }, []);
 
-  return (
-    <PopupProvider>
-      <MyFormConextProvider>
-        <AppContent loggedIn={loggedIn} navigate={navigate} />
-        <PopupMsg />
-      </MyFormConextProvider>
-    </PopupProvider>
-  );
-}
-
-function AppContent({ loggedIn, navigate }) {
-  const { openPopup } = usePopup();
-  const { updateAromasById, updateTastesById, updateBrewsById } = useMyFormConext();
-
   // const [aromasLoad, setAromasLoad] = useState(true);
   // const [tastesLoad, setTastesLoad] = useState(true);
-  const [myFormsLoad, setMyFormsLoad] = useState(true);
+  // const [myFormsLoad, setMyFormsLoad] = useState(true);
   // const [myBrewsLoad, setMyBrewsLoad] = useState(true);
 
-  const [myForms, setMyForms] = useState(null);
+  // const [myForms, setMyForms] = useState(null);
   // const registrationEroresHandler = (error) => {
   //   console.log(error);
   //   // const errorMsg = error.message;
@@ -82,12 +94,28 @@ function AppContent({ loggedIn, navigate }) {
   function handleAuthorization(data) {
     mainApi.handleAuthorization(data.email, data.password)
       .then(res => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('loggedIn', res.ok);
-        console.log(res);
-        if (res.ok) {
+        // console.log(res);
+        // console.log(res);
+        if (res.ok && res.token) {
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('loggedIn', res.ok);
+          setLoggedIn(true)
           navigate('/form_1');
         }
+      })  
+      .catch(err => {
+        // console.log(err);
+        openPopup(err.message);
+      });
+  }
+
+  function handleLogOut() {
+
+    mainApi.handleLogOut()
+      .then(res => {
+        localStorage.setItem('loggedIn', false);
+        localStorage.removeItem('token');
+        navigate('/sign-in');
       })
       .catch(err => {
         console.log(err);
@@ -165,8 +193,9 @@ function AppContent({ loggedIn, navigate }) {
     await formApi.getAllMyForms()
       .then(res => {
         localStorage.setItem('myForms', JSON.stringify(res))
-        setMyFormsLoad(false)
-        setMyForms((JSON.stringify(res)))
+        // setMyFormsLoad(false)
+        // setMyForms((JSON.stringify(res)))
+        updateMyForms(res)
         // console.log(JSON.stringify(res))
       })
       .catch(err => { console.log(err) })
@@ -179,7 +208,7 @@ function AppContent({ loggedIn, navigate }) {
         localStorage.setItem(`brews_${id}`, JSON.stringify(res))
         // setBrewsById(JSON.stringify(res))
         
-        updateBrewsById((res))
+        updateBrewsById(res)
       })
       .catch(err => { console.log(err) })
   }
@@ -190,7 +219,7 @@ function AppContent({ loggedIn, navigate }) {
         // setTastesLoad(false)
         localStorage.setItem(`tastes_${id}`, JSON.stringify(res))
         // setTastesById(JSON.stringify(res))
-        updateTastesById((res))
+        updateTastesById(res)
       })
       .catch(err => { console.log(err) })
   }
@@ -203,7 +232,7 @@ function AppContent({ loggedIn, navigate }) {
         // setAromasLoad(false) 
         // setAromasById(JSON.stringify(res))
         // console.log(JSON.stringify(res))
-        updateAromasById((res)) 
+        updateAromasById(res) 
 
       })
       .catch(err => { console.log(err) })
@@ -212,7 +241,8 @@ function AppContent({ loggedIn, navigate }) {
   async function delMyFormById(id) {
     await formApi.delMyFormById(id)
       .then(res => {
-        console.log(res)
+        updateRemovedFormById(true)
+        getAllMyForms()
       })
       .catch(err => { console.log(err) })
   }
@@ -220,7 +250,7 @@ function AppContent({ loggedIn, navigate }) {
   async function delMyBrewsById(id) {
     await formApi.delMyBrewsById(id)
       .then(res => {
-        console.log(res)
+        updateRemovedBrewsById(true)
       }) 
       .catch(err => { console.log(err) })
   }
@@ -228,7 +258,7 @@ function AppContent({ loggedIn, navigate }) {
   async function delMyTastesById(id) {
     await formApi.delMyTastesById(id)
       .then(res => {
-        console.log(res)
+        updateRemovedTastesById(true)
       })
       .catch(err => { console.log(err) })
   }
@@ -236,7 +266,7 @@ function AppContent({ loggedIn, navigate }) {
   async function delMyAromasById(id) {
     await formApi.delMyAromasById(id)
       .then(res => {
-        console.log(res)
+        updateRemovedAromasById(true)
       })
       .catch(err => { console.log(err) })
   }
@@ -254,22 +284,26 @@ function AppContent({ loggedIn, navigate }) {
     navigate('/form_submit')
   }
 
+  const FormNavigateToSignIn = () => {
+    navigate('/sign-in')
+  }
+
     return (
       <div className="root">
         <Routes>
           <Route path="/" element={<ProtectedRoute loggedIn={loggedIn} />} />
-          <Route path="/form_1" element={<ProtectedRoute loggedIn={loggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} />} />
-          <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
-          <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
-          <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} component={Profile} />} />
-          <Route path="/my_forms" element={<ProtectedRoute 
+          <Route path="/form_1" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} />} />
+          <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
+          <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
+          <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Profile} handleLogout={handleLogOut} />} />
+          <Route path="/my_forms" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn} 
           loggedIn={loggedIn} 
           component={MyForms} 
           navigation={FormNavigateToInteracion} 
           getAllMyForms={getAllMyForms} 
 
-          myFormsLoad={myFormsLoad}
-          myForms={myForms}
+          // myFormsLoad={myFormsLoad}
+          // myForms={myForms}
 
           // tastesLoad={tastesLoad}
           // aromasLoad={aromasLoad}
@@ -289,7 +323,7 @@ function AppContent({ loggedIn, navigate }) {
           delMyAromasById={delMyAromasById}
           />} />
           {/* <Route path="/my_forms/formID" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} />} /> */}
-          <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} component={Blog} />} />
+          <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} />
           <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
           <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
         </Routes>

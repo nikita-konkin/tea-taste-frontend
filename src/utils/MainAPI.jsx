@@ -49,7 +49,6 @@ class MainApi {
   
 	}
 
-
 	handleAuthorization(email, pass) {
 
 		return fetch(`${this._usersApiUrl}/sign-in`, {
@@ -64,6 +63,20 @@ class MainApi {
 		.then(res => this.error(res))
 		  .catch((error) => {
 			// console.error('Error:', error);
+			throw error; // Re-throw the error to be handled by the calling function
+		  });
+
+	}
+
+	handleLogOut() {
+
+		return fetch(`${this._usersApiUrl}/sign-out`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: this._headers
+		})
+		.then(res => this.error(res))
+		  .catch((error) => {
 			throw error; // Re-throw the error to be handled by the calling function
 		  });
 

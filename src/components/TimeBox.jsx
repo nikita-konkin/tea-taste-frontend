@@ -92,8 +92,8 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
     const handleTimeChange = (newValue) => {
         const formattedTime = dayjs(newValue).format(timeFormat);
         setTimeValue(dayjs(newValue, timeFormat));
-        console.log('formattedTime', dayjs(newValue, timeFormat));
-        setValue(name, newValue);
+        // console.log('formattedTime', dayjs(newValue, timeFormat));
+        setValue(name, formattedTime);
     };
 
     const playSound = () => {
@@ -112,7 +112,8 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
             const newTimer = setInterval(() => {
                 setTimeValue(prevTime => {
                     const newTime = prevTime.add(1, 'second');
-                    setValue(name, dayjs(newTime, timeFormat));
+                    setValue(name, dayjs(newTime).format(timeFormat));
+                    // setValue(name, dayjs(newTime, timeFormat));
                     return newTime;
                 });
             }, 1000);
