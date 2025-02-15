@@ -1,0 +1,5 @@
+.myform__buttons{
+  display: flex;
+  justify-content: space-between;
+  margin: 0 8px 0px 8px;
+}

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
@@ -7,163 +7,142 @@ import Grid from '@mui/material/Grid';
 import MuiInput from '@mui/material/Input';
 
 
-import { ThemeProvider , createTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 // import RalewayWoff2 from './fonts/Raleway-Regular.woff2';
-
 
 const Input = styled(MuiInput)`
   width: 42px;
 `;
 
 function valuetext(value) {
-  return `${value}°C`;
+	return `${value}°C`;
 }
 
 
+const CustomSlider = styled(Slider)(({ theme }) => ({
+	padding: '0px', // Disable padding
+	// minWidth: '100%',
+	[theme.breakpoints.up('xs')]: {
+	  padding: '0px', // Disable padding for larger screens
+	//   minWidth: '300px',
+	},
+  }));
 
-function SliderBox(props) {
+function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, units, marks, setValue }) {
 
-	const maxValue = props.maxValue
-	const defaultValue = props.defaultValue
-	const units = props.units
-	const sliderData = props.marks
-	const [marks, setMarks] = useState([])
-  
-	
+	const [generatedMarks, setMarks] = useState([]);
+
 	useEffect(() => {
-		SliderDataGenerator(sliderData, units)
-	}, []);
-
+		SliderDataGenerator(marks, units);
+	}, [marks, units]);
 
 	function SliderDataGenerator(data, units) {
-		const sliderData = []
-		for (var i = 0; i < data.length; i++){
+		const sliderData = [];
+		for (let i = 0; i < data.length; i++) {
 			const entries = new Map([
-			  ['value', data[i][0]],
-			  ['label', data[i][1]+units]
+				['value', data[i][0]],
+				['label', data[i][1] + units],
 			]);
 			const obj = Object.fromEntries(entries);
-			sliderData.push(obj)
+			sliderData.push(obj);
 		}
-		setMarks(sliderData)
+		setMarks(sliderData);
 	}
 
-	const theme = createTheme({
-	   typography: {
-	    "fontFamily": `jura`,
-	    "fontSize": 14,
-	    // "color": '#FFFFFF',
-	    // "fontWeightLight": 300,
-	    // "fontWeightRegular": 400,
-	    // "fontWeightMedium": 500
-	   }
-			}, []);
+	const handleSliderChange = (event, newValue) => {
 
-	const sliderTitleStyle = {
-		color: 'white',
-		margin: '0',
-	}
-	const [value, setValue] = React.useState(defaultValue);
-
-	const handleInputChange = (event) => {
-		setValue(event.target.value === '' ? '' : Number(event.target.value));
+		onChange(event, newValue);
+		setValue(name, newValue); 
 	};
 
-	 const handleSliderChange = (event, newValue) => {
-    setValue(newValue);
-  };
+	const handleInputChange = (event) => {
+		const newValue = Number(event.target.value);
+		onChange(event, newValue);
+		setValue(name, newValue); 
+	};
 
-  const test = {
-  	margin: '0px 0 0 -5px',
-  	padding : '0px',
-  	alignItems: 'top',
-  }
-
-	return(
-		<><ThemeProvider  theme={theme}>
-			<Box sx={{ mt: 3 }} />
-			<Typography style={sliderTitleStyle} gutterBottom>{props.sliderName}</Typography>
-				<Grid container spacing={1} style={test} >
-					<Grid item sx={{mt:-2}}  xs>
-						<Typography style={{color: 'white'}}>
-						<Slider
+	return (
+		<>
+			<Box sx={{ mt: 0 }} />
+			<Typography style={{ color: 'white', margin: '0' }} gutterBottom>{sliderName}</Typography>
+			<Grid container spacing={0}>
+				<Grid item sx={{ mt: 0, mb: 2, ml: 2 }} xs={10}>
+					<CustomSlider
+						disableGutters
 						valueLabelDisplay="auto"
-						// aria-label="pretto slider"
 						defaultValue={defaultValue}
 						getAriaValueText={valuetext}
-			      value={typeof value === 'number' ? value : 0}
-			      onChange={handleSliderChange}
-			      marks={marks}
-			      max={maxValue}
-			      step={1}
-		        sx={{
-						    width: '95%',
-						    height: '15%',
-						    color: '#FFFFFF',
-						    fontcolor: '#FFFFFF',
-						    padding: '0px',
-						    '& .MuiSlider-thumb': {
-						      borderRadius: '8px',
-						    },
-						    '& .MuiSlider-valueLabelOpen' :
-						    {
-						    	color: '#FFFFFF',
-						    	backgroundColor: '#728A7C',
-						    },
-						    '& .MuiSlider-markLabel' :
-						    {
-						    	color: '#FFFFFF',
-						    	fontSize: '12px',
-						    	margin: '0 0 0 7px',
-						    },
-						    // '& .MuiSlider-marked' :
-						    // {
-						    // 	padding : '0px',
-						    // 	// margin : '10px',
-						    // },
-						    '& .MuiSlider-mark':{
-						    	backgroundColor : '#00ffaf',
-						    	width: '4px',
-						    	height: '6px',
-						    },
-						    // '& .MuiGrid-root': {
-						    // 	padding: '22px 0',
-						    // }
-						  }}
+						marks={generatedMarks}
+						max={maxValue}
+						name={name}
+						onChange={handleSliderChange}
+						value={value}
+
+						step={1}
+						sx={{
+							width: '93%',
+							height: '25%',
+							color: '#FFFFFF',
+							fontcolor: '#FFFFFF',
+							padding: '0px',
+							'& .MuiSlider-thumb': {
+								borderRadius: '8px',
+							},
+							'& .MuiSlider-valueLabelOpen':
+							{
+								color: '#FFFFFF',
+								backgroundColor: '#728A7C',
+							},
+							'& .MuiSlider-markLabel':
+							{
+								color: '#FFFFFF',
+								fontSize: '12px',
+								margin: '0 0 0 7px',
+								top: '15px',
+							},
+
+							'& .MuiSlider-mark': {
+								backgroundColor: '#00ffaf',
+								margin: '0 0 0 0',
+								width: '4px',
+								height: '6px',
+
+							},
+							'& .MuiSlider-rail': {
+								backgroundColor: '#728A7C',
+								height: '6px',
+							},
+
+						}}
 					/>
-					</Typography>
-					</Grid>
-					<Grid item>
-						<Input
-							value={value}
-							size="small"
-							onChange={handleInputChange}
-							// onBlur={handleBlur}
-							inputProps={{
-							  step: 1,
-							  min: 0,
-							  max: maxValue,
-							  type: 'number',
-							  'aria-labelledby': 'input-slider',
-							}}
-							sx={{
-						    // width: '100%',
-						    color: '#FFFFFF',
-						    '&::before': {
-						      // border: '8px solid',
-						      borderBottom: '1px solid rgba(255, 255, 255, 0.42);',
-						      width: '45px',
-						    },
-						    '& .MuiInput-input': {
-						    	textAlign: 'right',
-						    }
-						  }}
-						/>
-					</Grid>
+
 				</Grid>
-				</ThemeProvider >
-			</>
-		)
+				<Grid item xs>
+					<Input
+						value={value}
+						size="small"
+						onChange={handleInputChange}
+						defaultValue={defaultValue}
+						inputProps={{
+							step: 1,
+							min: 0,
+							max: maxValue,
+							type: 'number',
+							'aria-labelledby': 'input-slider',
+						}}
+						sx={{
+							width: '45px',
+							color: '#FFFFFF',
+							'&::before': {
+								borderBottom: '1px solid rgba(255, 255, 255, 0.42);',
+								width: '45px',
+							}
+						}}
+					/>
+				</Grid>
+			</Grid>
+		</>
+	)
 }
 
 export default SliderBox;

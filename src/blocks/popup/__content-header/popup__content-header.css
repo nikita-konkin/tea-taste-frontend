@@ -1,0 +1,8 @@
+.popup__content-header {
+    /* Styles for the content header element */
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Jura';
+    /* margin-bottom: 10px; */
+    color: aliceblue;
+}
