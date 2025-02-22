@@ -1,0 +1,14 @@
+services:
+  app:
+    build: 
+      context: . 
+      args:
+        - REACT_APP_API_URL=http://192.168.50.117:3001
+    image: nikitaikonkin/tea-form-frontend:latest
+    ports:
+      - "8081:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    # networks:
+    #   - mynetwork

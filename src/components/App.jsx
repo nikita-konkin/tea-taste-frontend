@@ -21,7 +21,6 @@ function App() {
   
   const navigate = useNavigate();
 
-
   return (
     <PopupProvider>
       <MyFormConextProvider>
@@ -42,8 +41,7 @@ function AppContent({ navigate }) {
 
   const [loggedIn, setLoggedIn] = useState(false);
   const localStorageLoggedIn = localStorage.getItem('loggedIn');
-  
-
+  // console.log(process.env.REACT_APP_API_URL)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {

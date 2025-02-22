@@ -28,7 +28,7 @@ function Registration({ auth, popupContent }) {
 
 	function handleOnSubmit(e) {
 		e.preventDefault()
-		console.log(formData)
+		// console.log(formData)
 		if (formData.password1 === formData.password2){
 
 			auth({
