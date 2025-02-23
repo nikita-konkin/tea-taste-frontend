@@ -30,6 +30,8 @@ FROM nginx:alpine AS production
 
 # Copy the production build artifacts from the build stage
 COPY --from=build /app/build /usr/share/nginx/html
+COPY /nginx/default.conf /etc/nginx/conf.d
+
 
 # Expose the default NGINX port
 EXPOSE 80
