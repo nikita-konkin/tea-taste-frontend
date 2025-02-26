@@ -40,25 +40,26 @@ function AppContent({ navigate }) {
    } = useMyFormConext();
 
   const [loggedIn, setLoggedIn] = useState(false);
-  const localStorageLoggedIn = localStorage.getItem('loggedIn');
+  const localStorageLoggedIn = localStorage.getItem('loggedIn') === 'true';
   // console.log(process.env.REACT_APP_API_URL)
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
+    
+    if (token && localStorageLoggedIn) {
       mainApi.handleTokenValidation(token)
         .then(data => {
           localStorage.setItem('loggedIn', true);
-          setLoggedIn(true)
+          setLoggedIn(true);
         })
         .catch(err => {
           localStorage.removeItem('token');
           localStorage.setItem('loggedIn', false);
-          setLoggedIn(false)
+          setLoggedIn(false);
         });
     } else {
       localStorage.removeItem('token');
-      localStorage.setItem('loggedIn', false);  
-      setLoggedIn(false)
+      localStorage.setItem('loggedIn', false);
+      setLoggedIn(false);
     }
   }, []);
 
@@ -81,7 +82,7 @@ function AppContent({ navigate }) {
           email: data.email,
           password: data.pass
         };
-        handleAuthorization(authData);
+        return handleAuthorization(authData);
       })
       .catch(err => {
         // registrationEroresHandler(err);

@@ -5,6 +5,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import Button from '@mui/material/Button';
+import { Stack } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 import dayjs from 'dayjs';
 
 import timerSound from '../sounds/timer_30s.mp3';
@@ -15,6 +18,14 @@ const theme = createTheme({
         fontFamily: 'jura',
         fontSize: 16,
     },
+    breakpoints: {
+        values: {
+          xs: 340,
+          sm: 600,
+          md: 900,
+          lg: 1200,
+          xl: 1536,
+        }},
     components: {
         MuiInputLabel: {
             styleOverrides: {
@@ -49,6 +60,7 @@ const theme = createTheme({
     },
 });
 
+
 const StyledTextField = styled(TextField)({
     width: '100%',
     "& label, & label.Mui-focused": {
@@ -74,10 +86,12 @@ const btnStyle = {
 	color: '#ffffff',
 	borderColor: '#ffffff',
 	backgroundColor: '#367272', 
-    // width: '95%',
+    paddingTop:' 0px',
+    paddingBottom: '0px',
 
 }
 const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, ref) => {
+    const isLessXs = useMediaQuery(theme.breakpoints.down('xs'));
     const [timeValue, setTimeValue] = useState(dayjs(value, timeFormat));
     const [timer, setTimer] = useState(null);
     const [isRunning, setIsRunning] = useState(false);
@@ -129,37 +143,39 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
     return (
         <ThemeProvider theme={theme}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker
-                    ampm={false}
-                    views={['hours', 'minutes', 'seconds']}
-                    label={'Время пролива'}
-                    name={name}
-                    inputFormat={timeFormat}
-                    mask="__:__:__"
-                    value={timeValue}
-                    timeSteps={{'minutes':1, 'seconds':1}}
-                    onChange={handleTimeChange}
-                    textField={(params) => (
-                        <StyledTextField 
-                            {...params} 
-                            ref={ref}
-                            InputLabelProps={{
-                                style: { color: '#ffffff' }, // Change label color to white
-                            }}
-                            InputProps={{
-                                style: { color: '#ffffff' }, // Change text color to white
-                            }}
-                        />
-                    )}
-                />
-                <Button 
-                    variant="contained" 
-                    color="primary" 
-                    onClick={handleStartStop}
-                    style={btnStyle}
-                >
-                    {isRunning ? 'Остановить таймер' : 'Запустить таймер'}
-                </Button>
+                <Stack direction={isLessXs ? "column" : "row"} spacing={1}>
+                    <TimePicker
+                        ampm={false}
+                        views={['hours', 'minutes', 'seconds']}
+                        label={'Время пролива'}
+                        name={name}
+                        inputFormat={timeFormat}
+                        mask="__:__:__"
+                        value={timeValue}
+                        timeSteps={{'minutes':1, 'seconds':1}}
+                        onChange={handleTimeChange}
+                        textField={(params) => (
+                            <StyledTextField 
+                                {...params} 
+                                ref={ref}
+                                InputLabelProps={{
+                                    style: { color: '#ffffff' }, // Change label color to white
+                                }}
+                                InputProps={{
+                                    style: { color: '#ffffff' }, // Change text color to white
+                                }}
+                            />
+                        )}
+                    />
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        onClick={handleStartStop}
+                        style={btnStyle}
+                    >
+                        {isRunning ? 'Остановить секундомер' : 'Запустить секундомер'}
+                    </Button>
+                </Stack>
             </LocalizationProvider>
         </ThemeProvider>
     );

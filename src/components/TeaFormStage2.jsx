@@ -232,6 +232,17 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 		<section key={straitField.id} className="form_strait-stages">
 			<h4 className="form_strait-header">Пролив №{straitIndex + 1}</h4>
 			<Stack direction="column" spacing={2}>
+
+				<Controller
+					control={control}
+					name={`straits[${straitIndex}].straitTime`}
+					render={({ field }) =>
+						<TimeBox
+							{...field}
+							setValue={setValue}
+						/>}
+				/>
+
 				{aromasFields.map((aromaField, aromaIndex) => (
 
 					<Aromas
@@ -295,15 +306,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 
 					}
 				/>
-				<Controller
-					control={control}
-					name={`straits[${straitIndex}].straitTime`}
-					render={({ field }) =>
-						<TimeBox
-							{...field}
-							setValue={setValue}
-						/>}
-				/>
+
 				<Controller
 					control={control}
 					name={`straits[${straitIndex}].straitRaiting`}
