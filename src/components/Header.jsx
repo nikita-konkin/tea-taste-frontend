@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import menuIcon from '../images/menu_icon_mobile.svg';
+import React, { useState } from 'react';
+import { Helmet } from 'react-helmet';
 import logo from '../images/logo.png';
 import Navigation from './Navigation.jsx'
 import { useNavigate } from 'react-router-dom';
@@ -12,17 +12,27 @@ function Header(props) {
 		navigate('/form_1')
 	}
 
-	return(
+	return (
+		<>
+			<Helmet>
+				<title>Форма чая</title>
+				<meta name="description" content="Форма чая" />
+				<meta name="keywords" content="tea form, teaform" />
+				<meta property="og:title" content="Форма чая" />
+				<meta property="og:description" content="Форма чая" />
+				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
+			</Helmet>
 
-		<header className="header">
-			<img src={logo} className="header__logo" alt="Logo" onClick={handleClick}/>
-			<h1 className="header__title" onClick={handleClick}>Форма Чая</h1>
+			<header className="header">
+				<img src={logo} className="header__logo" alt="Logo" onClick={handleClick} />
+				<h1 className="header__title" onClick={handleClick}>Форма Чая</h1>
 
-			<Navigation />
+				<Navigation />
 
-		</header>
+			</header>
+		</>
 
-		)
+	)
 }
 
 export default Header;

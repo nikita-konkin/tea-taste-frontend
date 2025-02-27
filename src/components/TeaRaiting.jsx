@@ -73,11 +73,7 @@ const handleRatingChange = (event, newValue, name, setValue) => {
 
 const CustomRaiting = styled(Rating)(({ theme }) => ({
     
-    // [theme.breakpoints.down('sm')]: {
-    //     '& .MuiRating-icon': {
-    //         marginRight: '9px',
-    //     },
-    // },
+
     [theme.breakpoints.up('xs')]: {
         '& .MuiRating-icon': {
             marginRight: '12px',

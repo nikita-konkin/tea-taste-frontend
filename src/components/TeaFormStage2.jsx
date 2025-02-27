@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet';
 
 import Header from './Header.jsx'
 import TeaRaiting from './TeaRaiting.jsx';
@@ -10,10 +11,7 @@ import { Autocomplete, TextField, Popper, Button, Stack, autocompleteClasses } f
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-
 import dayjs from 'dayjs';
-
-
 
 const theme = createTheme({
 	typography: {
@@ -91,17 +89,15 @@ function TeaFormStage2(props) {
 		const savedValues = localStorage.getItem('teaFormStage2');
 		return savedValues ? JSON.parse(savedValues, (key, value) => {
 			if (key === 'straitTime') {
-				
+
 				if (value === null) {
 					return dayjs().hour(0).minute(0).second(0);
-				} else	{
-					// console.log((value));
-					// console.log(dayjs(value, 'HH:mm:ss'));
-					// return dayjs(value, 'HH:mm:ss');
+				} else {
+
 					return value;
 				}
 			}
-			// console.log(value);
+
 			return value;
 		}) : {
 			straits: [{
@@ -116,7 +112,6 @@ function TeaFormStage2(props) {
 					tasteStage3: null,
 				}],
 				straitDescription: '',
-				// straitTime: dayjs().hour(0).minute(0).second(0),
 				straitTime: '00:00:00',
 				straitRaiting: 7
 			}]
@@ -152,6 +147,20 @@ function TeaFormStage2(props) {
 
 	return (
 		<>
+			<Helmet>
+				<title>Страница ввода информации вкуса и аромата чая</title>
+				<meta name="description" content="Страница на которой можно ввести информацию 
+				о вкусе и аромате чая, засечь время заваривания, оставить отзыв и рейтинг пролива. 
+				Можно описывать необходимое количество проливов и добавлять несколько оттенков вкуса или аромата." />
+				<meta name="keywords" content="tea, taste, aroma, strait, description, time, raiting, form, multi form" />
+				<meta property="og:title" content="Страница на которой можно ввести информацию 
+				о вкусе и аромате чая, засечь время заваривания, оставить отзыв и рейтинг пролива. 
+				Можно описывать необходимое количество проливов и добавлять несколько оттенков вкуса или аромата." />
+				<meta property="og:description" content="Страница на которой можно ввести информацию 
+				о вкусе и аромате чая, засечь время заваривания, оставить отзыв и рейтинг пролива. 
+				Можно описывать необходимое количество проливов и добавлять несколько оттенков вкуса или аромата." />
+				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
+			</Helmet>
 			<Header navigation={props.navigation} />
 
 			<ThemeProvider theme={theme}>
@@ -187,7 +196,7 @@ function TeaFormStage2(props) {
 									tasteStage3: null,
 								}],
 								straitDescription: '',
-								// straitTime: dayjs().hour(0).minute(0).second(0),
+
 								straitTime: '00:00:00',
 								straitRaiting: 7
 							})}
@@ -230,7 +239,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 	return (
 
 		<section key={straitField.id} className="form_strait-stages">
-			<h4 className="form_strait-header">Пролив №{straitIndex + 1}</h4>
+			<h3 className="form_strait-header">Пролив №{straitIndex + 1}</h3>
 			<Stack direction="column" spacing={2}>
 
 				<Controller
@@ -374,14 +383,14 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 
 
 	let { aromaCategoryList, subcategoryList, subSubcategoryList } = aromaOptionsHandler(watch, straitIndex, aromaIndex, optionsAroma)
-	
+
 	useEffect(() => {
 		if (subcategoryList.length === 0) {
 			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage2`, null);
 			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`, null);
 		}
 	}, [subcategoryList.length, straitIndex, aromaIndex, setValue]);
-	
+
 	useEffect(() => {
 		if (subSubcategoryList.length === 0) {
 			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`, null);
@@ -480,13 +489,13 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`, null);
 		}
 	}, [subcategoryListTaste.length, straitIndex, tasteIndex, setValue]);
-	
+
 	useEffect(() => {
 		if (subSubcategoryListTaste.length === 0) {
 			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`, null);
 		}
 	}, [subSubcategoryListTaste.length, straitIndex, tasteIndex, setValue]);
-	
+
 
 	return (
 

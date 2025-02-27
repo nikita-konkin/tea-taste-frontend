@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses, createFilterOptions } from '@mui/material';
+import { Helmet } from 'react-helmet';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
@@ -295,7 +296,7 @@ const teaNamesRetail = [
 	{ label: 'Westminster Ostfriesische', value: 'westminster_ostfriesische' },
 	{ label: 'Westminster Earl Grey', value: 'westminster_earl_grey' },
 ];
-   
+
 const teaNames = teaNamesChina.concat(teaNamesRetail);
 
 
@@ -350,6 +351,15 @@ const TeaFormStage1 = (props) => {
 
 	return (
 		<>
+			<Helmet>
+				<title>Главная страница</title>
+				<meta name="description" content="Страница вводна основной (первичной) информации о чае" />
+				<meta name="keywords" content="tea, tea name, tea type, tea weight, tea price, info, start" />
+				<meta property="og:title" content="Страница вводна основной (первичной) информации о чае" />
+				<meta property="og:description" content="Страница вводна основной (первичной) информации о чае" />
+				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
+			</Helmet>
+
 			<Header navigation={props.navigation} />
 
 			<ThemeProvider theme={theme}>
@@ -415,6 +425,7 @@ const TeaFormStage1 = (props) => {
 									marks={SLIDER_WEIGHT_DATA}
 									boxId='teaWeight'
 									setValue={setValue}
+									step={1}
 									{...field}
 								/>
 							}
@@ -467,6 +478,7 @@ const TeaFormStage1 = (props) => {
 									boxId='waterVolume'
 									setValue={setValue}
 									{...field}
+									step={5}
 								/>
 							}
 						/>
@@ -482,6 +494,7 @@ const TeaFormStage1 = (props) => {
 									marks={SLIDER_TEMPERATURE_DATA}
 									boxId='waterTemperature'
 									setValue={setValue}
+									step={1}
 									{...field}
 								/>
 							}
@@ -498,6 +511,7 @@ const TeaFormStage1 = (props) => {
 									marks={SLIDER_PRICE_DATA}
 									boxId='price'
 									setValue={setValue}
+									step={0.1}
 									{...field}
 								/>
 							}

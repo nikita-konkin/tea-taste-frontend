@@ -28,7 +28,7 @@ const CustomSlider = styled(Slider)(({ theme }) => ({
 	},
   }));
 
-function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, units, marks, setValue }) {
+function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, units, marks, setValue, step }) {
 
 	const [generatedMarks, setMarks] = useState([]);
 
@@ -78,7 +78,7 @@ function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, 
 						onChange={handleSliderChange}
 						value={value}
 
-						step={1}
+						step={step}
 						sx={{
 							width: '93%',
 							height: '25%',
@@ -124,7 +124,7 @@ function SliderBox({ name, onChange, value, sliderName, maxValue, defaultValue, 
 						onChange={handleInputChange}
 						defaultValue={defaultValue}
 						inputProps={{
-							step: 1,
+							step: step,
 							min: 0,
 							max: maxValue,
 							type: 'number',

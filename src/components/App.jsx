@@ -15,7 +15,6 @@ import Blog from './Blog.jsx';
 import PopupMsg from './Popup.jsx';
 import { PopupProvider, usePopup } from './PopupContext.jsx';
 import { MyFormConextProvider, useMyFormConext} from './MyFormConext.jsx';
-// import { set } from 'react-hook-form';
 
 function App() {
   
@@ -24,10 +23,10 @@ function App() {
   return (
     <PopupProvider>
       <MyFormConextProvider>
-        {/* <Routes> */}
+
         <AppContent navigate={navigate} />
         <PopupMsg />
-        {/* </Routes> */}
+
       </MyFormConextProvider>
     </PopupProvider>
   );
@@ -41,7 +40,7 @@ function AppContent({ navigate }) {
 
   const [loggedIn, setLoggedIn] = useState(false);
   const localStorageLoggedIn = localStorage.getItem('loggedIn') === 'true';
-  // console.log(process.env.REACT_APP_API_URL)
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     
@@ -50,6 +49,7 @@ function AppContent({ navigate }) {
         .then(data => {
           localStorage.setItem('loggedIn', true);
           setLoggedIn(true);
+          navigate('/form_1');
         })
         .catch(err => {
           localStorage.removeItem('token');
@@ -63,17 +63,6 @@ function AppContent({ navigate }) {
     }
   }, []);
 
-  // const [aromasLoad, setAromasLoad] = useState(true);
-  // const [tastesLoad, setTastesLoad] = useState(true);
-  // const [myFormsLoad, setMyFormsLoad] = useState(true);
-  // const [myBrewsLoad, setMyBrewsLoad] = useState(true);
-
-  // const [myForms, setMyForms] = useState(null);
-  // const registrationEroresHandler = (error) => {
-  //   console.log(error);
-  //   // const errorMsg = error.message;
-  //   openPopup(error.message);
-  // };
 
   function handleRegistration(data) {
     mainApi.handleRegistration(data.name, data.pass, data.email)
@@ -85,7 +74,6 @@ function AppContent({ navigate }) {
         return handleAuthorization(authData);
       })
       .catch(err => {
-        // registrationEroresHandler(err);
         openPopup(err.message);
       });
   }
@@ -93,8 +81,6 @@ function AppContent({ navigate }) {
   function handleAuthorization(data) {
     mainApi.handleAuthorization(data.email, data.password)
       .then(res => {
-        // console.log(res);
-        // console.log(res);
         if (res.ok && res.token) {
           localStorage.setItem('token', res.token);
           localStorage.setItem('loggedIn', res.ok);
@@ -103,7 +89,6 @@ function AppContent({ navigate }) {
         }
       })  
       .catch(err => {
-        // console.log(err);
         openPopup(err.message);
       });
   }
@@ -192,10 +177,7 @@ function AppContent({ navigate }) {
     await formApi.getAllMyForms()
       .then(res => {
         localStorage.setItem('myForms', JSON.stringify(res))
-        // setMyFormsLoad(false)
-        // setMyForms((JSON.stringify(res)))
         updateMyForms(res)
-        // console.log(JSON.stringify(res))
       })
       .catch(err => { console.log(err) })
   }
@@ -203,10 +185,7 @@ function AppContent({ navigate }) {
   async function getAllMyBrewingsById(id) {
     await formApi.getAllMyBrewingsById(id)
       .then(res => {
-        // setMyBrewsLoad(false)
         localStorage.setItem(`brews_${id}`, JSON.stringify(res))
-        // setBrewsById(JSON.stringify(res))
-        
         updateBrewsById(res)
       })
       .catch(err => { console.log(err) })
@@ -215,9 +194,7 @@ function AppContent({ navigate }) {
   async function getAllMyTastesById(id) {
     await formApi.getAllMyTastesById(id)
       .then(res => {
-        // setTastesLoad(false)
         localStorage.setItem(`tastes_${id}`, JSON.stringify(res))
-        // setTastesById(JSON.stringify(res))
         updateTastesById(res)
       })
       .catch(err => { console.log(err) })
@@ -226,11 +203,7 @@ function AppContent({ navigate }) {
   async function getAllMyAromasById(id) {
     await formApi.getAllMyAromasById(id)
       .then(res => {
-        
         localStorage.setItem(`aromas_${id}`, JSON.stringify(res))
-        // setAromasLoad(false) 
-        // setAromasById(JSON.stringify(res))
-        // console.log(JSON.stringify(res))
         updateAromasById(res) 
 
       })
@@ -283,9 +256,6 @@ function AppContent({ navigate }) {
     navigate('/form_submit')
   }
 
-  const FormNavigateToSignIn = () => {
-    navigate('/sign-in')
-  }
 
     return (
       <div className="root">
@@ -300,19 +270,6 @@ function AppContent({ navigate }) {
           component={MyForms} 
           navigation={FormNavigateToInteracion} 
           getAllMyForms={getAllMyForms} 
-
-          // myFormsLoad={myFormsLoad}
-          // myForms={myForms}
-
-          // tastesLoad={tastesLoad}
-          // aromasLoad={aromasLoad}
-          // myBrewsLoad={myBrewsLoad}
-
-          // aromasById={aromasById}
-          // tastesById={tastesById}
-          // brewsById={brewsById}
-
-
           getAllMyBrewingsById={getAllMyBrewingsById}
           getAllMyTastesById={getAllMyTastesById}
           getAllMyAromasById={getAllMyAromasById}
@@ -321,7 +278,6 @@ function AppContent({ navigate }) {
           delMyTastesById={delMyTastesById}
           delMyAromasById={delMyAromasById}
           />} />
-          {/* <Route path="/my_forms/formID" element={<ProtectedRoute loggedIn={loggedIn} component={MyFormInteraction} />} /> */}
           <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} />
           <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
           <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
