@@ -48,7 +48,7 @@ function AppContent({ navigate }) {
       mainApi.handleTokenValidation(token)
         .then(data => {
           localStorage.setItem('loggedIn', true);
-          setLoggedIn(true);
+          setLoggedIn(true)
           navigate('/form_1');
         })
         .catch(err => {
