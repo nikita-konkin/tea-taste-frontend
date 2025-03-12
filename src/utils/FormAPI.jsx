@@ -19,15 +19,18 @@ class FormApi {
                 headers: this._headers,
                 body: JSON.stringify({
                     nameRU: data.teaName.label,
-                    type: data.teaType.label,
+                    country: data.teaCountry.label,
+                    shop: data.teaShop.label,
                     weight: data.teaWeight,
+                    type: data.teaType.label,
                     water: data.waterBrand.label,
                     volume: data.waterVolume,
                     temperature: data.waterTemperature,
-                    price: data.price,
+                    price: data.teaPrice,
                     teaware: data.teaWare.label,
                     brewingtype: data.brewingType.label,
-                    country: data.teaCountry.label
+                    averageRating: data.avrRaiting,
+                    publicAccess: data.publicAccess
                 })
             });
             return await this.error(response);
@@ -297,6 +300,7 @@ export const formApi = new FormApi({
 // usersApiUrl: 'http://192.168.137.1:3000',
 //   usersApiUrl: 'http://localhost:3000',
     usersApiUrl: process.env.REACT_APP_API_URL || "https://teaform.ru/api",
+    // usersApiUrl: process.env.REACT_APP_API_URL || "https://teaform.ru/api",
   headers: {
     'Content-Type': 'application/json'
   }

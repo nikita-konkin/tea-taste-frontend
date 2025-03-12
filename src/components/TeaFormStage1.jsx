@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useMediaQuery, Autocomplete, TextField, Slider, Popper, Button, Stack, autocompleteClasses, createFilterOptions } from '@mui/material';
+import { useMediaQuery, Autocomplete, TextField, Switch, Popper, Button, Stack, autocompleteClasses, FormControlLabel } from '@mui/material';
 import { Helmet } from 'react-helmet';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
 import AutocompleteBox from './AutocompleteBox.jsx';
-
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -23,6 +22,15 @@ const theme = createTheme({
 		fontFamily: 'jura',
 		fontSize: 16,
 		color: 'white',
+	},
+	breakpoints: {
+		values: {
+			xs: 265,
+			sm: 600,
+			md: 900,
+			lg: 1200,
+			xl: 1536,
+		},
 	},
 	components: {
 		MuiTextField: {
@@ -51,6 +59,23 @@ const theme = createTheme({
 			},
 
 		},
+		MuiStack: {
+			styleOverrides: {
+				root: {
+					'&.MuiStack-root': {
+						color: '#ffffff',
+						// margin: '0 0 16px 0',
+						// padding: '0',
+						// '&:first-child': {
+						//     marginTop: 0,
+						// },
+						// '&:last-child': {
+						//     marginBottom: 0,
+						// },
+					},
+				},
+			},
+		},
 	},
 });
 
@@ -66,13 +91,33 @@ const StyledPopper = styled(Popper)({
 	},
 });
 
+const StyledSwitch = styled(Switch)({
+	'& .MuiSwitch-switchBase': {
+		color: '#928e8e',
+	},
+	'& .MuiSwitch-switchBase.Mui-checked': {
+		color: '#d8fcd2',
+	},
+	'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+		backgroundColor: '#d8fcd2',
+	},
+	'& .MuiSwitch-track': {
+		backgroundColor: '#e4e4e4',
+	},
+});
+
 const teaTypeOptions = [
-	{ label: 'Зелёный чай (Lǜ chá)', value: 'green' },
-	{ label: 'Белый чай (Bái chá)', value: 'white' },
-	{ label: 'Жёлтый чай (Huáng chá)', value: 'yellow' },
-	{ label: 'Улун (Wūlóng chá)', value: 'oolong' },
-	{ label: 'Красный чай (Hóng chá)', value: 'red' },
-	{ label: 'Чёрный чай (Hēi chá)', value: 'black' },
+	{ label: 'Зелёный чай (绿茶 - Lǜ chá)', value: 'green' },
+	{ label: 'Белый чай (白茶 - Bái chá)', value: 'white' },
+	{ label: 'Жёлтый чай (黄茶 - Huáng chá)', value: 'yellow' },
+	{ label: 'Улун (乌龙茶 - Wūlóng chá)', value: 'oolong' },
+	{ label: 'Красный чай (红茶 - Hóng chá)', value: 'red' },
+	{ label: 'Чёрный чай (黑茶 - Hēi chá)', value: 'black' },
+	{ label: 'Пуэр (普洱茶 - Pǔěr chá)', value: 'puerh' },
+	{ label: 'Травяной чай (草药茶 - Cǎoyào chá)', value: 'herbal' },
+	{ label: 'Фруктовый чай (水果茶 - Shuǐguǒ chá)', value: 'fruit' },
+	{ label: 'Мате (马黛茶 - Mǎdài chá)', value: 'mate' },
+	{ label: 'Ройбуш (路易波士茶 - Lùyì bōshì chá)', value: 'rooibos' },
 ];
 
 const waterBrandOptions = [
@@ -118,7 +163,6 @@ const waterBrandOptions = [
 	{ label: 'Пилигрим', value: 'piligrim' },
 ];
 
-
 const teaWareOptions = [
 	{ label: 'Чайник', value: 'teapot' },
 	{ label: 'Гайвань', value: 'gaiwan' },
@@ -148,6 +192,23 @@ const brewingTypeOptions = [
 	{ label: 'Заваривание в аэропрессе', value: 'aeropress_brewing' },
 ];
 
+const teaShopOptions = [
+	{ label: 'Чайный квадрат (Йошкар-Ола)', value: 'tea_square_yosh' },
+	{ label: 'Мойчай.ру', value: 'moychay' },
+	{ label: 'OZON', value: 'ozon' },
+	{ label: 'Чай.ру', value: 'chai_ru' },
+	{ label: 'Русская Чайная Компания', value: 'russian_tea_company' },
+	{ label: 'Tealyra', value: 'tealyra' },
+	{ label: 'Чайная Карта', value: 'tea_terra' },
+	{ label: 'Чайная Лавка/Дом (Чайхана)', value: 'chai_lavka' },
+	{ label: 'Art of Tea. Искусство Чая.', value: 'art_of_tea' },
+	// { label: 'Greenfield (популярные коллекции)', value: 'greenfield' }, 
+	// { label: 'Алтайский чай (травы и иван-чай)', value: 'altai_tea' },  
+	// { label: 'Байкальский Чай (прибайкальские сборы)', value: 'baikal_tea' },  
+	{ label: 'Tea Mail', value: 'teamail' },
+	{ label: 'Wildberries', value: 'wildberries' },
+	{ label: 'СберМегаМаркет', value: 'sber' },
+];
 
 const teaCountryOptions = [
 	{ label: 'Китай', value: 'china' },
@@ -227,7 +288,6 @@ const teaNamesChina = [
 	{ label: 'Моли Цзинь Чжэнь (Жасминовые Золотые Иглы)', value: 'moli_jin_zhen' },
 ];
 
-
 const teaNamesRetail = [
 	{ label: 'Ahmad Tea English Breakfast', value: 'ahmad_tea_english_breakfast' },
 	{ label: 'Ahmad Tea Earl Grey', value: 'ahmad_tea_earl_grey' },
@@ -297,14 +357,14 @@ const teaNamesRetail = [
 	{ label: 'Westminster Earl Grey', value: 'westminster_earl_grey' },
 ];
 
-const teaNames = teaNamesChina.concat(teaNamesRetail);
+const teaNamesOptions = teaNamesChina.concat(teaNamesRetail);
 
 
 const TeaFormStage1 = (props) => {
 
 	const matches = useMediaQuery('(min-width:300px)');
-
-	const filter = createFilterOptions();
+	const isSmallScreen = useMediaQuery(theme.breakpoints.down('xs'));
+	// const filter = createFilterOptions();
 
 	useEffect(() => {
 		props.getAllFromAromaDB()
@@ -315,15 +375,18 @@ const TeaFormStage1 = (props) => {
 
 		const savedValues = localStorage.getItem('teaFormStage1');
 		return savedValues ? JSON.parse(savedValues) : {
+			teaName: null,
+			teaCountry: null,
+			teaShop: null,
 			teaWeight: 5,
 			teaType: null,
 			waterBrand: null,
 			waterVolume: 100,
 			waterTemperature: 95,
-			price: 5,
-			teaWare: null,
+			teaPrice: 5,
 			brewingType: null,
-			teaCountry: null,
+			teaWare: null,
+			publicAccess: true,
 		};
 	});
 
@@ -372,18 +435,13 @@ const TeaFormStage1 = (props) => {
 							rules={{ required: 'Введите название чая' }}
 							render={({ field, fieldState: { error } }) =>
 								<AutocompleteBox
-									optionsObj={teaNames}
+									optionsObj={teaNamesOptions}
 									name='teaName'
 									label='Название чая'
 									setValue={setValue}
+									value={field.value}
+									StyledPopper={StyledPopper}
 								/>
-								// <TextField {...field}
-								// 	label="Название чая"
-								// 	required
-								// 	error={!!error}
-								// 	helperText={error ? error.message : ''}
-								// />
-
 							}
 						/>
 						<Controller
@@ -407,12 +465,26 @@ const TeaFormStage1 = (props) => {
 									onChange={(_, data) => field.onChange(data)}
 
 									PopperComponent={StyledPopper}
-								// onChange={(_, data) => field.onChange(data ? data.value : '')} // Return only the value
-								// value={field.value.label}
 								/>
 
 							)}
 						/>
+						<Controller
+							control={control}
+							name="teaShop"
+							rules={{ required: 'Введите магазина' }}
+							render={({ field, fieldState: { error } }) =>
+								<AutocompleteBox
+									optionsObj={teaShopOptions}
+									name='teaShop'
+									label='Название магазина'
+									value={field.value}
+									setValue={setValue}
+									StyledPopper={StyledPopper}
+								/>
+							}
+						/>
+
 						<Controller
 							control={control}
 							name="teaWeight"
@@ -425,7 +497,6 @@ const TeaFormStage1 = (props) => {
 									marks={SLIDER_WEIGHT_DATA}
 									boxId='teaWeight'
 									setValue={setValue}
-									step={1}
 									{...field}
 								/>
 							}
@@ -460,7 +531,9 @@ const TeaFormStage1 = (props) => {
 									optionsObj={waterBrandOptions}
 									name='waterBrand'
 									label='Бренд воды'
+									value={field.value}
 									setValue={setValue}
+									StyledPopper={StyledPopper}
 								/>
 
 							)}
@@ -501,7 +574,7 @@ const TeaFormStage1 = (props) => {
 						/>
 						<Controller
 							control={control}
-							name="price"
+							name="teaPrice"
 							render={({ field }) =>
 								<SliderBox
 									sliderName='Цена за  грамм чая'
@@ -509,7 +582,7 @@ const TeaFormStage1 = (props) => {
 									// defaultValue={5}
 									units='₽'
 									marks={SLIDER_PRICE_DATA}
-									boxId='price'
+									boxId='teaPrice'
 									setValue={setValue}
 									step={0.1}
 									{...field}
@@ -556,15 +629,40 @@ const TeaFormStage1 = (props) => {
 								/>
 							)}
 						/>
+						<Stack direction={isSmallScreen ? "column" : "row"} spacing={2} useFlexGap sx={{ width: '100%' }}>
+							<Controller
+								control={control}
+								name='publicAccess'
+								render={
+									({ field }) => (
+										<FormControlLabel
+											control={<StyledSwitch
+												{...field}
+												checked={field.value}
+												onChange={field.onChange}
+											/>}
+											label="Опубликовать в блог"
+											labelPlacement="start"
+											sx={{
+												width: '100%',
+												padding: '0px',
+												margin: '0px',
+											}}
+										/>
+									)}
+							/>
 
-						<Button type="submit" variant="outlined" style={{
-							color: '#ffffff',
-							borderColor: '#ffffff',
-							backgroundColor: 'darkslategray',
-							margin: '20px 0 20px 0'
-						}}>
-							Далее
-						</Button>
+							<Button type="submit" variant="outlined" style={{
+								color: '#ffffff',
+								borderColor: '#ffffff',
+								backgroundColor: 'darkslategray',
+								margin: '20px 0 20px 0',
+								width: '100%'
+							}}>
+								Далее
+							</Button>
+						</Stack>
+
 					</Stack>
 				</form>
 			</ThemeProvider>

@@ -5,8 +5,6 @@ const MyFormConext = createContext();
 export const useMyFormConext = () => useContext(MyFormConext);
 
 export const MyFormConextProvider = ({ children }) => {
-    // const [open, setOpen] = useState(false);
-    // const [content, setContent] = useState('');
 
     const [aromasById, setAromasById] = useState(null);
     const [tastesById, setTastesById] = useState(null);
@@ -60,12 +58,6 @@ export const MyFormConextProvider = ({ children }) => {
     const updateRemovedAromasById = (content) => {
         setRemovedAromasById(content);
     };
-
-
-    // const closePopup = () => {
-    //     setOpen(false);
-    //     setContent('');
-    // };
 
     return (
         <MyFormConext.Provider value={{ aromasById, tastesById, brewsById, myForms,
