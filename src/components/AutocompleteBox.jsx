@@ -3,14 +3,14 @@ import { forwardRef } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 
 
-const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label }, ref) => {
+const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, value, StyledPopper }, ref) => {
 
     const filter = createFilterOptions();
 
     return (
         <Autocomplete
             {...field}
-
+            value={value}
             onChange={(event, newValue) => {
                 // console.log(newValue)
                 if (typeof newValue === 'string') {
@@ -73,6 +73,7 @@ const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label }
             renderInput={(params) => (
                 <TextField {...params} label={label} required/>
             )}
+            PopperComponent={StyledPopper}
         />
 
     )

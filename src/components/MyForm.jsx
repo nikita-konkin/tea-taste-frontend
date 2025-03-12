@@ -10,18 +10,13 @@ function MyForm({
     getAllMyBrewingsById,
     getAllMyAromasById,
     getAllMyTastesById,
-    // delMyFormById,
-    // delMyBrewsById,
-    // delMyTastesById,
-    // delMyAromasById,
-    // getAllMyForms,
     removeFormFromArrById,
 }) {
     const { openPopup } = usePopup();
     const { aromasById, tastesById, brewsById } = useMyFormConext();
     const brewsRender = useRef([]);
     const [openDetails, setOpenDetails] = React.useState(false);
-    const [brewsContent, setBrewsContent] = React.useState([]);
+    // const [brewsContent, setBrewsContent] = React.useState([]);
 
     useEffect(() => {
 
@@ -31,21 +26,7 @@ function MyForm({
         }   
     }, [aromasById, tastesById, brewsById]);
 
-    // useEffect(() => {
-    //     console.log(brewsContent.length)
-    //     if (brewsContent.length > 0 && openDetails) {
-    //         brewsRender.current = brewsContent;
-    //         openPopup(popupContent);
-    //         setOpenDetails(false);
-    //         setBrewsContent([]);
-    //     }
-    // }, [brewsContent]);
-
-
     const brewingsContent = (sessionId) => {
-        // const brewsLocalData = JSON.parse(localStorage.getItem(`brews_${sessionId}`)) || [];
-        // const aromasLocalData = JSON.parse(localStorage.getItem(`aromas_${sessionId}`)) || [];
-        // const tastesLocalData = JSON.parse(localStorage.getItem(`tastes_${sessionId}`)) || [];
 
         const tempArr = [];
 
@@ -91,8 +72,6 @@ function MyForm({
 
         }
 
-        // brewsRender.current = tempArr;
-        // setBrewsContent(tempArr);
         return tempArr;
     };
 
@@ -109,9 +88,12 @@ function MyForm({
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Объем воды: </bdi>{formData.volume} мл</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Температура воды: </bdi>{formData.temperature} oC</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Цена чая за грамм: </bdi>{formData.price} ₽</li>
+                    <li key={uuidv4()} className="myforminteraction__row"><bdi>Магазин: </bdi>{formData.shop} ₽</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Посуда: </bdi>{formData.teaware != null ? formData.teaware : ''}</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{formData.brewingtype != null ? formData.brewingtype : ''}</li>
                     <li key={uuidv4()} className="myforminteraction__row"><bdi>Дата публикации: </bdi>{formData.createdAt}</li>
+                    <li key={uuidv4()} className="myforminteraction__row"><bdi>Итоговый рейтинг: </bdi>{formData.averageRating}/10 пиал</li>
+                    <li key={uuidv4()} className="myforminteraction__row"><bdi>Публикация в блоге: </bdi>{formData.publicAccess ? 'да' : 'нет'}</li>
                     <li className="myforminteraction__row"><bdi><br /></bdi></li>
                     {/* {brewsRender.current} */}
                     {test}

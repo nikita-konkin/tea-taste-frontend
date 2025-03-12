@@ -439,6 +439,8 @@ const TeaFormStage1 = (props) => {
 									name='teaName'
 									label='Название чая'
 									setValue={setValue}
+									value={field.value}
+									StyledPopper={StyledPopper}
 								/>
 							}
 						/>
@@ -476,7 +478,9 @@ const TeaFormStage1 = (props) => {
 									optionsObj={teaShopOptions}
 									name='teaShop'
 									label='Название магазина'
+									value={field.value}
 									setValue={setValue}
+									StyledPopper={StyledPopper}
 								/>
 							}
 						/>
@@ -527,7 +531,9 @@ const TeaFormStage1 = (props) => {
 									optionsObj={waterBrandOptions}
 									name='waterBrand'
 									label='Бренд воды'
+									value={field.value}
 									setValue={setValue}
+									StyledPopper={StyledPopper}
 								/>
 
 							)}
