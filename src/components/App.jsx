@@ -8,7 +8,7 @@ import TeaFormStage2 from './TeaFormStage2.jsx';
 import Login from './Login.jsx';
 import Registration from './Registration.jsx';
 import Profile from './Profile.jsx';
-import MyForms from './MyForms.jsx';
+import Forms from './Forms.jsx';
 import MyFormInteraction from './MyFormInteraction.jsx';
 import Navigation from './Navigation.jsx';
 import Blog from './Blog.jsx';
@@ -34,8 +34,8 @@ function App() {
 
 function AppContent({ navigate }) {
   const { openPopup } = usePopup();
-  const { updateAromasById, updateTastesById, updateBrewsById, updateMyForms,
-    updateRemovedFormById, updateRemovedBrewsById, updateRemovedTastesById, updateRemovedAromasById
+  const { updateAromasByIdCxt, updateTastesByIdCxt, updateBrewsByIdCxt, updateMyForms,
+    updateRemovedFormById, updateRemovedBrewsByIdCxt, updateRemovedTastesByIdCxt, updateRemovedAromasByIdCxt
   } = useMyFormConext();
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -116,43 +116,43 @@ function AppContent({ navigate }) {
       .catch(err => console.log(err))
   }
 
-  function postFormStage2Aroma(data, formId, brewId, aromaShadeId) {
-    formApi.postFormStage2Aroma(data, formId, brewId, aromaShadeId)
+  function postFormStage2Aroma(data, formId, brewId, aromaShadeId, publicAccess) {
+    formApi.postFormStage2Aroma(data, formId, brewId, aromaShadeId, publicAccess)
       .then(res => {
       })
       .catch(err => console.log(err))
   }
 
-  function patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage) {
-    formApi.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage)
+  function patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage, publicAccess) {
+    formApi.patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStage, publicAccess)
       .then(res => {
       })
       .catch(err => console.log(err))
   }
 
-  function postFormStage2Taste(data, formId, brewId, tasteShadeId) {
-    formApi.postFormStage2Taste(data, formId, brewId, tasteShadeId)
+  function postFormStage2Taste(data, formId, brewId, tasteShadeId, publicAccess) {
+    formApi.postFormStage2Taste(data, formId, brewId, tasteShadeId, publicAccess)
       .then(res => {
       })
       .catch(err => console.log(err))
   }
 
-  function patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage) {
-    formApi.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage)
+  function patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage, publicAccess) {
+    formApi.patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStage, publicAccess)
       .then(res => {
       })
       .catch(err => console.log(err))
   }
 
-  function postFormStage2Brew(data, formId, brewId) {
-    formApi.postFormStage2Brew(data, formId, brewId)
+  function postFormStage2Brew(data, formId, brewId, publicAccess) {
+    formApi.postFormStage2Brew(data, formId, brewId, publicAccess)
       .then(res => {
       })
       .catch(err => console.log(err))
   }
 
-  function patchFormStage2Brew(data, formId, brewId) {
-    formApi.patchFormStage2Brew(data, formId, brewId)
+  function patchFormStage2Brew(data, formId, brewId, publicAccess) {
+    formApi.patchFormStage2Brew(data, formId, brewId, publicAccess)
       .then(res => {
       })
       .catch(err => console.log(err))
@@ -187,7 +187,7 @@ function AppContent({ navigate }) {
     await formApi.getAllMyBrewingsById(id)
       .then(res => {
         localStorage.setItem(`brews_${id}`, JSON.stringify(res))
-        updateBrewsById(res)
+        updateBrewsByIdCxt(res)
       })
       .catch(err => { console.log(err) })
   }
@@ -196,7 +196,7 @@ function AppContent({ navigate }) {
     await formApi.getAllMyTastesById(id)
       .then(res => {
         localStorage.setItem(`tastes_${id}`, JSON.stringify(res))
-        updateTastesById(res)
+        updateTastesByIdCxt(res)
       })
       .catch(err => { console.log(err) })
   }
@@ -205,7 +205,7 @@ function AppContent({ navigate }) {
     await formApi.getAllMyAromasById(id)
       .then(res => {
         localStorage.setItem(`aromas_${id}`, JSON.stringify(res))
-        updateAromasById(res)
+        updateAromasByIdCxt(res)
 
       })
       .catch(err => { console.log(err) })
@@ -223,7 +223,7 @@ function AppContent({ navigate }) {
   async function delMyBrewsById(id) {
     await formApi.delMyBrewsById(id)
       .then(res => {
-        updateRemovedBrewsById(true)
+        updateRemovedBrewsByIdCxt(true)
       })
       .catch(err => { console.log(err) })
   }
@@ -231,7 +231,7 @@ function AppContent({ navigate }) {
   async function delMyTastesById(id) {
     await formApi.delMyTastesById(id)
       .then(res => {
-        updateRemovedTastesById(true)
+        updateRemovedTastesByIdCxt(true)
       })
       .catch(err => { console.log(err) })
   }
@@ -239,7 +239,7 @@ function AppContent({ navigate }) {
   async function delMyAromasById(id) {
     await formApi.delMyAromasById(id)
       .then(res => {
-        updateRemovedAromasById(true)
+        updateRemovedAromasByIdCxt(true)
       })
       .catch(err => { console.log(err) })
   }
@@ -268,18 +268,35 @@ function AppContent({ navigate }) {
         <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Profile} handleLogout={handleLogOut} />} />
         <Route path="/my_forms" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}
           loggedIn={loggedIn}
-          component={MyForms}
+          component={Forms}
+          isMyForms={true}
+          isBlog={false}
           navigation={FormNavigateToInteracion}
-          getAllMyForms={getAllMyForms}
-          getAllMyBrewingsById={getAllMyBrewingsById}
-          getAllMyTastesById={getAllMyTastesById}
-          getAllMyAromasById={getAllMyAromasById}
-          delMyFormById={delMyFormById}
-          delMyBrewsById={delMyBrewsById}
-          delMyTastesById={delMyTastesById}
-          delMyAromasById={delMyAromasById}
+          formsById={getAllMyForms}
+          brewingsById={getAllMyBrewingsById}
+          tastesById={getAllMyTastesById}
+          aromasById={getAllMyAromasById}
+          delFormById={delMyFormById}
+          delBrewsById={delMyBrewsById}
+          delTastesById={delMyTastesById}
+          delAromasById={delMyAromasById}
         />} />
-        <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} />
+          <Route path="/blog" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}
+          loggedIn={loggedIn}
+          component={Forms}
+          isMyForms={false}
+          isBlog={true}
+          navigation={FormNavigateToInteracion}
+          allForms={getAllMyForms}
+          allBrewings={getAllMyBrewingsById}
+          allTastes={getAllMyTastesById}
+          allAromas={getAllMyAromasById}
+          // delMyFormById={delMyFormById}
+          // delMyBrewsById={delMyBrewsById}
+          // delMyTastesById={delMyTastesById}
+          // delMyAromasById={delMyAromasById}
+        />} />
+        {/* <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} /> */}
         <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
         <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
       </Routes>

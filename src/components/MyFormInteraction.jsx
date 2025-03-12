@@ -116,7 +116,7 @@ function MyFormInteraction(props) {
 		)
 	}
 
-	async function postAromaData(formId) {
+	async function postAromaData(formId, publicAccess) {
 
 		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
 			for (let aromaNum = 0; aromaNum < stage2Data.straits[straitNum].aromas.length; aromaNum++) {
@@ -130,14 +130,14 @@ function MyFormInteraction(props) {
 						if (aromaStage == 1) {
 							// props.postFormStage2Aroma(data, formId, straitNum+1, aromaNum+1)
 							try {
-								const result = await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1);
+								const result = await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, publicAccess);
 								// console.log('Aroms data posted successfully:', result);
 							} catch (error) {
 								console.error('Error submitting form:', error);
 							}
 						} else {
 							try {
-								const result1 = await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage);
+								const result1 = await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage, publicAccess);
 
 							} catch (error) {
 								console.error('Error submitting form:', error);
@@ -150,7 +150,7 @@ function MyFormInteraction(props) {
 
 	}
 
-	async function postTasteData(formId) {
+	async function postTasteData(formId, publicAccess) {
 
 		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
 			for (let tasteNum = 0; tasteNum < stage2Data.straits[straitNum].tastes.length; tasteNum++) {
@@ -163,14 +163,14 @@ function MyFormInteraction(props) {
 					if (stage2Data.straits[straitNum].tastes.length > 0) {
 						if (tasteStage == 1) {
 							try {
-								const result = await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1);
+								const result = await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, publicAccess);
 								// console.log('Taste data posted successfully:', result);
 							} catch (error) {
 								console.error('Error submitting form:', error);
 							}
 						} else {
 							try {
-								const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage);
+								const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage, publicAccess);
 								// console.log('Taste data posted successfully:', result);
 							} catch (error) {
 								console.error('Error submitting form:', error);
@@ -184,7 +184,7 @@ function MyFormInteraction(props) {
 
 	}
 
-	function postStraitData(formId) {
+	function postStraitData(formId, publicAccess) {
 
 		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
 
@@ -193,7 +193,7 @@ function MyFormInteraction(props) {
 				brewingTime: stage2Data.straits[straitNum].straitTime,
 				brewingRating: stage2Data.straits[straitNum].straitRaiting,
 			}
-			props.postFormStage2Brew(straitData, formId, straitNum + 1)
+			props.postFormStage2Brew(straitData, formId, straitNum + 1, publicAccess)
 			// props.patchFormStage2Brew(straitData, formId, straitNum+1)
 
 		}
@@ -207,23 +207,23 @@ function MyFormInteraction(props) {
 
 	const onSubmit = async (e) => {
 		e.preventDefault()
-
+		const publicAccess = stage1Data.publicAccess
 		try {
-			const result1 = await postTasteData(formId)
-			const result2 = await postTasteData(formId)
+			const result1 = await postTasteData(formId, publicAccess)
+			const result2 = await postTasteData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
 		}
 
 		try {
-			const result1 = await postAromaData(formId)
-			const result2 = await postAromaData(formId)
+			const result1 = await postAromaData(formId, publicAccess)
+			const result2 = await postAromaData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
 		}
 
 		try {
-			postStraitData(formId)
+			postStraitData(formId, publicAccess)
 			postTeaInfo(formId)
 		} catch (error) {
 			console.log(error)

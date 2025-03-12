@@ -40,14 +40,15 @@ class FormApi {
         }
     }
 
-    async postFormStage2Aroma(data, formId, brewId, aromaShadeId) {
+    async postFormStage2Aroma(data, formId, brewId, aromaShadeId, publicAccess) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: this._headers,
                 body: JSON.stringify({
-                    aromaStage1: data
+                    aromaStage1: data,
+                    publicAccess: publicAccess
                 })
             });
             return await this.error(response);
@@ -57,10 +58,11 @@ class FormApi {
         }
     }
 
-    async patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStageId) {
+    async patchFormStage2Aroma(data, formId, brewId, aromaShadeId, aromaStageId, publicAccess) {
         const key = 'aromaStage' + String(aromaStageId);
         const obj = {};
         obj[key] = data;
+        obj.publicAccess = publicAccess;
 
         try {
             const response = await fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaShadeId}`, {
@@ -76,14 +78,15 @@ class FormApi {
         }
     }
 
-    async postFormStage2Taste(data, formId, brewId, tasteShadeId) {
+    async postFormStage2Taste(data, formId, brewId, tasteShadeId, publicAccess) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: this._headers,
                 body: JSON.stringify({
-                    tasteStage1: data
+                    tasteStage1: data,
+                    publicAccess: publicAccess
                 })
             });
             return await this.error(response);
@@ -93,10 +96,11 @@ class FormApi {
         }
     }
 
-    async patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStageId) {
+    async patchFormStage2Taste(data, formId, brewId, tasteShadeId, tasteStageId, publicAccess) {
         const key = 'tasteStage' + String(tasteStageId);
         const obj = {};
         obj[key] = data;
+        obj.publicAccess = publicAccess;
 
         try {
             const response = await fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteShadeId}`, {
@@ -112,7 +116,8 @@ class FormApi {
         }
     }
 
-    async postFormStage2Brew(data, formId, brewId) {
+    async postFormStage2Brew(data, formId, brewId, publicAccess) {
+        
         try {
             const response = await fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}`, {
                 method: 'POST',
@@ -121,7 +126,8 @@ class FormApi {
                 body: JSON.stringify({
                     description: data.description,
                     brewingRating: data.brewingRating,
-                    brewingTime: data.brewingTime
+                    brewingTime: data.brewingTime,
+                    publicAccess: publicAccess
                 })
             });
             return await this.error(response);
@@ -131,7 +137,7 @@ class FormApi {
         }
     }
 
-    async patchFormStage2Brew(data, formId, brewId) {
+    async patchFormStage2Brew(data, formId, brewId, publicAccess) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-brewings/${formId}/brew/${brewId}`, {
                 method: 'PATCH',
@@ -140,7 +146,8 @@ class FormApi {
                 body: JSON.stringify({
                     description: data.description,
                     brewingRating: data.brewingRating,
-                    brewingTime: data.brewingTime
+                    brewingTime: data.brewingTime,
+                    publicAccess: publicAccess
                 })
             });
             return await this.error(response);
@@ -187,6 +194,20 @@ class FormApi {
             return await this.error(response);
         } catch (error) {
             console.error('Error fetching all froms:', error);
+            throw error;
+        }
+    }
+
+    async getAllPublicForms(formId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/public-forms`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all public forms:', error);
             throw error;
         }
     }

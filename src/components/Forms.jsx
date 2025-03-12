@@ -6,33 +6,27 @@ import React, {
 
 
 import Header from './Header.jsx'
-import MyForm from './MyForm.jsx'
+import Form from './Form.jsx'
 import { useMyFormConext } from './MyFormConext.jsx';
 
-function MyForms({ getAllMyForms, navigation,
-	// myFormsLoad, myForms,
-	getAllMyBrewingsById, getAllMyAromasById, getAllMyTastesById,
-	delMyFormById, delMyBrewsById, delMyTastesById, delMyAromasById,
-	// tastesLoad, brewsLoad, aromasLoad,
-	// aromasById, tastesById, brewsById
+function Forms({ formsById, navigation,
+	isMyForms, isBlog,
+	brewingsById, aromasById, tastesById,
+	delFormById, delBrewsById, delTastesById, delAromasById,
 }) {
 
 	const { myForms, removedFormById, removedBrewsById, removedTastesById, removedAromasById
 
 	} = useMyFormConext();
-	// const forms = []
 	const [checkLS, setCheckLS] = useState(false)
 	const [renderForms, setRenderForms] = useState([])
 	const [removed, setRemoved] = useState(false)
 
 	useEffect(() => {
-		// console.log('myFormsUP!')
-		getAllMyForms()
-		// console.log('tyt')
+		formsById()
 	}, [])
 
 	useEffect(() => {
-		// console.log('myForms')
 		if (myForms) {
 			setCheckLS(true)
 			prepareFormsRender(myForms)
@@ -40,34 +34,21 @@ function MyForms({ getAllMyForms, navigation,
 	}, [myForms])
 
 	useEffect(() => {
-		// console.log('removedUP')
 		if (removedFormById && removed) {
-			// console.log('removed')
 			setCheckLS(false)
-			
-			// getAllMyForms();
 		}
 	}, [removedFormById, removedAromasById, removedBrewsById, removedTastesById, removed])
-
-	// useEffect(() => {
-
-	// 	console.log(brewsById)
-	// 	console.log(tastesById)
-	// 	console.log(aromasById)
-
-	// }, [brewsById, tastesById, aromasById])
 
 	const removeFormFromArrById = (id) => {
 
 		setCheckLS(false)
 		setRemoved(true)
 
-		delMyBrewsById(id);
-		delMyTastesById(id);
-		delMyAromasById(id);
-		delMyFormById(id);
+		delBrewsById(id);
+		delTastesById(id);
+		delAromasById(id);
+		delFormById(id);
 
-		// removeFormFromArrById(id);
 
 		if (localStorage.getItem(`brews_${id}`)) {
 			localStorage.removeItem(`brews_${id}`);
@@ -80,8 +61,6 @@ function MyForms({ getAllMyForms, navigation,
 		}
 		localStorage.removeItem(`myForms`);
 
-
-
 	}
 
 
@@ -89,14 +68,15 @@ function MyForms({ getAllMyForms, navigation,
 		const forms = []
 		for (let formData of Object.values(myFormsData)[0]) {
 			forms.push(
-				<MyForm
+				<Form
 					navigation={navigation}
 					formData={formData}
-					getAllMyBrewingsById={getAllMyBrewingsById}
-					getAllMyAromasById={getAllMyAromasById}
-					getAllMyTastesById={getAllMyTastesById}
+					brewingsById={brewingsById}
+					aromasById={aromasById}
+					tastesById={tastesById}
 					removeFormFromArrById={removeFormFromArrById}
 					key={formData.sessionId}
+					isMyForms={isMyForms}
 				/>
 			);
 		}
@@ -105,8 +85,6 @@ function MyForms({ getAllMyForms, navigation,
 
 
 	if (!checkLS) {
-		// if (myFormsLoad ) {
-
 		return (
 			<>
 				<Header navigation={navigation} />
@@ -140,4 +118,4 @@ function MyForms({ getAllMyForms, navigation,
 	)
 }
 
-export default MyForms;
+export default Forms;
