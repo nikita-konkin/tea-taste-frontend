@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 import { usePopup } from './PopupContext';
+import Header from './Header';
+
+import PopupButton from './PopupButton.jsx';
 
 function Registration({ auth, popupContent }) {
 
@@ -52,7 +55,7 @@ function Registration({ auth, popupContent }) {
 				<meta property="og:description" content="Страница регистрации нового аккаунта" />
 				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
 			</Helmet>
-
+			<Header />
 			<form className="registration" onSubmit={handleOnSubmit}>
 				<h1 className="registration__header">Регистрация</h1>
 				<div className="registration__fields-box">
@@ -81,6 +84,8 @@ function Registration({ auth, popupContent }) {
 
 				</div>
 
+				<PopupButton naviagteTo={'/blog'} content={'Блог'}/>
+				
 			</form>
 		</>
 	)

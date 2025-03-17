@@ -71,3 +71,7 @@
 @import url(./blocks/popup/__content/popup__content.css);
 @import url(./blocks/popup/__close-btn/popup__close-btn.css);
 @import url(./blocks/popup/__content-header/popup__content-header.css);
+
+
+@import url(./blocks/popup-button/popup-button.css);
+@import url(./blocks/popup-button/__container/popup-button_container.css);

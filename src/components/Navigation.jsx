@@ -36,8 +36,9 @@ function Navigation(props) {
 				setCurrentLocation('ЛК') : loc.includes('my_forms') ?
 					setCurrentLocation('ЛК') : loc.includes('blog') ?
 						setCurrentLocation('Блог') : loc.includes('form_submit') ?
-							setCurrentLocation('Проверка формы') : setCurrentLocation('None')
-
+							setCurrentLocation('Проверка формы') : loc.includes('sign-up') ?
+							setCurrentLocation('Регистрация') : loc.includes('sign-in') ?
+							    setCurrentLocation('Авторизация') : setCurrentLocation('None')
 
 	}
 
@@ -58,9 +59,7 @@ function Navigation(props) {
 	}, []);
 
 	const openMenu = () => {
-
 		menuState ? setMenuState(false) : setMenuState(true)
-
 	}
 
 	function navBtn() {

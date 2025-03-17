@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
+import Header from './Header.jsx'
+
+import PopupButton from './PopupButton.jsx';
+
 function Login(props) {
 
 	const [pass, setPass] = useState('')
@@ -33,6 +37,7 @@ function Login(props) {
 			<meta property="og:description" content="Страница входа в форму заполнения информации о чае и его проливах" />
 			{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
 		</Helmet>
+		    <Header />
 			<form className="authorization" onSubmit={e => handleOnSubmit(e)}>
 				<h1 className="authorization__header">Вход</h1>
 				<div className="authorization__fields-box">
@@ -52,6 +57,7 @@ function Login(props) {
 
 				</div>
 			</form>
+			<PopupButton naviagteTo={'/blog'} content={'Блог'}/>
 		</>
 
 	)
