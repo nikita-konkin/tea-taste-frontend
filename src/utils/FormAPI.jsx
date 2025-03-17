@@ -226,6 +226,20 @@ class FormApi {
         }
     }
 
+    async getPublicBrewingsById(brewId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/public-brewings/${brewId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all public forms:', error);
+            throw error;
+        }
+    }
+
     async getAllMyTastesById(tasteId) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-tastes/${tasteId}`, {
@@ -240,6 +254,19 @@ class FormApi {
         }
     }
 
+    async getPublicTastesById(tasteId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/public-tastes/${tasteId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all public forms:', error);
+            throw error;
+        }
+    }
 
     async getAllMyAromasById(aromaId) {
         try {
@@ -255,6 +282,19 @@ class FormApi {
         }
     }
 
+    async getPublicAromasById(aromaId) {
+        try {
+            const response = await fetch(`${this._usersApiUrl}/public-aromas/${aromaId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: this._headers
+            });
+            return await this.error(response);
+        } catch (error) {
+            console.error('Error fetching all public forms:', error);
+            throw error;
+        }
+    }
 
     async delMyFormById(formId) {
         try {

@@ -4,27 +4,29 @@ import React, {
 	useRef
 } from 'react'
 
+import PopupButton from './PopupButton.jsx';
 
 import Header from './Header.jsx'
 import Form from './Form.jsx'
 import { useMyFormConext } from './MyFormConext.jsx';
 
-function Forms({ formsById, navigation,
+function Forms({ forms, navigation,
 	isMyForms, isBlog,
 	brewingsById, aromasById, tastesById,
 	delFormById, delBrewsById, delTastesById, delAromasById,
 }) {
 
-	const { myForms, removedFormById, removedBrewsById, removedTastesById, removedAromasById
-
+	const { myForms, removedFormById, 
+		removedBrewsById, removedTastesById, 
+		removedAromasById
 	} = useMyFormConext();
 	const [checkLS, setCheckLS] = useState(false)
 	const [renderForms, setRenderForms] = useState([])
 	const [removed, setRemoved] = useState(false)
 
 	useEffect(() => {
-		formsById()
-	}, [])
+		forms()
+	}, [isMyForms, isBlog])
 
 	useEffect(() => {
 		if (myForms) {
@@ -89,7 +91,7 @@ function Forms({ formsById, navigation,
 			<>
 				<Header navigation={navigation} />
 				<div className="myforms">
-					<h2 className="header__myforms">Ищем ваши формы...</h2>
+					<h2 className="header__myforms">Ищем формы...</h2>
 				</div>
 			</>
 		)
@@ -100,8 +102,9 @@ function Forms({ formsById, navigation,
 			<>
 				<Header navigation={navigation} />
 				<div className="myforms">
-					<h2 className="header__myforms">У вас пока нет форм</h2>
+					<h2 className="header__myforms">{isMyForms ? 'У вас пока нет форм' : 'Пока нет публичных форм'}</h2>
 				</div>
+				<PopupButton naviagteTo={'/form_1'} content={'Создать форму'}/>
 			</>
 		)
 	}
@@ -110,9 +113,10 @@ function Forms({ formsById, navigation,
 		<>
 			<Header navigation={navigation} />
 			<div className="myforms">
-				<h2 className="header__myforms">Мои формы</h2>
+				<h2 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h2>
 				{renderForms}
 			</div>
+			<PopupButton naviagteTo={'/form_1'} content={'Создать форму'}/>
 		</>
 
 	)

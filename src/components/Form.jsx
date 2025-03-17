@@ -139,7 +139,7 @@ function Form({
             return (
                 <FormButton
                     buttonName={'Просмотр'}
-                    width={'32%'}
+                    width={'100%'}
                     margin={'0px'}
                     onClick={(e) => {
                         e.preventDefault();
