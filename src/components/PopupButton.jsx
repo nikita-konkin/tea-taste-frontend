@@ -16,8 +16,10 @@ const PopupButton = ({ naviagteTo, content }) => {
             onClick={() => navigate(naviagteTo)}
             style={{
                 color: '#ffffff',
-                borderColor: '#ffffff',
-                backgroundColor: 'darkslategray',
+                borderColor: 'rgba(255, 255, 255, 0.35)',
+                backgroundColor: 'rgba(255, 255, 255, 0.14)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
                 margin: '0px 0 0px 0',
                 padding: '10px 20px',
                 fontSize: '14px',

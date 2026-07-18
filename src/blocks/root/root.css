@@ -8,6 +8,14 @@
   min-width:  90vw;
   align-content: center;
   background-color: rgba(47, 107, 89, 1);
+  /* Soft depth layers in the same green family — gives the glass cards
+     something to blur; on flat color backdrop-filter is invisible. */
+  background-image:
+    radial-gradient(600px 420px at 12% 8%, rgba(168, 244, 147, 0.14), transparent 60%),
+    radial-gradient(720px 520px at 88% 28%, rgba(20, 70, 52, 0.50), transparent 65%),
+    radial-gradient(520px 420px at 45% 95%, rgba(150, 178, 149, 0.20), transparent 60%),
+    linear-gradient(160deg, #35755f 0%, #2f6b59 45%, #27584a 100%);
+  background-attachment: fixed;
 
   display: flex;
   flex-direction: column;

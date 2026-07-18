@@ -1,7 +1,25 @@
-.myform{
+.myform {
 	width: 100%;
 	/*max-width: 500px;*/
-	background-color: #728A7C;
-	border-radius: 6px;
+	box-sizing: border-box;
 	min-height: 120px;
+	padding: 14px 16px 16px 16px;
+	margin: 0 0 20px 0;
+
+	/* Liquid-glass card */
+	background-color: rgba(255, 255, 255, 0.10);
+	-webkit-backdrop-filter: blur(12px) saturate(140%);
+	backdrop-filter: blur(12px) saturate(140%);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	border-radius: 14px;
+	box-shadow:
+		0 8px 24px rgba(0, 0, 0, 0.18),
+		inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Browsers without backdrop-filter get the old solid card. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.myform {
+		background-color: #728A7C;
+	}
 }

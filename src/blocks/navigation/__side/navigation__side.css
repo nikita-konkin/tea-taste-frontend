@@ -1,26 +1,94 @@
-.navigation__side{
-  position: absolute;
-  height: 100vh;
-  width: 60vw;
-	right: 0;
-	top: 0;
+.navigation__side {
+  position: fixed;
+  height: 100%;
+  width: min(320px, 82vw);
+  right: 0;
+  top: 0;
   z-index: 9;
-  background-color: #1d5c41e6;
+  box-sizing: border-box;
+  padding: 12px 14px 24px 14px;
+  overflow-y: auto;
+
+  background-color: rgba(29, 92, 65, 0.70);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.35);
+
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+
   animation-name: slidein;
-  animation-timing-function: ease-in-out;
-  animation-duration: 1s;
+  animation-timing-function: ease-out;
+  animation-duration: 0.25s;
 }
 
 @keyframes slidein {
   from {
-    width: 0vw;
+    transform: translateX(100%);
   }
 
   to {
-    width: 60vw;
+    transform: translateX(0);
   }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .navigation__side {
+    background-color: #1d5c41f2;
+  }
+}
+
+.navigation__side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 10px 6px;
+  border-bottom: 1px solid #ffffff40;
+  margin: 0 0 8px 0;
+}
+
+.navigation__side-title {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.navigation__close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 34px;
+  line-height: 1;
+  padding: 0 6px;
+  cursor: pointer;
+}
+
+.navigation__close:hover {
+  opacity: 0.7;
+}
+
+.navigation__section {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 14px 0;
+}
+
+.navigation__section-title {
+  color: #ffffffa0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 8px 6px 6px 6px;
+}
+
+.navigation__link-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  color: #d8f5cc; /* pale green of the site logo */
 }

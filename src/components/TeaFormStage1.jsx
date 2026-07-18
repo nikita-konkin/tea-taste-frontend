@@ -93,16 +93,16 @@ const StyledPopper = styled(Popper)({
 
 const StyledSwitch = styled(Switch)({
 	'& .MuiSwitch-switchBase': {
-		color: '#928e8e',
+		color: 'rgba(255, 255, 255, 0.75)',
 	},
 	'& .MuiSwitch-switchBase.Mui-checked': {
-		color: '#d8fcd2',
+		color: '#a8f493',
 	},
 	'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-		backgroundColor: '#d8fcd2',
+		backgroundColor: 'rgba(168, 244, 147, 0.55)',
 	},
 	'& .MuiSwitch-track': {
-		backgroundColor: '#e4e4e4',
+		backgroundColor: 'rgba(255, 255, 255, 0.30)',
 	},
 });
 
@@ -647,6 +647,9 @@ const TeaFormStage1 = (props) => {
 												width: '100%',
 												padding: '0px',
 												margin: '0px',
+												'& .MuiFormControlLabel-label': {
+													color: '#ffffff',
+												},
 											}}
 										/>
 									)}
@@ -654,8 +657,11 @@ const TeaFormStage1 = (props) => {
 
 							<Button type="submit" variant="outlined" style={{
 								color: '#ffffff',
-								borderColor: '#ffffff',
-								backgroundColor: 'darkslategray',
+								borderColor: 'rgba(255, 255, 255, 0.35)',
+								backgroundColor: 'rgba(255, 255, 255, 0.12)',
+								backdropFilter: 'blur(8px)',
+								WebkitBackdropFilter: 'blur(8px)',
+								borderRadius: '10px',
 								margin: '20px 0 20px 0',
 								width: '100%'
 							}}>

@@ -6,10 +6,10 @@ import TeaRaiting from './TeaRaiting.jsx';
 import TimeBox from './TimeBox.jsx';
 
 import { Controller, useForm, useFieldArray } from 'react-hook-form';
-import { Autocomplete, TextField, Popper, Button, Stack, autocompleteClasses } from '@mui/material';
+import { TextField, Button, Stack } from '@mui/material';
 
-import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import DescriptorPicker from './DescriptorPicker.jsx';
 
 import dayjs from 'dayjs';
 
@@ -49,27 +49,16 @@ const theme = createTheme({
 	},
 });
 
-const StyledPopper = styled(Popper)({
-	[`& .${autocompleteClasses.listbox}`]: {
-		boxSizing: 'border-box',
-		backgroundColor: '#425E42',
-		color: '#ffffff',
-		'& ul': {
-			padding: 0,
-			margin: 0,
-		},
-	},
-});
-
 const btnStyle = {
 	color: '#ffffff',
-	borderColor: '#ffffff',
-	backgroundColor: 'darkslategray'
+	borderColor: 'rgba(255, 255, 255, 0.35)',
+	backgroundColor: 'rgba(255, 255, 255, 0.12)',
+	backdropFilter: 'blur(8px)',
+	WebkitBackdropFilter: 'blur(8px)',
+	borderRadius: '10px'
 }
 const lastBtnStyle = {
-	color: '#ffffff',
-	borderColor: '#ffffff',
-	backgroundColor: 'darkslategray',
+	...btnStyle,
 	margin: '20px 0 20px 0'
 }
 
@@ -343,129 +332,33 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 }
 
 
-const tasteOptionsHandler = (watch, straitIndex, index, optionsTaste) => {
-
-	const tasteCategoryList = optionsTaste.response.map((item) => ({ label: item.category }));
-
-	let stage1ValueTaste = watch(`straits[${straitIndex}].tastes[${index}].tasteStage1`) || [];
-	let selectedCategoryTaste = stage1ValueTaste ? optionsTaste.response.find((item) => item.category === stage1ValueTaste.label) : [];
-	let subcategoryListTaste = selectedCategoryTaste ? selectedCategoryTaste.subcategories.map((sub) => ({ label: sub.name })) : [];
-
-	let stage2ValueTaste = watch(`straits[${straitIndex}].tastes[${index}].tasteStage2`) || [];
-	let selectedSubCategoryTaste = stage2ValueTaste ? optionsTaste.response
-		.find((item) => item.category === stage1ValueTaste.label)
-		?.subcategories.find((sub) => sub.name === stage2ValueTaste.label) : [];
-	let subSubcategoryListTaste = selectedSubCategoryTaste ? selectedSubCategoryTaste.descriptors.map((item) => ({ label: item })) : [];
-
-	return { tasteCategoryList, subcategoryListTaste, subSubcategoryListTaste }
-
-}
-
-const aromaOptionsHandler = (watch, straitIndex, index, optionsAroma) => {
-
-	const aromaCategoryList = optionsAroma.response.map((item) => ({ label: item.category }));
-
-	let stage1Value = watch(`straits[${straitIndex}].aromas[${index}].aromaStage1`) || [];
-	let selectedCategory = stage1Value ? optionsAroma.response.find((item) => item.category === stage1Value.label) : [];
-	let subcategoryList = selectedCategory ? selectedCategory.subcategories.map((sub) => ({ label: sub.name })) : [];
-
-	let stage2Value = watch(`straits[${straitIndex}].aromas[${index}].aromaStage2`) || [];
-	let selectedSub = stage2Value ? optionsAroma.response
-		.find((item) => item.category === stage1Value.label)
-		?.subcategories.find((sub) => sub.name === stage2Value.label) : [];
-	let subSubcategoryList = selectedSub ? selectedSub.descriptors.map((item) => ({ label: item })) : [];
-
-	return { aromaCategoryList, subcategoryList, subSubcategoryList }
-
-}
-
 function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, control, optionsAroma, setValue }) {
 
-
-	let { aromaCategoryList, subcategoryList, subSubcategoryList } = aromaOptionsHandler(watch, straitIndex, aromaIndex, optionsAroma)
-
-	useEffect(() => {
-		if (subcategoryList.length === 0) {
-			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage2`, null);
-			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`, null);
-		}
-	}, [subcategoryList.length, straitIndex, aromaIndex, setValue]);
-
-	useEffect(() => {
-		if (subSubcategoryList.length === 0) {
-			setValue(`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`, null);
-		}
-	}, [subSubcategoryList.length, straitIndex, aromaIndex, setValue]);
+	const base = `straits[${straitIndex}].aromas[${aromaIndex}]`;
+	const stage1 = watch(`${base}.aromaStage1`);
+	const stage2 = watch(`${base}.aromaStage2`);
+	const stage3 = watch(`${base}.aromaStage3`);
 
 	return (
 
 		<Stack direction="column" spacing={2} key={aromaField.id} style={{
-			border: 'solid 2px #ffffff'
-			, borderRadius: ' 6px', padding: '5px', background: '#728A7C'
+			border: '1px solid rgba(255, 255, 255, 0.25)',
+			borderRadius: '10px', padding: '8px',
+			background: 'rgba(255, 255, 255, 0.08)',
+			backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
 		}}>
 			<h4 className="form_stages-header">Аромат №{aromaIndex + 1}</h4>
-			<Controller
-				control={control}
-				name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage1`}
-				render={({ field }) => (
-
-					<Autocomplete
-						{...field}
-						options={aromaCategoryList}
-						getOptionLabel={(option) => option.label}
-						renderInput={(params) =>
-							<TextField {...params} label="Аромат" />
-						}
-						onChange={(_, data) => field.onChange(data)}
-						PopperComponent={StyledPopper}
-						value={field.value || null}
-					/>
-
-				)}
-			/>
-			<Controller
-				control={control}
-				name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage2`}
-				render={({ field, fieldState: { error } }) => (
-					<Autocomplete
-						{...field}
-						options={subcategoryList}
-						getOptionLabel={(option) => option.label}
-						renderInput={(params) =>
-							<TextField {...params}
-								required
-								label="Аромат (Оттенок №1)"
-								error={!!error}
-								helperText={error ? error.message : ''}
-							/>}
-						onChange={(_, data) => field.onChange(data)}
-						PopperComponent={StyledPopper}
-						value={field.value || null}
-						disabled={subcategoryList.length === 0}
-					/>
-				)}
-			/>
-			<Controller
-				control={control}
-				name={`straits[${straitIndex}].aromas[${aromaIndex}].aromaStage3`}
-				render={({ field, fieldState: { error } }) => (
-					<Autocomplete
-						{...field}
-						options={subSubcategoryList}
-						getOptionLabel={(option) => option.label}
-						renderInput={(params) =>
-							<TextField {...params}
-								required
-								label="Аромат (Оттенок №2)"
-								error={!!error}
-								helperText={error ? error.message : ''}
-							/>}
-						onChange={(_, data) => field.onChange(data)}
-						PopperComponent={StyledPopper}
-						value={field.value || null}
-						disabled={subSubcategoryList.length === 0}
-					/>
-				)}
+			<DescriptorPicker
+				label="Аромат"
+				db={optionsAroma}
+				stage1={stage1}
+				stage2={stage2}
+				stage3={stage3}
+				onStagesChange={([s1, s2, s3]) => {
+					setValue(`${base}.aromaStage1`, s1 ? { label: s1 } : null);
+					setValue(`${base}.aromaStage2`, s2 ? { label: s2 } : null);
+					setValue(`${base}.aromaStage3`, s3 ? { label: s3 } : null);
+				}}
 			/>
 			<Button type="button" variant="outlined" style={btnStyle}
 				onClick={() => aromasRemove(aromaIndex)}	>
@@ -481,94 +374,32 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 
 function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, control, optionsTaste, setValue }) {
 
-	let { tasteCategoryList, subcategoryListTaste, subSubcategoryListTaste } = tasteOptionsHandler(watch, straitIndex, tasteIndex, optionsTaste)
-
-	useEffect(() => {
-		if (subcategoryListTaste.length === 0) {
-			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage2`, null);
-			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`, null);
-		}
-	}, [subcategoryListTaste.length, straitIndex, tasteIndex, setValue]);
-
-	useEffect(() => {
-		if (subSubcategoryListTaste.length === 0) {
-			setValue(`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`, null);
-		}
-	}, [subSubcategoryListTaste.length, straitIndex, tasteIndex, setValue]);
-
+	const base = `straits[${straitIndex}].tastes[${tasteIndex}]`;
+	const stage1 = watch(`${base}.tasteStage1`);
+	const stage2 = watch(`${base}.tasteStage2`);
+	const stage3 = watch(`${base}.tasteStage3`);
 
 	return (
 
 		<Stack direction="column" spacing={2} key={tasteField.id} style={{
-			border: 'solid 2px #ffffff'
-			, borderRadius: ' 6px', padding: '5px', background: '#728A7C'
+			border: '1px solid rgba(255, 255, 255, 0.25)',
+			borderRadius: '10px', padding: '8px',
+			background: 'rgba(255, 255, 255, 0.08)',
+			backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
 		}}>
 			<h4 className="form_stages-header">Вкус №{tasteIndex + 1}</h4>
-			<Controller
-				control={control}
-				name={`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage1`}
-				render={({ field }) => (
-
-					<Autocomplete
-						{...field}
-						options={tasteCategoryList}
-						getOptionLabel={(option) => option.label}
-						renderInput={(params) =>
-							<TextField {...params} label="Вкус" />
-						}
-						onChange={(_, data) => field.onChange(data)}
-						PopperComponent={StyledPopper}
-						value={field.value || null}
-					/>
-
-				)}
+			<DescriptorPicker
+				label="Вкус"
+				db={optionsTaste}
+				stage1={stage1}
+				stage2={stage2}
+				stage3={stage3}
+				onStagesChange={([s1, s2, s3]) => {
+					setValue(`${base}.tasteStage1`, s1 ? { label: s1 } : null);
+					setValue(`${base}.tasteStage2`, s2 ? { label: s2 } : null);
+					setValue(`${base}.tasteStage3`, s3 ? { label: s3 } : null);
+				}}
 			/>
-			<Controller
-				control={control}
-				name={`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage2`}
-				render={({ field, fieldState: { error } }) => (
-					<Autocomplete
-						{...field}
-						options={subcategoryListTaste}
-						getOptionLabel={(option) => option.label}
-						renderInput={(params) =>
-							<TextField {...params}
-								required
-								label="Вкус (Оттенок вкуса №1)"
-								error={!!error}
-								helperText={error ? error.message : ''}
-							/>}
-						onChange={(_, data) => field.onChange(data)}
-						PopperComponent={StyledPopper}
-						value={field.value || null}
-						disabled={subcategoryListTaste.length === 0}
-					/>
-				)}
-			/>
-
-			<Controller
-				control={control}
-				name={`straits[${straitIndex}].tastes[${tasteIndex}].tasteStage3`}
-				render={({ field, fieldState: { error } }) => (
-					<Autocomplete
-						{...field}
-						options={subSubcategoryListTaste}
-						getOptionLabel={(option) => option.label}
-						renderInput={(params) =>
-							<TextField {...params}
-								required
-								label="Вкус (Оттенок вкуса №2)"
-								error={!!error}
-								helperText={error ? error.message : ''}
-							/>}
-						onChange={(_, data) => field.onChange(data)}
-						PopperComponent={StyledPopper}
-						value={field.value || null}
-						disabled={subSubcategoryListTaste.length === 0}
-					/>
-				)}
-			/>
-
 			<Button type="button" variant="outlined" style={btnStyle}
 				onClick={() => tastesRemove(tasteIndex)}	>
 				Удалить оттенок вкуса

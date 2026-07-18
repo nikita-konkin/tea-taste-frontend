@@ -2,20 +2,49 @@ import React, { useState, useEffect } from 'react';
 import FormButton from './FormButton.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
+import { TextField, Stack } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-const inputStyle = {
-    width: '100%',
-    boxSizing: 'border-box',
-    margin: '4px 0 12px 0',
-    padding: '6px 8px',
-    fontFamily: 'inherit',
-    fontSize: '16px',
-};
+// Same outlined-field look as TeaFormStage1/2: white label, white text,
+// white outline on the dark glass surface.
+const theme = createTheme({
+    typography: {
+        fontFamily: 'jura',
+        fontSize: 16,
+    },
+    components: {
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    width: '100%',
+                    '& label, & label.Mui-focused': {
+                        color: '#ffffff',
+                    },
+                    '& .MuiInputBase-root': {
+                        color: '#ffffff',
+                    },
+                    '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.6)',
+                        },
+                        '&:hover fieldset': {
+                            borderColor: '#ffffff',
+                        },
+                        '&.Mui-focused fieldset': {
+                            borderColor: '#ffffff',
+                        },
+                    },
+                },
+            },
+        },
+    },
+});
 
 const brewBlockStyle = {
-    border: '1px solid #96B295',
-    borderRadius: '8px',
-    padding: '10px',
+    border: '1px solid rgba(255, 255, 255, 0.25)',
+    background: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: '10px',
+    padding: '12px',
     margin: '10px 0',
 };
 
@@ -140,37 +169,47 @@ function FormEdit({ formData, patchFormById }) {
     };
 
     const textField = (label, name, minLength = 2, maxLength = 60) => (
-        <label className="myforminteraction__row">
-            <bdi>{label}</bdi>
-            <input style={inputStyle} type="text" name={name}
-                value={values[name]} onChange={handleChange}
-                minLength={minLength} maxLength={maxLength} required />
-        </label>
+        <TextField
+            label={label}
+            name={name}
+            value={values[name]}
+            onChange={handleChange}
+            required
+            size="small"
+            inputProps={{ minLength, maxLength }}
+        />
     );
 
     const numberField = (label, name, min, max, step = 1) => (
-        <label className="myforminteraction__row">
-            <bdi>{label}</bdi>
-            <input style={inputStyle} type="number" name={name}
-                value={values[name]} onChange={handleChange}
-                min={min} max={max} step={step} required />
-        </label>
+        <TextField
+            label={label}
+            name={name}
+            type="number"
+            value={values[name]}
+            onChange={handleChange}
+            required
+            size="small"
+            inputProps={{ min, max, step }}
+        />
     );
 
     const stageInputs = (records, setter, prefix, label) =>
-        records.map((rec) => (
-            <div key={rec._id}>
-                <p className="myforminteraction__row"><bdi>{label} №{rec[`${prefix.replace('Stage', '')}Count`]}</bdi></p>
-                {[1, 2, 3].map((n) => (
-                    <input key={n} style={inputStyle} type="text"
-                        aria-label={`${label} ${rec[`${prefix.replace('Stage', '')}Count`]} — стадия ${n}`}
-                        placeholder={`Стадия ${n}`}
-                        value={rec[`${prefix}${n}`] || ''}
-                        maxLength={30}
-                        onChange={(e) => changeStage(setter, rec._id, `${prefix}${n}`, e.target.value)} />
-                ))}
-            </div>
-        ));
+        records.map((rec) => {
+            const count = rec[`${prefix.replace('Stage', '')}Count`];
+            return (
+                <Stack direction="column" spacing={1.5} key={rec._id} style={{ margin: '10px 0 0 0' }}>
+                    <span style={{ color: '#d8f5cc', fontWeight: 600 }}>{label} №{count}</span>
+                    {[1, 2, 3].map((n) => (
+                        <TextField key={n}
+                            label={`Стадия ${n}`}
+                            size="small"
+                            inputProps={{ maxLength: 30, 'aria-label': `${label} ${count} — стадия ${n}` }}
+                            value={rec[`${prefix}${n}`] || ''}
+                            onChange={(e) => changeStage(setter, rec._id, `${prefix}${n}`, e.target.value)} />
+                    ))}
+                </Stack>
+            );
+        });
 
     const brewingsSection = () => {
         if (brewings === null) {
@@ -184,36 +223,38 @@ function FormEdit({ formData, patchFormById }) {
             const status = brewStatus[bc];
             return (
                 <div key={bc} style={brewBlockStyle} data-testid={`brew-edit-${bc}`}>
-                    <p className="myforminteraction__row"><bdi>Пролив №{bc}</bdi></p>
-                    <label className="myforminteraction__row">
-                        <bdi>Время заваривания (Ч:ММ:СС): </bdi>
-                        <input style={inputStyle} type="text"
-                            value={brew.brewingTime || ''}
-                            pattern="^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$"
+                    <p style={{ color: '#d8f5cc', fontWeight: 600, margin: '0 0 12px 0' }}>Пролив №{bc}</p>
+                    <Stack direction="column" spacing={1.5}>
+                        <TextField
+                            label="Время заваривания (Ч:ММ:СС)"
+                            size="small"
                             placeholder="0:00:15"
+                            value={brew.brewingTime || ''}
+                            inputProps={{ pattern: '^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$' }}
                             onChange={(e) => changeBrewing(bc, 'brewingTime', e.target.value)} />
-                    </label>
-                    <label className="myforminteraction__row">
-                        <bdi>Рейтинг пролива: </bdi>
-                        <input style={inputStyle} type="number" min={0} max={10} step={1}
+                        <TextField
+                            label="Рейтинг пролива"
+                            type="number"
+                            size="small"
+                            inputProps={{ min: 0, max: 10, step: 1 }}
                             value={brew.brewingRating ?? ''}
                             onChange={(e) => changeBrewing(bc, 'brewingRating', e.target.value)} />
-                    </label>
-                    <label className="myforminteraction__row">
-                        <bdi>Описание: </bdi>
-                        <textarea style={{ ...inputStyle, resize: 'vertical' }} rows={3}
+                        <TextField
+                            label="Описание"
+                            multiline
+                            minRows={3}
                             value={brew.description || ''}
-                            minLength={2} maxLength={2000}
+                            inputProps={{ minLength: 2, maxLength: 2000 }}
                             onChange={(e) => changeBrewing(bc, 'description', e.target.value)} />
-                    </label>
+                    </Stack>
                     {stageInputs(aromas.filter((a) => a.brewingCount === bc), setAromas, 'aromaStage', 'Аромат')}
                     {stageInputs(tastes.filter((t) => t.brewingCount === bc), setTastes, 'tasteStage', 'Вкус')}
                     {status && status !== 'saving' && status !== 'saved' && (
-                        <p className="myforminteraction__row" style={{ color: '#a33' }}>{status}</p>
+                        <p style={{ color: '#ffb4a8', margin: '8px 0 0 0' }}>{status}</p>
                     )}
                     <FormButton
                         buttonName={status === 'saving' ? 'Сохраняем...' : status === 'saved' ? 'Сохранено ✓' : 'Сохранить пролив'}
-                        width={'100%'} margin={'8px 0 0 0'}
+                        width={'100%'} margin={'12px 0 0 0'}
                         onClick={(e) => { e.preventDefault(); saveBrewing(brew); }}
                     />
                 </div>
@@ -222,38 +263,42 @@ function FormEdit({ formData, patchFormById }) {
     };
 
     return (
-        <section className="myforminteraction__section">
-            <form onSubmit={handleSubmit} data-testid="form-edit">
-                <h3 className="myforminteraction__row">Редактирование формы</h3>
-                {textField('Название: ', 'nameRU')}
-                {textField('Тип чая: ', 'type')}
-                {textField('Страна: ', 'country')}
-                {textField('Магазин: ', 'shop')}
-                {numberField('Вес, г: ', 'weight', 1, 10000)}
-                {textField('Вода: ', 'water')}
-                {numberField('Объем воды, мл: ', 'volume', 1, 10000)}
-                {numberField('Температура воды, °C: ', 'temperature', 1, 100)}
-                {numberField('Цена за грамм, ₽: ', 'price', 0, 100000, 0.0001)}
-                {textField('Посуда: ', 'teaware')}
-                {textField('Метод заваривания: ', 'brewingtype')}
-                {numberField('Итоговый рейтинг (1–10): ', 'averageRating', 1, 10, 0.01)}
-                <label className="myforminteraction__row">
-                    <bdi>Публикация в блоге: </bdi>
-                    <input type="checkbox" name="publicAccess"
-                        checked={values.publicAccess} onChange={handleChange} />
-                </label>
-                {error && <p className="myforminteraction__row" style={{ color: '#a33' }}>{error}</p>}
-                <FormButton type="submit"
-                    buttonName={saving ? 'Сохраняем...' : saved ? 'Сохранено ✓' : 'Сохранить форму'}
-                    width={'100%'} />
-            </form>
+        <ThemeProvider theme={theme}>
+            <section className="myforminteraction__section">
+                <form onSubmit={handleSubmit} data-testid="form-edit">
+                    <h3 style={{ margin: '0 0 14px 0' }}>Редактирование формы</h3>
+                    <Stack direction="column" spacing={1.5}>
+                        {textField('Название', 'nameRU')}
+                        {textField('Тип чая', 'type')}
+                        {textField('Страна', 'country')}
+                        {textField('Магазин', 'shop')}
+                        {numberField('Вес, г', 'weight', 1, 10000)}
+                        {textField('Вода', 'water')}
+                        {numberField('Объем воды, мл', 'volume', 1, 10000)}
+                        {numberField('Температура воды, °C', 'temperature', 1, 100)}
+                        {numberField('Цена за грамм, ₽', 'price', 0, 100000, 0.0001)}
+                        {textField('Посуда', 'teaware')}
+                        {textField('Метод заваривания', 'brewingtype')}
+                        {numberField('Итоговый рейтинг (1–10)', 'averageRating', 1, 10, 0.01)}
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <bdi>Публикация в блоге: </bdi>
+                            <input type="checkbox" name="publicAccess"
+                                checked={values.publicAccess} onChange={handleChange} />
+                        </label>
+                    </Stack>
+                    {error && <p style={{ color: '#ffb4a8' }}>{error}</p>}
+                    <FormButton type="submit"
+                        buttonName={saving ? 'Сохраняем...' : saved ? 'Сохранено ✓' : 'Сохранить форму'}
+                        width={'100%'} />
+                </form>
 
-            <h3 className="myforminteraction__row" style={{ marginTop: '16px' }}>Проливы</h3>
-            {brewingsSection()}
+                <h3 style={{ margin: '18px 0 8px 0' }}>Проливы</h3>
+                {brewingsSection()}
 
-            <FormButton buttonName={'Закрыть'} width={'100%'} margin={'12px 0 0 0'}
-                onClick={(e) => { e.preventDefault(); closePopup(); }} />
-        </section>
+                <FormButton buttonName={'Закрыть'} width={'100%'} margin={'12px 0 0 0'}
+                    onClick={(e) => { e.preventDefault(); closePopup(); }} />
+            </section>
+        </ThemeProvider>
     );
 }
 

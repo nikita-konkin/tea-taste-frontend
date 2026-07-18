@@ -1,8 +1,20 @@
 .popup {
-    /* Styles for the popup block */
-    background-color: #746c02a9;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Liquid-glass panel */
+    background-color: rgba(29, 92, 65, 0.55);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.20);
     position: relative;
+}
+
+/* Browsers without backdrop-filter get a solid panel. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .popup {
+        background-color: #2f5a4a;
+    }
 }

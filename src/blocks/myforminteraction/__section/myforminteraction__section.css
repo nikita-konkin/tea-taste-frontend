@@ -1,7 +1,11 @@
 .myforminteraction__section{
 	width: 100%;
-	/*max-width: 500px;*/
-	background-color: #728A7C;
-	border-radius: 6px;
-	min-height: 120px;
+	box-sizing: border-box;
+	/* Glass-tint section: subtle inner card that works both inside the
+	   popup and on the form-check page. */
+	background-color: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 10px;
+	padding: 12px 14px;
+	margin: 0 0 10px 0;
 }
