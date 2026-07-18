@@ -11,8 +11,11 @@ src/
 │   ├── Login / Registration  # Auth pages
 │   ├── TeaFormStage1/2.jsx   # Multi-stage tasting form (tea data → brewings/aromas/tastes)
 │   ├── MyFormInteraction.jsx # Viewing/editing saved sessions
-│   ├── Forms.jsx / Form.jsx  # Session lists
-│   ├── Profile.jsx, Blog.jsx, Navigation.jsx, Popup*.jsx, …
+│   ├── Forms.jsx / Form.jsx  # Session lists (view / edit / delete per form)
+│   ├── FormEdit.jsx          # Edit dialog for a saved tea form ("Изменить" in /my_forms)
+│   ├── Profile.jsx           # Profile: name/email/career/about/avatar + password change
+│   ├── Blog.jsx, Navigation.jsx, Popup*.jsx, …
+│   ├── __tests__/            # React Testing Library tests (FormEdit, Profile)
 ├── utils/
 │   ├── MainAPI.jsx           # Auth endpoints (sign-up/in/out, profile)
 │   └── FormAPI.jsx           # Tea data endpoints (forms, brewings, aromas, tastes)
@@ -38,6 +41,8 @@ npm start        # http://localhost:3000
 The backend must allow this origin: include `http://localhost:3000` in its `ALLOWED_CORS`. The easiest way to get a backend + MongoDB running is the sandbox in [`../sandbox`](../sandbox) (it exposes the API on `localhost:3001` and already allows this origin).
 
 Other scripts: `npm run build` (production build to `build/`), `npm test` (jest via react-scripts).
+
+Component tests live in `src/components/__tests__/`. Without local Node, run them through the sandbox: `cd ../sandbox && docker compose --profile test run --rm tea-frontend-tests`.
 
 ## Docker / production
 

@@ -43,7 +43,7 @@ function FormButton(props){
 	return(
 
 		<>
-		<BootstrapButton onClick={props.onClick} variant="contained">{props.buttonName}</BootstrapButton>
+		<BootstrapButton onClick={props.onClick} type={props.type || 'button'} variant="contained">{props.buttonName}</BootstrapButton>
 		</>
 
 		)

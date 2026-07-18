@@ -248,6 +248,16 @@ function AppContent({ navigate }) {
       .catch(err => { console.log(err) })
   }
 
+  // Full update of a saved tea form; refreshes the list on success.
+  // Errors are re-thrown so the edit dialog can show them.
+  async function patchMyFormById(id, body) {
+    return formApi.patchMyFormById(id, body)
+      .then(res => {
+        getAllMyForms()
+        return res
+      })
+  }
+
   async function delMyFormById(id) {
     await formApi.delMyFormById(id)
       .then(res => {
@@ -317,6 +327,7 @@ function AppContent({ navigate }) {
           delBrewsById={delMyBrewsById}
           delTastesById={delMyTastesById}
           delAromasById={delMyAromasById}
+          patchFormById={patchMyFormById}
         />} />
           
           {/* <Route path="/blog" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}

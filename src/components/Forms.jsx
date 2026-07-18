@@ -14,6 +14,7 @@ function Forms({ forms, navigation,
 	isMyForms, isBlog,
 	brewingsById, aromasById, tastesById,
 	delFormById, delBrewsById, delTastesById, delAromasById,
+	patchFormById,
 }) {
 
 	const { myForms, removedFormById, 
@@ -77,6 +78,7 @@ function Forms({ forms, navigation,
 					aromasById={aromasById}
 					tastesById={tastesById}
 					removeFormFromArrById={removeFormFromArrById}
+					patchFormById={patchFormById}
 					key={formData.sessionId}
 					isMyForms={isMyForms}
 				/>

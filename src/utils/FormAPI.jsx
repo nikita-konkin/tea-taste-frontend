@@ -296,6 +296,60 @@ class FormApi {
         }
     }
 
+    // Update several stages of one aroma record at once (used by the
+    // edit dialog). Empty stages are omitted — the backend keeps them as-is.
+    async patchAromaStages(formId, brewId, aromaId, stages) {
+        const body = {};
+        ['aromaStage1', 'aromaStage2', 'aromaStage3'].forEach((key) => {
+            if (stages[key]) body[key] = stages[key];
+        });
+        const response = await fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: this._headers,
+            body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    async patchTasteStages(formId, brewId, tasteId, stages) {
+        const body = {};
+        ['tasteStage1', 'tasteStage2', 'tasteStage3'].forEach((key) => {
+            if (stages[key]) body[key] = stages[key];
+        });
+        const response = await fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: this._headers,
+            body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    // Full update of a tea form: body must contain every form field
+    // (the backend validates the complete set on PATCH /create-form).
+    async patchMyFormById(formId, body) {
+        const response = await fetch(`${this._usersApiUrl}/create-form/${formId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: this._headers,
+            body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+
     async delMyFormById(formId) {
         try {
             const response = await fetch(`${this._usersApiUrl}/my-form/${formId}`, {

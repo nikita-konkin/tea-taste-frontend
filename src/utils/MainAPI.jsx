@@ -82,6 +82,41 @@ class MainApi {
 
 	}
 
+	getProfile() {
+
+		return fetch(`${this._usersApiUrl}/profile/me`, {
+			method: 'GET',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
+	updateProfile(data) {
+
+		return fetch(`${this._usersApiUrl}/profile/me`, {
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify(data)
+		}).then(res => this.error(res));
+
+	}
+
+	updatePassword(oldPassword, newPassword) {
+
+		return fetch(`${this._usersApiUrl}/profile/password`, {
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify({
+				oldPassword: oldPassword,
+				newPassword: newPassword
+			})
+		}).then(res => this.error(res));
+
+	}
+
 }
 
 export const mainApi = new MainApi({

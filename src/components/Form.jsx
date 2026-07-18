@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import FormButton from './FormButton.jsx';
+import FormEdit from './FormEdit.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,6 +12,7 @@ function Form({
     aromasById,
     tastesById,
     removeFormFromArrById,
+    patchFormById,
     isMyForms
 }) {
     const { openPopup } = usePopup();
@@ -119,6 +121,15 @@ function Form({
                         buttonName={'Изменить'}
                         width={'32%'}
                         margin={'0px'}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            openPopup(
+                                <FormEdit
+                                    formData={formData}
+                                    patchFormById={patchFormById}
+                                />
+                            );
+                        }}
                     />
                     <FormButton
                         buttonName={'Просмотр'}
