@@ -1,70 +1,52 @@
-# Getting Started with Create React App
+# tea-taste-frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend of the **Tea Taste** app (`teaform.ru`) — a React SPA for keeping structured tea-tasting notes. Built with Create React App, MUI, react-hook-form, and react-router. Talks to [`tea-taste-api`](../tea-taste-api) using cookie-based JWT auth (`credentials: 'include'`).
 
-## Available Scripts
+## Structure
 
-In the project directory, you can run:
+```
+src/
+├── components/
+│   ├── App.jsx               # Routing, auth state, protected routes
+│   ├── Login / Registration  # Auth pages
+│   ├── TeaFormStage1/2.jsx   # Multi-stage tasting form (tea data → brewings/aromas/tastes)
+│   ├── MyFormInteraction.jsx # Viewing/editing saved sessions
+│   ├── Forms.jsx / Form.jsx  # Session lists
+│   ├── Profile.jsx, Blog.jsx, Navigation.jsx, Popup*.jsx, …
+├── utils/
+│   ├── MainAPI.jsx           # Auth endpoints (sign-up/in/out, profile)
+│   └── FormAPI.jsx           # Tea data endpoints (forms, brewings, aromas, tastes)
+└── blocks/, images/, sounds/ # Styles and assets
+```
 
-### `npm start`
+## Configuration
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Variable | Default | Purpose |
+|---|---|---|
+| `REACT_APP_API_URL` | `/api` | Base URL of the backend API. A CRA **build-time** variable — changing it requires a rebuild. |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The default `/api` assumes the app is served behind a proxy that routes `/api/` to the backend (this is how production works — the outer nginx proxies `teaform.ru/api/` to `tea-backend:3001/`). For local development against a directly exposed API, set an absolute URL.
 
-### `npm test`
+## Run locally (dev server)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm install --legacy-peer-deps    # @mui/x-date-pickers@7 has a peer conflict with @mui/material@5
+echo "REACT_APP_API_URL='http://localhost:3001'" > .env
+npm start        # http://localhost:3000
+```
 
-### `npm run build`
+The backend must allow this origin: include `http://localhost:3000` in its `ALLOWED_CORS`. The easiest way to get a backend + MongoDB running is the sandbox in [`../sandbox`](../sandbox) (it exposes the API on `localhost:3001` and already allows this origin).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Other scripts: `npm run build` (production build to `build/`), `npm test` (jest via react-scripts).
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Docker / production
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The Dockerfile is multi-stage: CRA production build → `nginx:alpine` serving the static files with an SPA fallback (`nginx/default.conf`). The API URL is baked in via a build arg:
 
-### `npm run eject`
+```bash
+docker compose up -d --build     # uses REACT_APP_API_URL=https://teaform.ru/api
+# or manually:
+docker build --build-arg REACT_APP_API_URL=/api -t tea-frontend .
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+The container's nginx serves static files only; API routing is the outer proxy's job. TLS also terminates at the outer nginx (`/etc/letsencrypt` is mounted there).

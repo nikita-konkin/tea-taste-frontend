@@ -5,8 +5,7 @@ services:
       context: .
       args:
         - REACT_APP_API_URL=https://teaform.ru/api
-    environment:
-      - REACT_APP_API_URL=https://teaform.ru/api
+    restart: unless-stopped
     # ports:
     #   - 8081:80
     #   - 443:443
