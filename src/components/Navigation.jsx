@@ -15,7 +15,7 @@ const PAGE_TITLES = [
 	['form_2', 'Форма №2'],
 	['profile', 'Профиль'],
 	['my_forms', 'Мои формы'],
-	['blog', 'Блог'],
+	['blog', 'Лента'],
 	['sign-up', 'Регистрация'],
 	['sign-in', 'Авторизация'],
 ];
@@ -80,7 +80,7 @@ const MENU_SECTIONS = [
 		title: 'Записи',
 		links: [
 			{ to: '/my_forms', icon: 'bowl', label: 'Мои формы' },
-			{ to: '/blog', icon: 'book', label: 'Блог' },
+			{ to: '/blog', icon: 'book', label: 'Лента' },
 		],
 	},
 	{

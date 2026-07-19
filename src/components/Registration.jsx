@@ -91,7 +91,7 @@ function Registration({ auth, popupContent }) {
 
 				</div>
 
-				<PopupButton naviagteTo={'/blog'} content={'Блог'}/>
+				<PopupButton naviagteTo={'/blog'} content={'Лента'}/>
 				
 			</form>
 		</>

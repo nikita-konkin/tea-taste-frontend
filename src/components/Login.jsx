@@ -74,7 +74,7 @@ function Login(props) {
 
 				</div>
 			</form>
-			<PopupButton naviagteTo={'/blog'} content={'Блог'}/>
+			<PopupButton naviagteTo={'/blog'} content={'Лента'}/>
 		</>
 
 	)

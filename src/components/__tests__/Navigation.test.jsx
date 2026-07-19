@@ -35,7 +35,7 @@ test('shows grouped sections with all the app links', () => {
     expect(screen.getByText('Новая форма — этап 1').closest('a')).toHaveAttribute('href', '/form_1');
     expect(screen.getByText('Проливы — этап 2').closest('a')).toHaveAttribute('href', '/form_2');
     expect(screen.getByText('Мои формы').closest('a')).toHaveAttribute('href', '/my_forms');
-    expect(screen.getByText('Блог').closest('a')).toHaveAttribute('href', '/blog');
+    expect(screen.getByText('Лента').closest('a')).toHaveAttribute('href', '/blog');
     expect(screen.getByText('Профиль').closest('a')).toHaveAttribute('href', '/profile');
 });
 
@@ -48,7 +48,7 @@ test('closes via the close button, a link click, and Escape', () => {
     expect(screen.queryByRole('navigation', { name: 'Главное меню' })).not.toBeInTheDocument();
 
     open();
-    fireEvent.click(screen.getByText('Блог'));
+    fireEvent.click(screen.getByText('Лента'));
     expect(screen.queryByRole('navigation', { name: 'Главное меню' })).not.toBeInTheDocument();
 
     open();
