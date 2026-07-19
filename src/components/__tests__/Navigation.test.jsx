@@ -3,12 +3,15 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Navigation from '../Navigation.jsx';
+import { PopupProvider } from '../PopupContext.jsx';
 
 const renderNav = () =>
     render(
-        <MemoryRouter initialEntries={['/my_forms']}>
-            <Navigation />
-        </MemoryRouter>
+        <PopupProvider>
+            <MemoryRouter initialEntries={['/my_forms']}>
+                <Navigation />
+            </MemoryRouter>
+        </PopupProvider>
     );
 
 test('menu is closed initially and opens from the hamburger button', () => {
@@ -26,6 +29,8 @@ test('shows grouped sections with all the app links', () => {
     expect(screen.getByText('Дегустация')).toBeInTheDocument();
     expect(screen.getByText('Записи')).toBeInTheDocument();
     expect(screen.getByText('Аккаунт')).toBeInTheDocument();
+    expect(screen.getByText('Обратная связь')).toBeInTheDocument();
+    expect(screen.getByText('Предложить улучшение')).toBeInTheDocument();
 
     expect(screen.getByText('Новая форма — этап 1').closest('a')).toHaveAttribute('href', '/form_1');
     expect(screen.getByText('Проливы — этап 2').closest('a')).toHaveAttribute('href', '/form_2');
@@ -48,5 +53,12 @@ test('closes via the close button, a link click, and Escape', () => {
 
     open();
     fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('navigation', { name: 'Главное меню' })).not.toBeInTheDocument();
+});
+
+test('the feedback button closes the menu (popup opens elsewhere)', () => {
+    renderNav();
+    fireEvent.click(screen.getByLabelText('Открыть меню'));
+    fireEvent.click(screen.getByText('Предложить улучшение'));
     expect(screen.queryByRole('navigation', { name: 'Главное меню' })).not.toBeInTheDocument();
 });
