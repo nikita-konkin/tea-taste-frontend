@@ -41,7 +41,11 @@ const handleRatingChange = (event, newValue, name, setValue) => {
 };
 
 // Icons flow in one row and wrap on narrow screens instead of clipping.
+// width:auto is load-bearing: newer MUI gives the root `width: min-content`,
+// which together with flex-wrap collapses to one icon per line.
 const CustomRaiting = styled(Rating)({
+    display: 'flex',
+    width: 'auto',
     flexWrap: 'wrap',
     rowGap: '4px',
     '& .MuiRating-icon': {
