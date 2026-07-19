@@ -56,6 +56,7 @@ const dangerBtnStyle = {
 function Admin({ navigation }) {
 	const { openPopup } = usePopup();
 	const [users, setUsers] = useState(null); // null = loading
+	const [suggestions, setSuggestions] = useState([]);
 	const [myId, setMyId] = useState(null);
 	const [confirmId, setConfirmId] = useState(null);
 
@@ -66,12 +67,21 @@ function Admin({ navigation }) {
 				setUsers([]);
 				openPopup(err.message || 'Нет доступа.');
 			});
+		mainApi.adminGetSuggestions()
+			.then((res) => setSuggestions(res.data))
+			.catch(() => setSuggestions([]));
 	};
 
 	useEffect(() => {
 		mainApi.getProfile().then((res) => setMyId(res.data._id)).catch(() => {});
 		load();
 	}, []);
+
+	const dismissSuggestion = (id) => {
+		mainApi.adminDeleteSuggestion(id)
+			.then(load)
+			.catch((err) => openPopup(err.message || 'Не удалось удалить.'));
+	};
 
 	const setRole = (u, role) => {
 		mainApi.adminSetUserRole(u._id, role)
@@ -89,6 +99,24 @@ function Admin({ navigation }) {
 		<>
 			<Header navigation={navigation} />
 			<div className="myforms">
+				<h2 className="header__myforms">Предложения {suggestions.length > 0 && `(${suggestions.length})`}</h2>
+				{suggestions.length === 0 && (
+					<p style={{ color: '#ffffff', opacity: 0.7, margin: '0 0 14px 0' }}>Пока пусто.</p>
+				)}
+				{suggestions.map((s) => (
+					<section key={s._id} style={cardStyle}>
+						<div style={{ fontSize: '14px', opacity: 0.85, marginBottom: '6px' }}>
+							{s.owner ? `${s.owner.name} · ${s.owner.email}` : 'Пользователь удалён'}
+							{' · '}
+							{s.createdAt && new Date(s.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+						</div>
+						<div style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{s.text}</div>
+						<div style={{ marginTop: '10px' }}>
+							<button style={btnStyle} onClick={() => dismissSuggestion(s._id)}>Обработано — убрать</button>
+						</div>
+					</section>
+				))}
+
 				<h2 className="header__myforms">Пользователи</h2>
 				{users === null && <h2 className="header__myforms">Загружаем...</h2>}
 				{users && users.map((u) => (

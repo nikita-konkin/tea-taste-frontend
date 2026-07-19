@@ -6,6 +6,8 @@ import React, {
 import {
 	NavLink,
 } from "react-router-dom";
+import { usePopup } from './PopupContext.jsx';
+import SuggestionForm from './SuggestionForm.jsx';
 
 const PAGE_TITLES = [
 	['form_submit', 'Проверка формы'],
@@ -58,6 +60,12 @@ const ICONS = {
 			<path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5" />
 		</NavIcon>
 	),
+	bulb: (
+		<NavIcon>
+			<path d="M9 18h6M10 21h4" />
+			<path d="M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3z" />
+		</NavIcon>
+	),
 };
 
 const MENU_SECTIONS = [
@@ -85,6 +93,7 @@ const MENU_SECTIONS = [
 
 function Navigation(props) {
 
+	const { openPopup } = usePopup();
 	const [menuState, setMenuState] = useState(false)
 	const [currentLocation, setCurrentLocation] = useState('')
 
@@ -140,8 +149,6 @@ function Navigation(props) {
 				<nav className="navigation__side" ref={ref} aria-label="Главное меню">
 					<div className="navigation__side-head">
 						<span className="navigation__side-title">Меню</span>
-						<button className="navigation__close" aria-label="Закрыть меню"
-							onClick={closeMenu}>&times;</button>
 					</div>
 					{MENU_SECTIONS.map((section) => (
 						<div className="navigation__section" key={section.title}>
@@ -155,6 +162,16 @@ function Navigation(props) {
 							))}
 						</div>
 					))}
+					<div className="navigation__section">
+						<span className="navigation__section-title">Обратная связь</span>
+						<button type="button" className="navigation__link navigation__link_button"
+							onClick={() => { closeMenu(); openPopup(<SuggestionForm />); }}>
+							{ICONS.bulb}
+							Предложить улучшение
+						</button>
+					</div>
+					<button className="navigation__close navigation__close_corner" aria-label="Закрыть меню"
+						onClick={closeMenu}>&times;</button>
 				</nav>
 			</>
 		)

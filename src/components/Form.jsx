@@ -70,7 +70,7 @@ function Form({
         return (
             <div className="myform__rating" aria-label={`Оценка ${r} из 10`} style={{
                 display: 'flex', alignItems: 'center', flexWrap: 'wrap',
-                gap: '2px', margin: '6px 0 2px 0',
+                gap: '2px', margin: '6px 0 14px 0',
             }}>
                 {Array.from({ length: 10 }, (_, i) => (
                     <RaitingPial key={i} active={i < r} width={17} height={11} />
@@ -269,7 +269,11 @@ function Form({
             {authorChip()}
             <ul className="myform__list">
                 <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>{formData.nameRU}</li>
-                <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{formData.createdAt}</li>
+                <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{
+                    formData.createdAt
+                        ? new Date(formData.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+                        : ''
+                }</li>
                 <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
             </ul>
             {summaryRating()}

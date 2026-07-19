@@ -137,6 +137,37 @@ class MainApi {
 
 	}
 
+	sendSuggestion(text) {
+
+		return fetch(`${this._usersApiUrl}/suggestions`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify({ text: text })
+		}).then(res => this.error(res));
+
+	}
+
+	adminGetSuggestions() {
+
+		return fetch(`${this._usersApiUrl}/admin/suggestions`, {
+			method: 'GET',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
+	adminDeleteSuggestion(id) {
+
+		return fetch(`${this._usersApiUrl}/admin/suggestions/${id}`, {
+			method: 'DELETE',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
 	adminGetUsers() {
 
 		return fetch(`${this._usersApiUrl}/admin/users`, {

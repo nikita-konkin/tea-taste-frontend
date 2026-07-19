@@ -21,11 +21,10 @@ const PopupButton = ({ naviagteTo, content }) => {
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
                 margin: '0px 0 0px 0',
-                padding: '10px 20px',
-                fontSize: '14px',
+                padding: '7px 14px',
+                fontSize: '13px',
                 cursor: 'pointer',
-                width: '100%',
-                maxWidth: '100px',
+                whiteSpace: 'nowrap',
                 borderRadius: '10px'
             }}>
                 {content}
