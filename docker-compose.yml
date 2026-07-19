@@ -1,6 +1,9 @@
 services:
   tea-frontend:
     container_name: tea-frontend
+    # CI pushes this image; `docker compose pull && up -d` deploys it.
+    # `up -d --build` still builds from source when needed.
+    image: nikita8konkin/tea-taste-frontend:latest
     build:
       context: .
       args:

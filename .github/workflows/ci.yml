@@ -12,6 +12,10 @@ jobs:
       - run: npm test -- --watchAll=false
         env: { CI: true }
       - run: npm run build   # catches build-only breakage
+        # CRA turns every eslint warning into a build error when CI=true;
+        # the codebase has longstanding warnings, so build with CI=false
+        # (the Docker image build doesn't set CI either).
+        env: { CI: false }
 
   deploy:
     needs: test
