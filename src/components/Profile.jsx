@@ -47,6 +47,7 @@ function Profile(props) {
 		avatar: '',
 	});
 	const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '' });
+	const [isAdmin, setIsAdmin] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [avatarBroken, setAvatarBroken] = useState(false);
@@ -61,6 +62,7 @@ function Profile(props) {
 					about: res.data.about || '',
 					avatar: res.data.avatar || '',
 				});
+				setIsAdmin(res.data.role === 'admin');
 			})
 			.catch((err) => openPopup(err.message || 'Не удалось загрузить профиль.'))
 			.finally(() => setLoading(false));
@@ -207,6 +209,13 @@ function Profile(props) {
 
 			<div className="authorization authorization_compact">
 				<div className="authorization__fields-box">
+					{isAdmin && (
+						<FormButton
+							buttonName={'Пользователи (админ)'}
+							margin={'0 0 0 0'}
+							onClick={() => { window.location.href = '/admin'; }}
+						/>
+					)}
 					<FormButton
 						buttonName={'Выйти из аккаунта'}
 						onClick={handleLogout}

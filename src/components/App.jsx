@@ -12,6 +12,7 @@ import Forms from './Forms.jsx';
 import PublicForm from './PublicForm.jsx';
 import ResetPassword from './ResetPassword.jsx';
 import VkAuthDone from './VkAuthDone.jsx';
+import Admin from './Admin.jsx';
 import MyFormInteraction from './MyFormInteraction.jsx';
 import Navigation from './Navigation.jsx';
 // import Blog from './Blog.jsx';
@@ -316,6 +317,7 @@ function AppContent({ navigate }) {
         <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
         <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
         <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Profile} handleLogout={handleLogOut} />} />
+        <Route path="/admin" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Admin} />} />
         <Route path="/my_forms" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}
           loggedIn={loggedIn}
           component={Forms}

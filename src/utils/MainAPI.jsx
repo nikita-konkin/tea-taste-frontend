@@ -137,6 +137,37 @@ class MainApi {
 
 	}
 
+	adminGetUsers() {
+
+		return fetch(`${this._usersApiUrl}/admin/users`, {
+			method: 'GET',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
+	adminSetUserRole(id, role) {
+
+		return fetch(`${this._usersApiUrl}/admin/users/${id}/role`, {
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify({ role: role })
+		}).then(res => this.error(res));
+
+	}
+
+	adminDeleteUser(id) {
+
+		return fetch(`${this._usersApiUrl}/admin/users/${id}`, {
+			method: 'DELETE',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
 	updatePassword(oldPassword, newPassword) {
 
 		return fetch(`${this._usersApiUrl}/profile/password`, {
