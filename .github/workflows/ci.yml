@@ -1,0 +1,42 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 18, cache: npm }
+      - run: npm ci --legacy-peer-deps
+      - run: npm test -- --watchAll=false
+        env: { CI: true }
+      - run: npm run build   # catches build-only breakage
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: nikita8konkin/tea-taste-frontend:latest
+          # REACT_APP_API_URL defaults to /api in the Dockerfile, which the
+          # outer nginx on teaform.ru routes to the backend — no build-arg needed.
+      - name: Restart on the server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          passphrase: ${{ secrets.DEPLOY_SSH_PASSPHRASE }}
+          script: |
+            cd ~/projects/tea-taste-frontend
+            docker compose pull && docker compose up -d
