@@ -1,6 +1,6 @@
 .registration__name{
 	border: 0;
-	border-bottom: 2px solid #CCCCCC;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 	margin: 23px 0 0 0;
 
 	width: 100%;
@@ -21,7 +21,7 @@
 .registration__name:-webkit-autofill:focus, 
 .registration__name:-webkit-autofill:active{
     -webkit-box-shadow: 0 0 0 30px rgba(47, 107, 89, 1) inset !important;
-    -webkit-text-fill-color: yellow !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 .registration__name::placeholder{
 
@@ -31,4 +31,8 @@
 	font-size: 22px;
 	line-height: 17px;
 
+}
+.registration__name:focus{
+	outline: none;
+	border-bottom-color: #FFFFFF;
 }

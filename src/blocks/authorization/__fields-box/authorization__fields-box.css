@@ -4,4 +4,21 @@
 	align-items: center;
 	width: 100%;
 	max-width: 500px;
+	box-sizing: border-box;
+	padding: 22px 20px 26px;
+	/* Liquid-glass card, same recipe as .myform / popup sections */
+	background: rgba(255, 255, 255, 0.10);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	border-radius: 14px;
+	-webkit-backdrop-filter: blur(12px) saturate(130%);
+	backdrop-filter: blur(12px) saturate(130%);
+	box-shadow:
+		0 8px 24px rgba(0, 0, 0, 0.15),
+		inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.authorization__fields-box{
+		background: #728A7C;
+	}
 }

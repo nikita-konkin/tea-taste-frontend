@@ -2,7 +2,7 @@
 
 	border: 0;
 	padding: 0;
-	border-bottom: 2px solid #CCCCCC;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 	margin: 23px 0 0 0;
 
 	width: 100%;
@@ -24,7 +24,7 @@
 .authorization__pass:-webkit-autofill:focus, 
 .authorization__pass:-webkit-autofill:active{
     -webkit-box-shadow: 0 0 0 30px rgba(47, 107, 89, 1) inset !important;
-    -webkit-text-fill-color: yellow !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 .authorization__pass::placeholder{
 
@@ -34,4 +34,8 @@
 	font-size: 20px;
 	line-height: 17px;
 
+}
+.authorization__pass:focus{
+	outline: none;
+	border-bottom-color: #FFFFFF;
 }

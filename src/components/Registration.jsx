@@ -80,7 +80,7 @@ function Registration({ auth, popupContent }) {
 					{/* <Test/> */}
 					<button type="submit" className="registration__submit">Зарегистрироваться</button>
 					<button type="button" className="registration__submit"
-						style={{ background: '#0077FF', border: 'none' }}
+						style={{ background: 'rgba(0, 119, 255, 0.45)', border: '1px solid rgba(255, 255, 255, 0.35)', margin: '14px 0 0 0' }}
 						onClick={() => { window.location.href = vkAuthUrl; }}>
 						Продолжить с VK ID
 					</button>

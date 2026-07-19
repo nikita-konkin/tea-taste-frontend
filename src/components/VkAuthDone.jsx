@@ -10,7 +10,7 @@ function VkAuthDone() {
 			.then(() => {
 				localStorage.setItem('loggedIn', 'true');
 				localStorage.setItem('token', 'vk-oauth');
-				window.location.replace('/my_forms');
+				window.location.replace('/form_1');
 			})
 			.catch(() => {
 				window.location.replace('/sign-in?vk_error=1');

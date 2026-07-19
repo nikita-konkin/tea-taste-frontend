@@ -1,12 +1,27 @@
 .authorization__submit{
 	margin: 40px 0 0 0;
-	padding: 0;
-	border: 2px solid white;
-	border-radius: 6px;
-	background-color: transparent;
+	padding: 8px 0;
+	border: 1px solid rgba(255, 255, 255, 0.30);
+	border-radius: 10px;
+	/* Liquid-glass button matching FormButton */
+	background: rgba(255, 255, 255, 0.14);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
 	color: #FFFFFF;
 	width: 100%;
-	font-size: 28px;
-	line-height: 30px;
-	min-height: 40px;
+	font-family: inherit;
+	font-size: 20px;
+	line-height: 26px;
+	min-height: 42px;
+	cursor: pointer;
+	transition: background 0.2s, border-color 0.2s;
+}
+
+.authorization__submit:hover{
+	background: rgba(255, 255, 255, 0.24);
+	border-color: rgba(255, 255, 255, 0.45);
+}
+
+.authorization__submit:active{
+	background: rgba(255, 255, 255, 0.32);
 }

@@ -61,7 +61,7 @@ function Login(props) {
 						placeholder="Пароль" required />
 					<button type="submit" className="authorization__submit">Войти</button>
 					<button type="button" className="authorization__submit"
-						style={{ background: '#0077FF', border: 'none' }}
+						style={{ background: 'rgba(0, 119, 255, 0.45)', border: '1px solid rgba(255, 255, 255, 0.35)', margin: '14px 0 0 0' }}
 						onClick={() => { window.location.href = vkAuthUrl; }}>
 						Войти через VK ID
 					</button>

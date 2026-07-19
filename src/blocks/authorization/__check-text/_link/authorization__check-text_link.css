@@ -1,6 +1,6 @@
 .authorization__check-text_link{
 	text-decoration: none;
-	margin: 0px 0px;
+	margin: 6px 0;
 	padding: 0px 0px 0px 0px;
 	/*max-width: 320px;*/
 
@@ -13,5 +13,5 @@
 	text-align: center;
 	/*text-transform: capitalize;*/
 
-	color: rgba(82, 255, 0, 1);
+	color: #a8f493;
 }
