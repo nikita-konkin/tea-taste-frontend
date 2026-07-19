@@ -11,6 +11,7 @@ import Profile from './Profile.jsx';
 import Forms from './Forms.jsx';
 import PublicForm from './PublicForm.jsx';
 import ResetPassword from './ResetPassword.jsx';
+import VkAuthDone from './VkAuthDone.jsx';
 import MyFormInteraction from './MyFormInteraction.jsx';
 import Navigation from './Navigation.jsx';
 // import Blog from './Blog.jsx';
@@ -357,6 +358,7 @@ function AppContent({ navigate }) {
         {/* <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} /> */}
         <Route path="/blog/:sessionId" element={<PublicForm />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/oauth/vk" element={<VkAuthDone />} />
         <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
         <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
       </Routes>

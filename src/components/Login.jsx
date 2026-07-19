@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 
 import Header from './Header.jsx'
 
 import PopupButton from './PopupButton.jsx';
+import { usePopup } from './PopupContext.jsx';
+
+const vkAuthUrl = `${process.env.REACT_APP_API_URL || '/api'}/auth/vk`;
 
 function Login(props) {
 
+	const { openPopup } = usePopup();
 	const [pass, setPass] = useState('')
 	const [email, setEmail] = useState('')
+
+	useEffect(() => {
+		if (new URLSearchParams(window.location.search).has('vk_error')) {
+			openPopup('Не удалось войти через VK. Попробуйте ещё раз.');
+		}
+	}, []);
 
 	function handlePass(e) {
 		setPass(e.target.value)
@@ -50,6 +60,11 @@ function Login(props) {
 						onChange={e => handlePass(e)}
 						placeholder="Пароль" required />
 					<button type="submit" className="authorization__submit">Войти</button>
+					<button type="button" className="authorization__submit"
+						style={{ background: '#0077FF', border: 'none' }}
+						onClick={() => { window.location.href = vkAuthUrl; }}>
+						Войти через VK ID
+					</button>
 
 					<h2 className="authorization__check-text">Еще не зарегистрированы?</h2>
 					<Link

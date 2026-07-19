@@ -7,6 +7,8 @@ import Header from './Header';
 
 import PopupButton from './PopupButton.jsx';
 
+const vkAuthUrl = `${process.env.REACT_APP_API_URL || '/api'}/auth/vk`;
+
 function Registration({ auth, popupContent }) {
 
 
@@ -77,6 +79,11 @@ function Registration({ auth, popupContent }) {
 						placeholder="Повторите пароль" required />
 					{/* <Test/> */}
 					<button type="submit" className="registration__submit">Зарегистрироваться</button>
+					<button type="button" className="registration__submit"
+						style={{ background: '#0077FF', border: 'none' }}
+						onClick={() => { window.location.href = vkAuthUrl; }}>
+						Продолжить с VK ID
+					</button>
 
 					<h2 className="registration__check-text">Уже зарегистрированы?</h2>
 					<Link
