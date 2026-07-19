@@ -110,6 +110,6 @@ test('the logout button calls handleLogout', async () => {
     renderProfile(handleLogout);
     await screen.findByDisplayValue('Тестер');
 
-    fireEvent.click(screen.getByText('Выйти'));
+    fireEvent.click(screen.getByText('Выйти из аккаунта'));
     expect(handleLogout).toHaveBeenCalledTimes(1);
 });

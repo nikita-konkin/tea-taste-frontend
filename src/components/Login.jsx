@@ -54,6 +54,8 @@ function Login(props) {
 					<h2 className="authorization__check-text">Еще не зарегистрированы?</h2>
 					<Link
 						className="authorization__check-text_link" to="/sign-up">Регистрация</Link>
+					<Link
+						className="authorization__check-text_link" to="/reset-password">Забыли пароль?</Link>
 
 				</div>
 			</form>

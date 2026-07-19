@@ -80,6 +80,22 @@ describe('DescriptorPicker', () => {
         expect(screen.getByDisplayValue('Цветочный → Жасмин')).toBeInTheDocument();
     });
 
+    test('quick-pick chips fill all stages with one click', () => {
+        const onStagesChange = jest.fn();
+        render(
+            <DescriptorPicker
+                label="Аромат"
+                db={db}
+                stage1={null} stage2={null} stage3={null}
+                onStagesChange={onStagesChange}
+                quickPicks={[{ stages: ['Цветочный', 'Жасмин', 'Зелёный жасмин'], count: 5 }]}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Зелёный жасмин'));
+        expect(onStagesChange).toHaveBeenCalledWith(['Цветочный', 'Жасмин', 'Зелёный жасмин']);
+    });
+
     test('clearing the field resets all stages', () => {
         const onStagesChange = renderPicker({
             stage1: { label: 'Цветочный' },

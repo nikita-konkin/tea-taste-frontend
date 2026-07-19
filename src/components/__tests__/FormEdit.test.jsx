@@ -13,6 +13,8 @@ jest.mock('../../utils/FormAPI.jsx', () => ({
         patchFormStage2Brew: jest.fn(),
         patchAromaStages: jest.fn(),
         patchTasteStages: jest.fn(),
+        postFormStage2Brew: jest.fn(),
+        delBrewSelective: jest.fn(),
     },
 }));
 

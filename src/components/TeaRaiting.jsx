@@ -13,10 +13,10 @@ const theme = createTheme({
 // Tea bowl icon (пиала). One shape, two colorways: the filled state uses the
 // mint accent of the theme, the empty state is a translucent "glass" bowl.
 // viewBox matches the path coordinates so the drawing scales cleanly.
-const RaitingPial = ({ active }) => (
+const RaitingPial = ({ active, width = 26, height = 17 }) => (
     <svg
-        width="26"
-        height="17"
+        width={width}
+        height={height}
         viewBox="0 0 26.6 18.2"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -83,3 +83,4 @@ const TeaRaiting = React.forwardRef(({ name, label, value, setValue }, ref) => {
 });
 
 export default TeaRaiting;
+export { RaitingPial };

@@ -9,6 +9,8 @@ import Login from './Login.jsx';
 import Registration from './Registration.jsx';
 import Profile from './Profile.jsx';
 import Forms from './Forms.jsx';
+import PublicForm from './PublicForm.jsx';
+import ResetPassword from './ResetPassword.jsx';
 import MyFormInteraction from './MyFormInteraction.jsx';
 import Navigation from './Navigation.jsx';
 // import Blog from './Blog.jsx';
@@ -97,15 +99,15 @@ function AppContent({ navigate }) {
 
   function handleLogOut() {
 
+    // Clear local auth state even if /sign-out fails (e.g. the cookie has
+    // already expired) — otherwise the user stays "logged in" locally.
     mainApi.handleLogOut()
-      .then(res => {
+      .catch(err => console.log(err))
+      .finally(() => {
         localStorage.setItem('loggedIn', false);
         localStorage.removeItem('token');
+        setLoggedIn(false);
         navigate('/sign-in');
-      })
-      .catch(err => {
-        console.log(err);
-        openPopup(err.message);
       });
   }
 
@@ -184,8 +186,8 @@ function AppContent({ navigate }) {
       .catch(err => { console.log(err) })
   }
 
-  async function getAllPublicForms() {
-    await formApi.getAllPublicForms()
+  async function getAllPublicForms(params = {}) {
+    await formApi.getAllPublicForms(params)
       .then(res => {
         localStorage.setItem('publicForms', JSON.stringify(res))
         updateMyForms(res)
@@ -353,6 +355,8 @@ function AppContent({ navigate }) {
         />} />
 
         {/* <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} /> */}
+        <Route path="/blog/:sessionId" element={<PublicForm />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
         <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
       </Routes>

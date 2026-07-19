@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import FormEdit from './FormEdit.jsx';
+import { RaitingPial } from './TeaRaiting.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,14 +19,15 @@ function Form({
 }) {
     const { openPopup } = usePopup();
     const { aromasByIdCxt, tastesByIdCxt, brewsByIdCxt } = useMyFormConext();
+    const navigate = useNavigate();
     const brewsRender = useRef([]);
     const [openDetails, setOpenDetails] = React.useState(false);
 
     // Public forms arrive with owner populated ({name, avatar}); own forms
     // carry plain ids — show the author chip only when the data is there.
-    const author = Array.isArray(formData.owner) && typeof formData.owner[0] === 'object'
-        ? formData.owner[0]
-        : null;
+    // Handles both the current single-object owner and the legacy array shape.
+    const rawOwner = Array.isArray(formData.owner) ? formData.owner[0] : formData.owner;
+    const author = rawOwner && typeof rawOwner === 'object' ? rawOwner : null;
 
     const authorChip = () => {
         if (!author || !author.name) return null;
@@ -59,6 +62,25 @@ function Form({
             openPopup(popupContent(brewsRender.current));
         }
     }, [aromasByIdCxt, tastesByIdCxt, brewsByIdCxt]);
+
+    // Compact read-only summary rating (averageRating) as a row of bowls.
+    const summaryRating = () => {
+        const r = Number(formData.averageRating);
+        if (!r || r < 1) return null;
+        return (
+            <div className="myform__rating" aria-label={`Оценка ${r} из 10`} style={{
+                display: 'flex', alignItems: 'center', flexWrap: 'wrap',
+                gap: '2px', margin: '6px 0 2px 0',
+            }}>
+                {Array.from({ length: 10 }, (_, i) => (
+                    <RaitingPial key={i} active={i < r} width={17} height={11} />
+                ))}
+                <span style={{ marginLeft: '6px', fontSize: '14px', color: '#d8f5cc', fontWeight: 600 }}>
+                    {r}/10
+                </span>
+            </div>
+        );
+    };
 
     // One descriptor record -> its readable path, stages strictly in 1-2-3
     // order, empty/'none' stages skipped.
@@ -215,18 +237,29 @@ function Form({
         }
         else {
             return (
-                <FormButton
-                    buttonName={'Просмотр'}
-                    width={'100%'}
-                    margin={'0px'}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        brewingsById(formData.sessionId);
-                        aromasById(formData.sessionId);
-                        tastesById(formData.sessionId);
-                        setOpenDetails(true);
-                    }}
-                />
+                <>
+                    <FormButton
+                        buttonName={'Просмотр'}
+                        width={'49%'}
+                        margin={'0px'}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            brewingsById(formData.sessionId);
+                            aromasById(formData.sessionId);
+                            tastesById(formData.sessionId);
+                            setOpenDetails(true);
+                        }}
+                    />
+                    <FormButton
+                        buttonName={'Открыть'}
+                        width={'49%'}
+                        margin={'0px'}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate(`/blog/${formData.sessionId}`);
+                        }}
+                    />
+                </>
             )
         }
     }
@@ -239,6 +272,7 @@ function Form({
                 <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{formData.createdAt}</li>
                 <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
             </ul>
+            {summaryRating()}
             <div className="myform__buttons">
                 {formButtons()} 
             </div>

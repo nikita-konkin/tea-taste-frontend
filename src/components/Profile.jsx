@@ -119,7 +119,7 @@ function Profile(props) {
 		<>
 			<Header navigation={props.navigation} />
 
-			<form className="authorization" onSubmit={handleProfileSubmit}>
+			<form className="authorization authorization_compact" onSubmit={handleProfileSubmit}>
 				<h1 className="authorization__header">Профиль</h1>
 				<div className="authorization__fields-box">
 
@@ -131,8 +131,26 @@ function Profile(props) {
 							{(profile.name || '?').charAt(0).toUpperCase()}
 						</div>
 					)}
-					<p style={fieldLabelStyle}>Ссылка на аватар</p>
-					<input className="authorization__email" type="url"
+					<label className="authorization__check-text" style={{ cursor: 'pointer', color: '#d8f5cc' }}>
+						Загрузить аватар (до 2 МБ)
+						<input type="file" accept="image/png,image/jpeg,image/webp,image/gif"
+							style={{ display: 'none' }}
+							onChange={(e) => {
+								const file = e.target.files && e.target.files[0];
+								if (!file) return;
+								mainApi.uploadAvatar(file)
+									.then((res) => {
+										setAvatarBroken(false);
+										setProfile((prev) => ({ ...prev, avatar: res.data.avatar }));
+										openPopup('Аватар обновлён.');
+									})
+									.catch((err) => openPopup(err.message || 'Не удалось загрузить аватар.'));
+								e.target.value = '';
+							}} />
+					</label>
+
+					<p style={fieldLabelStyle}>Или ссылка на аватар</p>
+					<input className="authorization__email" type="text"
 						name="avatar" placeholder="https://..."
 						value={profile.avatar} onChange={handleProfileChange} />
 
@@ -167,7 +185,7 @@ function Profile(props) {
 				</div>
 			</form>
 
-			<form className="authorization" onSubmit={handlePasswordSubmit}>
+			<form className="authorization authorization_compact" onSubmit={handlePasswordSubmit}>
 				<div className="authorization__fields-box">
 					<h2 className="authorization__check-text">Смена пароля</h2>
 
@@ -184,12 +202,17 @@ function Profile(props) {
 						type="submit"
 						buttonName={'Изменить пароль'}
 					/>
+				</div>
+			</form>
+
+			<div className="authorization authorization_compact">
+				<div className="authorization__fields-box">
 					<FormButton
-						buttonName={'Выйти'}
+						buttonName={'Выйти из аккаунта'}
 						onClick={handleLogout}
 					/>
 				</div>
-			</form>
+			</div>
 		</>
 	)
 }

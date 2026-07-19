@@ -198,9 +198,13 @@ class FormApi {
         }
     }
 
-    async getAllPublicForms(formId) {
+    // params: { page, limit, type, sort } — see GET /public-forms on the API.
+    async getAllPublicForms(params = {}) {
         try {
-            const response = await fetch(`${this._usersApiUrl}/public-forms`, {
+            const query = new URLSearchParams(
+                Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+            ).toString();
+            const response = await fetch(`${this._usersApiUrl}/public-forms${query ? `?${query}` : ''}`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: this._headers
@@ -210,6 +214,45 @@ class FormApi {
             console.error('Error fetching all public forms:', error);
             throw error;
         }
+    }
+
+    async getPublicFormById(sessionId) {
+        const response = await fetch(`${this._usersApiUrl}/public-form/${sessionId}`, {
+            method: 'GET',
+            headers: this._headers
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    // Quick-pick data for the Stage-2 descriptor picker.
+    async getTopDescriptors() {
+        const response = await fetch(`${this._usersApiUrl}/my-descriptors`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: this._headers
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }
+
+    // Deletes one brewing of a session together with its aromas/tastes.
+    async delBrewSelective(sessionId, brewId) {
+        const response = await fetch(`${this._usersApiUrl}/my-brewings/${sessionId}/brew/${brewId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: this._headers
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+        }
+        return response.json();
     }
 
     async getAllMyBrewingsById(brewId) {

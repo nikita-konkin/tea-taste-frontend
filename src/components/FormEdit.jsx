@@ -140,6 +140,30 @@ function FormEdit({ formData, patchFormById }) {
         setter((prev) => prev.map((r) => (r._id === id ? { ...r, [field]: value } : r)));
     };
 
+    const deleteBrewing = (bc) => {
+        setBrewStatus((prev) => ({ ...prev, [bc]: 'saving' }));
+        formApi.delBrewSelective(formData.sessionId, bc)
+            .then(() => {
+                setBrewings((prev) => prev.filter((b) => b.brewingCount !== bc));
+                setAromas((prev) => prev.filter((a) => a.brewingCount !== bc));
+                setTastes((prev) => prev.filter((t) => t.brewingCount !== bc));
+            })
+            .catch((err) =>
+                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || 'Ошибка удаления.' }))
+            );
+    };
+
+    const addBrewing = () => {
+        const next = brewings.reduce((m, b) => Math.max(m, b.brewingCount), 0) + 1;
+        formApi.postFormStage2Brew(
+            { description: 'Новый пролив', brewingRating: 7, brewingTime: '0:00:10' },
+            formData.sessionId, next, values.publicAccess
+        )
+            .then(() => formApi.getAllMyBrewingsById(formData.sessionId))
+            .then((b) => setBrewings((b.data || []).map((x) => ({ ...x }))))
+            .catch((err) => setError(err.message || 'Не удалось добавить пролив.'));
+    };
+
     const saveBrewing = (brew) => {
         const bc = brew.brewingCount;
         setBrewStatus((prev) => ({ ...prev, [bc]: 'saving' }));
@@ -252,11 +276,18 @@ function FormEdit({ formData, patchFormById }) {
                     {status && status !== 'saving' && status !== 'saved' && (
                         <p style={{ color: '#ffb4a8', margin: '8px 0 0 0' }}>{status}</p>
                     )}
-                    <FormButton
-                        buttonName={status === 'saving' ? 'Сохраняем...' : status === 'saved' ? 'Сохранено ✓' : 'Сохранить пролив'}
-                        width={'100%'} margin={'12px 0 0 0'}
-                        onClick={(e) => { e.preventDefault(); saveBrewing(brew); }}
-                    />
+                    <div style={{ display: 'flex', gap: '2%' }}>
+                        <FormButton
+                            buttonName={status === 'saving' ? 'Сохраняем...' : status === 'saved' ? 'Сохранено ✓' : 'Сохранить пролив'}
+                            width={'66%'} margin={'12px 0 0 0'}
+                            onClick={(e) => { e.preventDefault(); saveBrewing(brew); }}
+                        />
+                        <FormButton
+                            buttonName={'Удалить'}
+                            width={'32%'} margin={'12px 0 0 0'}
+                            onClick={(e) => { e.preventDefault(); deleteBrewing(bc); }}
+                        />
+                    </div>
                 </div>
             );
         });
@@ -294,6 +325,10 @@ function FormEdit({ formData, patchFormById }) {
 
                 <h3 style={{ margin: '18px 0 8px 0' }}>Проливы</h3>
                 {brewingsSection()}
+                {brewings !== null && (
+                    <FormButton buttonName={'Добавить пролив'} width={'100%'} margin={'4px 0 0 0'}
+                        onClick={(e) => { e.preventDefault(); addBrewing(); }} />
+                )}
 
                 <FormButton buttonName={'Закрыть'} width={'100%'} margin={'12px 0 0 0'}
                     onClick={(e) => { e.preventDefault(); closePopup(); }} />

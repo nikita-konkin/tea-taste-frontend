@@ -10,6 +10,7 @@ import { TextField, Button, Stack } from '@mui/material';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import DescriptorPicker from './DescriptorPicker.jsx';
+import { formApi } from '../utils/FormAPI.jsx';
 
 import dayjs from 'dayjs';
 
@@ -72,6 +73,15 @@ function TeaFormStage2(props) {
 		const savedTasteDB = localStorage.getItem('tasteDB');
 		return savedTasteDB ? JSON.parse(savedTasteDB) : [];
 	});
+
+	// The user's most frequent descriptors — one-tap chips in the pickers.
+	const [topDescriptors, setTopDescriptors] = useState({ aromas: [], tastes: [] });
+
+	useEffect(() => {
+		formApi.getTopDescriptors()
+			.then((res) => setTopDescriptors({ aromas: res.aromas || [], tastes: res.tastes || [] }))
+			.catch(() => { /* chips are optional */ });
+	}, []);
 
 
 	const [formValues, setFormValues] = useState(() => {
@@ -166,7 +176,7 @@ function TeaFormStage2(props) {
 								watch={watch}
 								optionsTaste={optionsTaste}
 								optionsAroma={optionsAroma}
-
+								topDescriptors={topDescriptors}
 							/>
 						))}
 						<Button
@@ -212,7 +222,7 @@ function TeaFormStage2(props) {
 
 }
 
-function Straits({ control, straitField, straitIndex, straitsRemove, setValue, watch, optionsTaste, optionsAroma }) {
+function Straits({ control, straitField, straitIndex, straitsRemove, setValue, watch, optionsTaste, optionsAroma, topDescriptors }) {
 
 
 	const { fields: tastesFields, append: tastesAppend, remove: tastesRemove } = useFieldArray({
@@ -253,6 +263,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 						key={aromaField.id}
 						optionsAroma={optionsAroma}
 						setValue={setValue}
+						quickPicks={topDescriptors ? topDescriptors.aromas : []}
 					/>
 
 				))}
@@ -280,6 +291,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 						key={tasteField.id}
 						optionsTaste={optionsTaste}
 						setValue={setValue}
+						quickPicks={topDescriptors ? topDescriptors.tastes : []}
 					/>
 
 				))}
@@ -332,7 +344,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 }
 
 
-function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, control, optionsAroma, setValue }) {
+function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, control, optionsAroma, setValue, quickPicks }) {
 
 	const base = `straits[${straitIndex}].aromas[${aromaIndex}]`;
 	const stage1 = watch(`${base}.aromaStage1`);
@@ -354,6 +366,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 				stage1={stage1}
 				stage2={stage2}
 				stage3={stage3}
+				quickPicks={quickPicks}
 				onStagesChange={([s1, s2, s3]) => {
 					setValue(`${base}.aromaStage1`, s1 ? { label: s1 } : null);
 					setValue(`${base}.aromaStage2`, s2 ? { label: s2 } : null);
@@ -372,7 +385,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 
 }
 
-function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, control, optionsTaste, setValue }) {
+function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, control, optionsTaste, setValue, quickPicks }) {
 
 	const base = `straits[${straitIndex}].tastes[${tasteIndex}]`;
 	const stage1 = watch(`${base}.tasteStage1`);
@@ -394,6 +407,7 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 				stage1={stage1}
 				stage2={stage2}
 				stage3={stage3}
+				quickPicks={quickPicks}
 				onStagesChange={([s1, s2, s3]) => {
 					setValue(`${base}.tasteStage1`, s1 ? { label: s1 } : null);
 					setValue(`${base}.tasteStage2`, s2 ? { label: s2 } : null);

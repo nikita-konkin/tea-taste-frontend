@@ -103,6 +103,40 @@ class MainApi {
 
 	}
 
+	uploadAvatar(file) {
+
+		const formData = new FormData();
+		formData.append('avatar', file);
+
+		// No Content-Type header: the browser sets the multipart boundary.
+		return fetch(`${this._usersApiUrl}/profile/avatar`, {
+			method: 'POST',
+			credentials: 'include',
+			body: formData
+		}).then(res => this.error(res));
+
+	}
+
+	requestPasswordReset(email) {
+
+		return fetch(`${this._usersApiUrl}/password-reset/request`, {
+			method: 'POST',
+			headers: this._headers,
+			body: JSON.stringify({ email: email })
+		}).then(res => this.error(res));
+
+	}
+
+	confirmPasswordReset(token, newPassword) {
+
+		return fetch(`${this._usersApiUrl}/password-reset/confirm`, {
+			method: 'POST',
+			headers: this._headers,
+			body: JSON.stringify({ token: token, newPassword: newPassword })
+		}).then(res => this.error(res));
+
+	}
+
 	updatePassword(oldPassword, newPassword) {
 
 		return fetch(`${this._usersApiUrl}/profile/password`, {

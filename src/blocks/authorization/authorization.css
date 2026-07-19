@@ -6,3 +6,10 @@
 	width: 90%;
 	max-width: 500px;
 }
+
+/* Compact variant for pages that stack several blocks (profile):
+   content height instead of the login page's full-screen centering. */
+.authorization_compact{
+	height: auto;
+	margin-bottom: 20px;
+}
