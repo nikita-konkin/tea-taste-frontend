@@ -113,6 +113,7 @@ test('submits the full Stage-1 body with edited values and correct types', async
         teaware: 'Гайвань',
         brewingtype: 'Проливы',
         averageRating: 9.5,
+        photos: [],
         publicAccess: true,
     });
 });

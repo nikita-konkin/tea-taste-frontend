@@ -30,7 +30,8 @@ class FormApi {
                     teaware: data.teaWare.label,
                     brewingtype: data.brewingType.label,
                     averageRating: data.avrRaiting,
-                    publicAccess: data.publicAccess
+                    publicAccess: data.publicAccess,
+                    photos: data.teaPhotos || []
                 })
             });
             return await this.error(response);

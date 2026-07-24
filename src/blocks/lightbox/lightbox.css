@@ -1,0 +1,130 @@
+/* Full-screen tea photo viewer. Sits above the app chrome (max z-index 10)
+   and the reactjs-popup overlay (999). */
+.lightbox {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 2000;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	box-sizing: border-box;
+
+	background-color: rgba(8, 26, 19, 0.90);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+
+	font-family: 'jura', Arial, sans-serif;
+	color: #ffffff;
+}
+
+.lightbox__figure {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	max-width: 100%;
+	min-width: 0;
+}
+
+.lightbox__image {
+	display: block;
+	max-width: 100%;
+	max-height: 78vh;
+	object-fit: contain;
+	border-radius: 12px;
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.50);
+}
+
+.lightbox__caption {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	font-size: 15px;
+}
+
+.lightbox__counter {
+	font-size: 13px;
+	opacity: 0.7;
+}
+
+.lightbox__close,
+.lightbox__nav {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+
+	font-family: inherit;
+	line-height: 1;
+	color: #ffffff;
+	cursor: pointer;
+
+	/* Dark rather than white-translucent: these sit on top of the photo, and a
+	   pale button would wash out over a bright one. */
+	background-color: rgba(0, 0, 0, 0.50);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.30);
+	border-radius: 999px;
+}
+
+.lightbox__close:hover,
+.lightbox__nav:hover {
+	background-color: rgba(0, 0, 0, 0.70);
+	border-color: #a8f493;
+}
+
+.lightbox__close:focus-visible,
+.lightbox__nav:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(168, 244, 147, 0.55);
+}
+
+.lightbox__close {
+	top: 14px;
+	right: 14px;
+	width: 40px;
+	height: 40px;
+	font-size: 26px;
+}
+
+.lightbox__nav {
+	top: 50%;
+	transform: translateY(-50%);
+	width: 44px;
+	height: 44px;
+	font-size: 30px;
+}
+
+.lightbox__nav_prev {
+	left: 10px;
+}
+
+.lightbox__nav_next {
+	right: 10px;
+}
+
+@media screen and (max-width: 420px) {
+	.lightbox {
+		padding: 14px;
+	}
+
+	.lightbox__nav {
+		width: 38px;
+		height: 38px;
+		font-size: 26px;
+	}
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.lightbox {
+		background-color: #0d2019;
+	}
+}

@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import FormEdit from './FormEdit.jsx';
 import { RaitingPial } from './TeaRaiting.jsx';
+import TeaPhotoGallery from './TeaPhotoGallery.jsx';
+import TeaPhotoLightbox from './TeaPhotoLightbox.jsx';
+import { orderPhotos } from './TeaPhotos.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +25,7 @@ function Form({
     const navigate = useNavigate();
     const brewsRender = useRef([]);
     const [openDetails, setOpenDetails] = React.useState(false);
+    const [viewingPhotos, setViewingPhotos] = React.useState(false);
 
     // Public forms arrive with owner populated ({name, avatar}); own forms
     // carry plain ids — show the author chip only when the data is there.
@@ -62,6 +66,23 @@ function Form({
             openPopup(popupContent(brewsRender.current));
         }
     }, [aromasByIdCxt, tastesByIdCxt, brewsByIdCxt]);
+
+    // Card thumbnail: always the first filled slot in dry -> liquor -> wet
+    // order, so the picture does not change when another slot is added later.
+    // Tapping it opens the whole set full screen, starting from this one.
+    const cardPhotos = orderPhotos(formData.photos);
+
+    const cardThumb = () => {
+        if (cardPhotos.length === 0) return null;
+        return (
+            <button type="button" className="myform__media"
+                aria-label={`Открыть фото во весь экран: ${formData.nameRU}`}
+                onClick={(e) => { e.preventDefault(); setViewingPhotos(true); }}>
+                <img className="myform__media-image" src={cardPhotos[0].url} alt=""
+                    onError={(e) => { e.target.closest('button').style.display = 'none'; }} />
+            </button>
+        );
+    };
 
     // Compact read-only summary rating (averageRating) as a row of bowls.
     const summaryRating = () => {
@@ -166,6 +187,7 @@ function Form({
         return (
             <section key={formData.sessionId} className="myforminteraction__section">
                 <h3 style={{ margin: '0 0 2px 0', fontSize: '20px' }}>{formData.nameRU}</h3>
+                <TeaPhotoGallery photos={formData.photos} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 10px 0' }}>
                     <span style={{ opacity: 0.85, fontSize: '14px' }}>
                         {[author && author.name, formData.createdAt && new Date(formData.createdAt).toLocaleDateString('ru-RU')]
@@ -267,19 +289,25 @@ function Form({
     return (
         <section className="myform" key={formData.sessionId}>
             {authorChip()}
-            <ul className="myform__list">
-                <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>{formData.nameRU}</li>
-                <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{
-                    formData.createdAt
-                        ? new Date(formData.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
-                        : ''
-                }</li>
-                <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
-            </ul>
+            <div className="myform__body">
+                {cardThumb()}
+                <ul className="myform__list">
+                    <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>{formData.nameRU}</li>
+                    <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{
+                        formData.createdAt
+                            ? new Date(formData.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+                            : ''
+                    }</li>
+                    <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
+                </ul>
+            </div>
             {summaryRating()}
             <div className="myform__buttons">
-                {formButtons()} 
+                {formButtons()}
             </div>
+            {viewingPhotos && (
+                <TeaPhotoLightbox photos={cardPhotos} onClose={() => setViewingPhotos(false)} />
+            )}
         </section>
     );
 }

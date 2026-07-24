@@ -1,0 +1,148 @@
+/* Three-slot tea photo picker, matching the liquid-glass cards. */
+.teaphotos {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: 'jura', Arial, sans-serif;
+	color: #ffffff;
+}
+
+.teaphotos__title {
+	font-size: 14px;
+	opacity: 0.85;
+	margin: 0 0 8px 0;
+}
+
+.teaphotos__row {
+	display: flex;
+	gap: 10px;
+	width: 100%;
+}
+
+.teaphotos__slot {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.teaphotos__frame {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	aspect-ratio: 1 / 1;
+	box-sizing: border-box;
+	overflow: hidden;
+
+	background-color: rgba(255, 255, 255, 0.10);
+	-webkit-backdrop-filter: blur(12px) saturate(140%);
+	backdrop-filter: blur(12px) saturate(140%);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	border-radius: 10px;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+
+/* Older Safari has no aspect-ratio; keep the tiles square anyway. */
+@supports not (aspect-ratio: 1 / 1) {
+	.teaphotos__frame {
+		height: 96px;
+	}
+}
+
+.teaphotos__frame_empty {
+	cursor: pointer;
+	border-style: dashed;
+	border-color: rgba(255, 255, 255, 0.35);
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.teaphotos__frame_empty:hover {
+	background-color: rgba(255, 255, 255, 0.16);
+	border-color: #a8f493;
+}
+
+.teaphotos__frame_empty:focus-within {
+	border-color: #a8f493;
+	box-shadow: 0 0 0 2px rgba(168, 244, 147, 0.35);
+}
+
+.teaphotos__plus {
+	font-size: 30px;
+	line-height: 1;
+	color: #d8f5cc;
+	user-select: none;
+}
+
+.teaphotos__image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.teaphotos__input {
+	display: none;
+}
+
+.teaphotos__remove {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	font-family: inherit;
+	font-size: 18px;
+	line-height: 1;
+	color: #ffffff;
+	cursor: pointer;
+
+	background-color: rgba(0, 0, 0, 0.45);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+	border: 1px solid rgba(255, 255, 255, 0.30);
+	border-radius: 999px;
+}
+
+.teaphotos__remove:hover {
+	background-color: rgba(0, 0, 0, 0.65);
+	border-color: #a8f493;
+}
+
+.teaphotos__caption {
+	font-size: 13px;
+	text-align: center;
+	opacity: 0.85;
+	margin: 6px 0 0 0;
+}
+
+.teaphotos__error {
+	font-size: 12px;
+	text-align: center;
+	color: #ffb4a8;
+	margin: 4px 0 0 0;
+}
+
+@media screen and (max-width: 360px) {
+	.teaphotos__row {
+		gap: 6px;
+	}
+
+	.teaphotos__caption {
+		font-size: 11px;
+	}
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.teaphotos__frame {
+		background-color: #728A7C;
+	}
+}

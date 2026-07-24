@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
+import TeaPhotoGallery from './TeaPhotoGallery.jsx';
+import { mainApi } from '../utils/MainAPI.jsx';
 
 // import { useTeaFormContext } from './TeaFormContext.jsx';
 // import { use } from 'react';
@@ -243,6 +245,7 @@ function MyFormInteraction(props) {
 			<div className="myforminteraction">
 
 				<section className="myforminteraction__section">
+					<TeaPhotoGallery photos={stage1Data.teaPhotos} />
 					<ul className="myforminteraction__list">
 						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{stage1Data.teaType != null ? stage1Data.teaType.label : ''}</li>
@@ -268,6 +271,9 @@ function MyFormInteraction(props) {
 						width={'100%'}
 						margin={'0px'}
 						onClick={() => {
+							// Photos were uploaded when picked, so discarding the
+							// draft has to take their files with it.
+							(stage1Data.teaPhotos || []).forEach((p) => mainApi.deleteTeaPhoto(p.url));
 							localStorage.removeItem('teaFormStage1');
 							localStorage.removeItem('teaFormStage2');
 							props.navigateAfterSubmit()

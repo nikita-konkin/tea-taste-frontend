@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet';
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
 import AutocompleteBox from './AutocompleteBox.jsx';
+import TeaPhotos from './TeaPhotos.jsx';
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -374,7 +375,7 @@ const TeaFormStage1 = (props) => {
 	const [formValues, setFormValues] = useState(() => {
 
 		const savedValues = localStorage.getItem('teaFormStage1');
-		return savedValues ? JSON.parse(savedValues) : {
+		const defaults = {
 			teaName: null,
 			teaCountry: null,
 			teaShop: null,
@@ -386,8 +387,12 @@ const TeaFormStage1 = (props) => {
 			teaPrice: 5,
 			brewingType: null,
 			teaWare: null,
+			teaPhotos: [],
 			publicAccess: true,
 		};
+		// Drafts saved before photos existed have no teaPhotos key.
+		const saved = savedValues ? JSON.parse(savedValues) : null;
+		return saved ? { ...saved, teaPhotos: saved.teaPhotos ?? [] } : defaults;
 	});
 
 	const { control, handleSubmit, setValue, watch } = useForm({
@@ -627,6 +632,13 @@ const TeaFormStage1 = (props) => {
 									onChange={(_, data) => field.onChange(data)}
 									PopperComponent={StyledPopper}
 								/>
+							)}
+						/>
+						<Controller
+							control={control}
+							name="teaPhotos"
+							render={({ field }) => (
+								<TeaPhotos value={field.value} onChange={field.onChange} />
 							)}
 						/>
 						<Stack direction={isSmallScreen ? "column" : "row"} spacing={2} useFlexGap sx={{ width: '100%' }}>

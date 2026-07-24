@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import FormButton from './FormButton.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
+import { mainApi } from '../utils/MainAPI.jsx';
+import TeaPhotos from './TeaPhotos.jsx';
 import { TextField, Stack } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -69,11 +71,17 @@ function FormEdit({ formData, patchFormById }) {
         teaware: formData.teaware || '',
         brewingtype: formData.brewingtype || '',
         averageRating: formData.averageRating ?? 1,
+        // Mapped rather than passed through: anything beyond {url, kind} would
+        // be rejected by the API when sent back on save.
+        photos: (formData.photos || []).map(({ url, kind }) => ({ url, kind })),
         publicAccess: Boolean(formData.publicAccess),
     });
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    // Photos dropped in this dialog are still live on the stored form, so the
+    // files are only deleted once the save has actually gone through.
+    const [removedUrls, setRemovedUrls] = useState([]);
 
     // Stage-2 data, editable copies keyed for controlled inputs.
     const [brewings, setBrewings] = useState(null); // null = loading, [] = none
@@ -119,11 +127,16 @@ function FormEdit({ formData, patchFormById }) {
             teaware: values.teaware,
             brewingtype: values.brewingtype,
             averageRating: Number(values.averageRating),
+            photos: values.photos,
             publicAccess: values.publicAccess,
         };
 
         patchFormById(formData.sessionId, body)
-            .then(() => setSaved(true))
+            .then(() => {
+                setSaved(true);
+                removedUrls.forEach((url) => mainApi.deleteTeaPhoto(url));
+                setRemovedUrls([]);
+            })
             .catch((err) => {
                 setError(err.message || 'Не удалось сохранить изменения.');
             })
@@ -311,6 +324,11 @@ function FormEdit({ formData, patchFormById }) {
                         {textField('Посуда', 'teaware')}
                         {textField('Метод заваривания', 'brewingtype')}
                         {numberField('Итоговый рейтинг (1–10)', 'averageRating', 1, 10, 0.01)}
+                        <TeaPhotos
+                            value={values.photos}
+                            onChange={(photos) => setValues((prev) => ({ ...prev, photos }))}
+                            onRemovedUrl={(url) => setRemovedUrls((prev) => [...prev, url])}
+                        />
                         <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <bdi>Публикация в блоге: </bdi>
                             <input type="checkbox" name="publicAccess"

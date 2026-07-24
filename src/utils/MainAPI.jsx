@@ -117,6 +117,44 @@ class MainApi {
 
 	}
 
+	// Stores one tasting photo and returns its url. Deliberately not tied to a
+	// form: the wizard only creates the form at the last step, so a photo picked
+	// on step 1 has nothing to attach to yet.
+	uploadTeaPhoto(file) {
+
+		const formData = new FormData();
+		formData.append('photo', file);
+
+		// No Content-Type header: the browser sets the multipart boundary.
+		return fetch(`${this._usersApiUrl}/upload/tea-photo`, {
+			method: 'POST',
+			credentials: 'include',
+			body: formData
+		}).then(res => {
+			// nginx answers an over-limit upload itself, with an HTML body that
+			// error() would choke on — report the real cause instead.
+			if (res.status === 413) {
+				throw new Error('Файл слишком большой. Попробуйте фото поменьше.');
+			}
+			return this.error(res);
+		});
+
+	}
+
+	// Best-effort cleanup of a replaced or removed photo; failures are ignored
+	// because a leftover file is harmless next to a broken UI.
+	deleteTeaPhoto(url) {
+
+		const filename = String(url || '').split('/').pop();
+		if (!filename) return Promise.resolve();
+
+		return fetch(`${this._usersApiUrl}/upload/tea-photo/${encodeURIComponent(filename)}`, {
+			method: 'DELETE',
+			credentials: 'include'
+		}).catch(() => {});
+
+	}
+
 	requestPasswordReset(email) {
 
 		return fetch(`${this._usersApiUrl}/password-reset/request`, {

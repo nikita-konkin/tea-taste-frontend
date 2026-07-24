@@ -1,0 +1,48 @@
+/* Card layout with a tasting photo: thumbnail on the left, the meta rows next
+   to it. Without a photo the row collapses to just the list, unchanged. */
+.myform__body {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.myform__body .myform__list {
+	margin: 0;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+/* A button, not an image: tapping it opens the photos full screen. */
+.myform__media {
+	flex: 0 0 auto;
+	width: 90px;
+	height: 90px;
+	padding: 0;
+	display: block;
+	overflow: hidden;
+	background: none;
+	cursor: zoom-in;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	transition: border-color 0.15s ease;
+}
+
+.myform__media:hover,
+.myform__media:focus-visible {
+	outline: none;
+	border-color: #a8f493;
+}
+
+.myform__media-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+@media screen and (max-width: 360px) {
+	.myform__media {
+		width: 72px;
+		height: 72px;
+	}
+}
