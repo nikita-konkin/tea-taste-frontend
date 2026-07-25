@@ -25,6 +25,7 @@
 
 @import url(./blocks/teaphotos/teaphotos.css);
 @import url(./blocks/lightbox/lightbox.css);
+@import url(./blocks/voicenote/voicenote.css);
 
 @import url(./blocks/myforminteraction/myforminteraction.css);
 @import url(./blocks/myforminteraction/__section/myforminteraction__section.css);

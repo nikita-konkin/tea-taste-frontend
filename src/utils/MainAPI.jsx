@@ -155,6 +155,47 @@ class MainApi {
 
 	}
 
+	// The blob comes straight from MediaRecorder, so it carries the browser's own
+	// container (webm/opus, or mp4/aac on Safari). The filename is only a label —
+	// the server derives the extension from the mimetype and transcodes to mp3.
+	uploadVoice(blob) {
+
+		const formData = new FormData();
+		formData.append('audio', blob, 'note.webm');
+
+		return fetch(`${this._usersApiUrl}/upload/voice`, {
+			method: 'POST',
+			credentials: 'include',
+			body: formData
+		}).then(res => {
+			if (res.status === 413) {
+				throw new Error('Запись слишком длинная. Попробуйте записать покороче.');
+			}
+			return this.error(res);
+		});
+
+	}
+
+	deleteVoice(url) {
+
+		const filename = String(url || '').split('/').pop();
+		if (!filename) return Promise.resolve();
+
+		return fetch(`${this._usersApiUrl}/upload/voice/${encodeURIComponent(filename)}`, {
+			method: 'DELETE',
+			credentials: 'include'
+		}).catch(() => {});
+
+	}
+
+	getVoiceStatus(sessionId) {
+
+		return fetch(`${this._usersApiUrl}/my-form/${sessionId}/voice`, {
+			credentials: 'include'
+		}).then(res => this.error(res));
+
+	}
+
 	requestPasswordReset(email) {
 
 		return fetch(`${this._usersApiUrl}/password-reset/request`, {

@@ -1,3 +1,5 @@
+import { readVoiceDraft } from './voiceDraft.js';
+
 class FormApi {
     constructor(config) {
         this._headers = config.headers;
@@ -31,7 +33,11 @@ class FormApi {
                     brewingtype: data.brewingType.label,
                     averageRating: data.avrRaiting,
                     publicAccess: data.publicAccess,
-                    photos: data.teaPhotos || []
+                    photos: data.teaPhotos || [],
+                    // Voice segments are not a field of either wizard step — both
+                    // record into the shared draft, and this is where the two
+                    // halves finally meet.
+                    voice: { segments: readVoiceDraft() }
                 })
             });
             return await this.error(response);
