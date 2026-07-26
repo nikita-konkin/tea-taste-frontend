@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import Header from './Header.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
+import VoicePlayer from './VoicePlayer.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
 
 const chipStyle = {
@@ -101,6 +102,9 @@ function PublicForm() {
                 <section className="myforminteraction__section">
                     <h3 style={{ margin: '0 0 2px 0', fontSize: '20px', color: '#ffffff' }}>{form.nameRU}</h3>
                     <TeaPhotoGallery photos={form.photos} />
+                    {/* No sessionId: the public page has no owner endpoint to
+                        poll, so it shows whatever the form already carries. */}
+                    <VoicePlayer voice={form.voice} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 10px 0', color: '#ffffff' }}>
                         <span style={{ opacity: 0.85, fontSize: '14px' }}>
                             {[author && author.name, form.createdAt && new Date(form.createdAt).toLocaleDateString('ru-RU')]

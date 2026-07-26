@@ -10,6 +10,7 @@ import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
+import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
 
 // import { useTeaFormContext } from './TeaFormContext.jsx';
 // import { use } from 'react';
@@ -233,6 +234,9 @@ function MyFormInteraction(props) {
 
 		localStorage.removeItem('teaFormStage1');
 		localStorage.removeItem('teaFormStage2');
+		// The voice draft is its own key, so clearing the two form drafts left the
+		// recordings behind and they reappeared in the next tasting.
+		clearVoiceDraft();
 
 		alert("Форма успешно отправлена =)");
 
@@ -274,8 +278,12 @@ function MyFormInteraction(props) {
 							// Photos were uploaded when picked, so discarding the
 							// draft has to take their files with it.
 							(stage1Data.teaPhotos || []).forEach((p) => mainApi.deleteTeaPhoto(p.url));
+							// Same for the voice notes: uploaded on stop, so an
+							// abandoned draft would leave them on disk forever.
+							readVoiceDraft().forEach((s) => mainApi.deleteVoice(s.url));
 							localStorage.removeItem('teaFormStage1');
 							localStorage.removeItem('teaFormStage2');
+							clearVoiceDraft();
 							props.navigateAfterSubmit()
 						}}
 					/>

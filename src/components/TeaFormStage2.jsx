@@ -10,6 +10,8 @@ import { TextField, Button, Stack } from '@mui/material';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import DescriptorPicker from './DescriptorPicker.jsx';
+import VoiceNote from './VoiceNote.jsx';
+import { useVoiceDraft } from '../utils/voiceDraft.js';
 import { formApi } from '../utils/FormAPI.jsx';
 
 import dayjs from 'dayjs';
@@ -234,12 +236,25 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 		control,
 	});
 
+	// Shared with stage 1 and with every other пролив: one list, one budget.
+	const [voiceSegments, setVoiceSegments] = useVoiceDraft();
+
 
 	return (
 
 		<section key={straitField.id} className="form_strait-stages">
 			<h3 className="form_strait-header">Пролив №{straitIndex + 1}</h3>
 			<Stack direction="column" spacing={2}>
+
+				{/* Numbered from 1, so the merged track plays the general note
+				    recorded on stage 1 (0) first, then the проливы in order. */}
+				<VoiceNote
+					value={voiceSegments}
+					onChange={setVoiceSegments}
+					brewingNumber={straitIndex + 1}
+					label={`пролив №${straitIndex + 1}`}
+				/>
+
 
 				<Controller
 					control={control}

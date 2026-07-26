@@ -4,6 +4,7 @@ import FormButton from './FormButton.jsx';
 import FormEdit from './FormEdit.jsx';
 import { RaitingPial } from './TeaRaiting.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
+import VoicePlayer from './VoicePlayer.jsx';
 import TeaPhotoLightbox from './TeaPhotoLightbox.jsx';
 import { orderPhotos } from './TeaPhotos.jsx';
 import { usePopup } from './PopupContext.jsx';
@@ -71,6 +72,27 @@ function Form({
     // order, so the picture does not change when another slot is added later.
     // Tapping it opens the whole set full screen, starting from this one.
     const cardPhotos = orderPhotos(formData.photos);
+
+    // Recognition runs in the background after saving, so the card is where the
+    // user actually is when it finishes — the badge is the only place that says
+    // "still working" rather than leaving a silent gap where the transcript
+    // should be.
+    const voiceBadge = () => {
+        const voice = formData.voice || {};
+        const status = voice.status;
+        if (status !== 'queued' && status !== 'processing' && status !== 'error') return null;
+
+        const text = status === 'error'
+            ? 'Расшифровка не удалась'
+            : 'Расшифровка записи…';
+
+        return (
+            <p className={`myform__voice${status === 'error' ? ' myform__voice_error' : ''}`}>
+                {status !== 'error' && <span className="myform__voice-spinner" aria-hidden="true" />}
+                {text}
+            </p>
+        );
+    };
 
     const cardThumb = () => {
         if (cardPhotos.length === 0) return null;
@@ -188,6 +210,7 @@ function Form({
             <section key={formData.sessionId} className="myforminteraction__section">
                 <h3 style={{ margin: '0 0 2px 0', fontSize: '20px' }}>{formData.nameRU}</h3>
                 <TeaPhotoGallery photos={formData.photos} />
+                <VoicePlayer voice={formData.voice} sessionId={formData.sessionId} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 10px 0' }}>
                     <span style={{ opacity: 0.85, fontSize: '14px' }}>
                         {[author && author.name, formData.createdAt && new Date(formData.createdAt).toLocaleDateString('ru-RU')]
@@ -301,6 +324,7 @@ function Form({
                     <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
                 </ul>
             </div>
+            {voiceBadge()}
             {summaryRating()}
             <div className="myform__buttons">
                 {formButtons()}

@@ -188,6 +188,17 @@ class MainApi {
 
 	}
 
+	// Returns suggestions only — it never writes the tasting. Applying them is
+	// the user's decision, field by field.
+	extractVoice(sessionId) {
+
+		return fetch(`${this._usersApiUrl}/my-form/${sessionId}/extract`, {
+			method: 'POST',
+			credentials: 'include'
+		}).then(res => this.error(res));
+
+	}
+
 	getVoiceStatus(sessionId) {
 
 		return fetch(`${this._usersApiUrl}/my-form/${sessionId}/voice`, {

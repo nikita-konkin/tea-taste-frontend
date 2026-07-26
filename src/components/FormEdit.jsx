@@ -4,6 +4,7 @@ import { usePopup } from './PopupContext.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import TeaPhotos from './TeaPhotos.jsx';
+import VoiceExtract from './VoiceExtract.jsx';
 import { TextField, Stack } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -75,6 +76,7 @@ function FormEdit({ formData, patchFormById }) {
         // be rejected by the API when sent back on save.
         photos: (formData.photos || []).map(({ url, kind }) => ({ url, kind })),
         publicAccess: Boolean(formData.publicAccess),
+        voicePublic: Boolean(formData.voice && formData.voice.public),
     });
     const [error, setError] = useState('');
     const [saving, setSaving] = useState(false);
@@ -85,6 +87,8 @@ function FormEdit({ formData, patchFormById }) {
 
     // Stage-2 data, editable copies keyed for controlled inputs.
     const [brewings, setBrewings] = useState(null); // null = loading, [] = none
+    const [voiceSuggestions, setVoiceSuggestions] = useState(null);
+    const [appliedBrews, setAppliedBrews] = useState({});
     const [aromas, setAromas] = useState([]);
     const [tastes, setTastes] = useState([]);
     const [brewStatus, setBrewStatus] = useState({}); // brewingCount -> 'saving' | 'saved' | error text
@@ -129,6 +133,9 @@ function FormEdit({ formData, patchFormById }) {
             averageRating: Number(values.averageRating),
             photos: values.photos,
             publicAccess: values.publicAccess,
+            // Only the flag: segments and transcript are not ours to resend, and
+            // the API ignores them from a client anyway.
+            ...(formData.voice ? { voice: { public: values.voicePublic } } : {}),
         };
 
         patchFormById(formData.sessionId, body)
@@ -147,6 +154,79 @@ function FormEdit({ formData, patchFormById }) {
         setBrewings((prev) =>
             prev.map((b) => (b.brewingCount === brewingCount ? { ...b, [field]: value } : b))
         );
+    };
+
+    // The schema returns seconds; this section stores H:MM:SS.
+    const asBrewingTime = (seconds) => {
+        const whole = Math.max(0, Math.round(Number(seconds) || 0));
+        const mm = String(Math.floor((whole % 3600) / 60)).padStart(2, '0');
+        const ss = String(whole % 60).padStart(2, '0');
+        return `${Math.floor(whole / 3600)}:${mm}:${ss}`;
+    };
+
+    // Applies one пролив's suggestion into that пролив's own fields. Only the
+    // three the section actually owns: an aroma or taste would need a new
+    // descriptor row, and those are created server-side with their own ids.
+    const applyBrewingSuggestion = (bc, suggestion) => {
+        if (suggestion.description) changeBrewing(bc, 'description', suggestion.description);
+        if (suggestion.time) changeBrewing(bc, 'brewingTime', asBrewingTime(suggestion.time));
+        if (suggestion.rating !== undefined && suggestion.rating !== null) {
+            changeBrewing(bc, 'brewingRating', suggestion.rating);
+        }
+        setAppliedBrews((prev) => ({ ...prev, [bc]: true }));
+        createDescriptors(bc, suggestion);
+    };
+
+    // A descriptor is three columns server-side, not a path string, and each row
+    // is addressed by its own index within the brewing. So each extracted path is
+    // split, given the next free index, and posted — then everything is refetched
+    // so the new rows arrive with the _id the pickers and the save path need.
+    const createDescriptors = (bc, suggestion) => {
+        const sessionId = formData.sessionId;
+        const isPublic = Boolean(values.publicAccess);
+
+        const plan = (paths, rows, countField, stagePrefix) => {
+            const used = rows.filter((row) => row.brewingCount === bc);
+            let next = used.reduce((max, row) => Math.max(max, Number(row[countField]) || 0), 0);
+            return (paths || []).map((path) => {
+                const levels = String(path).split('→').map((part) => part.trim());
+                next += 1;
+                return {
+                    index: next,
+                    stages: {
+                        [`${stagePrefix}1`]: levels[0] || '',
+                        [`${stagePrefix}2`]: levels[1] || '',
+                        [`${stagePrefix}3`]: levels[2] || '',
+                    },
+                };
+            });
+        };
+
+        const jobs = [
+            ...plan(suggestion.aromas, aromas, 'aromaCount', 'aromaStage')
+                .map((job) => formApi.postAromaStages(sessionId, bc, job.index, job.stages, isPublic)),
+            ...plan(suggestion.tastes, tastes, 'tasteCount', 'tasteStage')
+                .map((job) => formApi.postTasteStages(sessionId, bc, job.index, job.stages, isPublic)),
+        ];
+        if (!jobs.length) return;
+
+        setBrewStatus((prev) => ({ ...prev, [bc]: 'saving' }));
+        Promise.all(jobs)
+            .then(() => Promise.all([
+                formApi.getAllMyAromasById(sessionId),
+                formApi.getAllMyTastesById(sessionId),
+            ]))
+            .then(([a, t]) => {
+                // Refetched rather than assumed: an index collision makes the POST
+                // a silent no-op, so the only proof is what comes back.
+                setAromas((a.data || []).map((x) => ({ ...x })));
+                setTastes((t.data || []).map((x) => ({ ...x })));
+                setBrewStatus((prev) => ({ ...prev, [bc]: undefined }));
+            })
+            .catch(() => setBrewStatus((prev) => ({
+                ...prev,
+                [bc]: 'Не удалось добавить дескрипторы из записи.',
+            })));
     };
 
     const changeStage = (setter, id, field, value) => {
@@ -181,13 +261,22 @@ function FormEdit({ formData, patchFormById }) {
         const bc = brew.brewingCount;
         setBrewStatus((prev) => ({ ...prev, [bc]: 'saving' }));
 
+        // A cleared field is '' — Number('') is 0, which passes validation and
+        // silently stores a rating nobody chose. A missing one is NaN, which
+        // becomes null in JSON and 400s the whole пролив with no clue which field
+        // did it. Omitting the key instead leaves the stored value untouched.
+        const rating = Number(brew.brewingRating);
+        const brewBody = {
+            description: brew.description,
+            brewingTime: brew.brewingTime,
+        };
+        if (String(brew.brewingRating ?? '').trim() !== '' && Number.isFinite(rating)) {
+            brewBody.brewingRating = rating;
+        }
+
         const patches = [
             formApi.patchFormStage2Brew(
-                {
-                    description: brew.description,
-                    brewingRating: Number(brew.brewingRating),
-                    brewingTime: brew.brewingTime,
-                },
+                brewBody,
                 formData.sessionId, bc, brew.publicAccess
             ),
             ...aromas
@@ -248,6 +337,62 @@ function FormEdit({ formData, patchFormById }) {
             );
         });
 
+    // Shown inside the пролив it belongs to, so the user sees the suggestion
+    // next to the fields it would change rather than in a list somewhere above.
+    const brewSuggestion = (bc) => {
+        const found = ((voiceSuggestions || {}).brewings || [])
+            .find((brewing) => Number(brewing.number) === Number(bc));
+        if (!found) return null;
+
+        const notes = [
+            (found.aromas || []).length ? `Аромат: ${found.aromas.join('; ')}` : '',
+            (found.tastes || []).length ? `Вкус: ${found.tastes.join('; ')}` : '',
+        ].filter(Boolean);
+
+        return (
+            <div className="voiceextract" style={{ margin: '0 0 12px 0' }}>
+                <div className="voiceextract__head">
+                    <span className="voiceextract__title">Из записи</span>
+                    <button type="button" className="voiceextract__apply"
+                        onClick={() => applyBrewingSuggestion(bc, found)}
+                        disabled={Boolean(appliedBrews[bc])}>
+                        {appliedBrews[bc] ? '✓' : 'Применить'}
+                    </button>
+                </div>
+                {found.description && <span className="voiceextract__value">{found.description}</span>}
+                {found.time !== undefined && found.time !== null && (
+                    <span className="voiceextract__tags">Время: {asBrewingTime(found.time)}</span>
+                )}
+                {notes.map((note) => (
+                    <span className="voiceextract__tags" key={note}>{note}</span>
+                ))}
+            </div>
+        );
+    };
+
+    // Проливы the recording mentions that this tasting does not have. Listed
+    // rather than dropped: the wizard may have created fewer brewings than were
+    // actually poured, and silently losing пролив №7 would be worse than saying so.
+    const unmatchedBrewings = () => {
+        if (!voiceSuggestions || brewings === null) return null;
+        const have = new Set(brewings.map((brew) => Number(brew.brewingCount)));
+        const extra = (voiceSuggestions.brewings || []).filter((b) => !have.has(Number(b.number)));
+        if (!extra.length) return null;
+
+        return (
+            <div className="voiceextract">
+                <span className="voiceextract__title">
+                    В записи есть проливы, которых нет в форме: №{extra.map((b) => b.number).join(', №')}
+                </span>
+                {extra.map((brewing) => (
+                    <span className="voiceextract__brewing" key={brewing.number}>
+                        <b>№{brewing.number}</b> {brewing.description || ''}
+                    </span>
+                ))}
+            </div>
+        );
+    };
+
     const brewingsSection = () => {
         if (brewings === null) {
             return <p className="myforminteraction__row">Загружаем проливы...</p>;
@@ -261,6 +406,7 @@ function FormEdit({ formData, patchFormById }) {
             return (
                 <div key={bc} style={brewBlockStyle} data-testid={`brew-edit-${bc}`}>
                     <p style={{ color: '#d8f5cc', fontWeight: 600, margin: '0 0 12px 0' }}>Пролив №{bc}</p>
+                    {brewSuggestion(bc)}
                     <Stack direction="column" spacing={1.5}>
                         <TextField
                             label="Время заваривания (Ч:ММ:СС)"
@@ -324,6 +470,14 @@ function FormEdit({ formData, patchFormById }) {
                         {textField('Посуда', 'teaware')}
                         {textField('Метод заваривания', 'brewingtype')}
                         {numberField('Итоговый рейтинг (1–10)', 'averageRating', 1, 10, 0.01)}
+                        {formData.voice && formData.voice.transcript && (
+                            <VoiceExtract
+                                sessionId={formData.sessionId}
+                                values={values}
+                                onApply={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
+                                onSuggestions={setVoiceSuggestions}
+                            />
+                        )}
                         <TeaPhotos
                             value={values.photos}
                             onChange={(photos) => setValues((prev) => ({ ...prev, photos }))}
@@ -334,6 +488,16 @@ function FormEdit({ formData, patchFormById }) {
                             <input type="checkbox" name="publicAccess"
                                 checked={values.publicAccess} onChange={handleChange} />
                         </label>
+                        {formData.voice && (formData.voice.track || {}).url && (
+                            // Separate from the checkbox above on purpose: publishing
+                            // the tasting text is not the same decision as publishing
+                            // the audio, which caught whatever else was in the room.
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <bdi>Публиковать аудиозапись и расшифровку: </bdi>
+                                <input type="checkbox" name="voicePublic"
+                                    checked={values.voicePublic} onChange={handleChange} />
+                            </label>
+                        )}
                     </Stack>
                     {error && <p style={{ color: '#ffb4a8' }}>{error}</p>}
                     <FormButton type="submit"
@@ -343,6 +507,7 @@ function FormEdit({ formData, patchFormById }) {
 
                 <h3 style={{ margin: '18px 0 8px 0' }}>Проливы</h3>
                 {brewingsSection()}
+                {unmatchedBrewings()}
                 {brewings !== null && (
                     <FormButton buttonName={'Добавить пролив'} width={'100%'} margin={'4px 0 0 0'}
                         onClick={(e) => { e.preventDefault(); addBrewing(); }} />

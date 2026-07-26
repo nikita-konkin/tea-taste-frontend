@@ -8,7 +8,7 @@ import SliderBox from './SliderBox.jsx';
 import AutocompleteBox from './AutocompleteBox.jsx';
 import TeaPhotos from './TeaPhotos.jsx';
 import VoiceNote from './VoiceNote.jsx';
-import { readVoiceDraft, writeVoiceDraft } from '../utils/voiceDraft.js';
+import { useVoiceDraft } from '../utils/voiceDraft.js';
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -399,11 +399,7 @@ const TeaFormStage1 = (props) => {
 
 	// Kept outside react-hook-form: stage 2 records into the same list, and a
 	// field of this form would not be reachable from there.
-	const [voiceSegments, setVoiceSegmentsState] = useState(() => readVoiceDraft());
-	const setVoiceSegments = (segments) => {
-		setVoiceSegmentsState(segments);
-		writeVoiceDraft(segments);
-	};
+	const [voiceSegments, setVoiceSegments] = useVoiceDraft();
 
 	const { control, handleSubmit, setValue, watch } = useForm({
 		defaultValues: formValues,

@@ -36,8 +36,18 @@ const RaitingPial = ({ active, width = 26, height = 17 }) => (
     </svg>
 );
 
-const handleRatingChange = (event, newValue, name, setValue) => {
-    setValue(name, newValue);
+// The Controller hands us its own onChange via {...field}; using it keeps the
+// Controller the single owner of the value. The previous version ignored it and
+// wrote through react-hook-form's setValue instead, so the value this component
+// rendered came from a subscription nothing was updating — which is why the
+// bowls only ever showed their default.
+//
+// setValue is still honoured as a fallback for any caller that passes it without
+// a Controller. MUI hands back null when the current value is clicked again.
+const handleRatingChange = (newValue, name, onChange, setValue) => {
+    const next = newValue === null ? null : Number(newValue);
+    if (onChange) onChange(next);
+    else if (setValue) setValue(name, next);
 };
 
 // Icons flow in one row and wrap on narrow screens instead of clipping.
@@ -45,7 +55,12 @@ const handleRatingChange = (event, newValue, name, setValue) => {
 // which together with flex-wrap collapses to one icon per line.
 const CustomRaiting = styled(Rating)({
     display: 'flex',
-    width: 'auto',
+    // fit-content, not auto: `auto` let the root span the whole card, so the
+    // clickable area ran far past the last bowl — clicking empty space to the
+    // right still set a rating. `min-content` (newer MUI's default) is the other
+    // extreme and collapses to one icon per line once flex-wrap is on.
+    width: 'fit-content',
+    maxWidth: '100%',
     flexWrap: 'wrap',
     rowGap: '4px',
     '& .MuiRating-icon': {
@@ -56,7 +71,9 @@ const CustomRaiting = styled(Rating)({
     },
 });
 
-const TeaRaiting = React.forwardRef(({ name, label, value, setValue }, ref) => {
+const TeaRaiting = React.forwardRef(({
+    name, label, value, setValue, onChange,
+}, ref) => {
     const legendStyle = {
         color: "#FFFFFF",
         margin: '10px 0 10px 0'
@@ -75,10 +92,9 @@ const TeaRaiting = React.forwardRef(({ name, label, value, setValue }, ref) => {
                     name={name}
                     icon={<RaitingPial active />}
                     emptyIcon={<RaitingPial />}
-                    value={value}
+                    value={Number(value) || 0}
                     max={10}
-                    min={1}
-                    onChange={(event, newValue) => handleRatingChange(event, newValue, name, setValue)}
+                    onChange={(event, newValue) => handleRatingChange(newValue, name, onChange, setValue)}
                     ref={ref}
                 />
             </Box>

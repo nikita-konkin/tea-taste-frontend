@@ -348,6 +348,33 @@ class FormApi {
 
     // Update several stages of one aroma record at once (used by the
     // edit dialog). Empty stages are omitted — the backend keeps them as-is.
+    // Creates a descriptor row carrying all three levels at once. The wizard's
+    // postFormStage2Aroma only ever sends stage 1, but an extracted path can be
+    // "Древесный → Кора → Дуб".
+    //
+    // The API upserts with $setOnInsert, so posting to an aromaId that already
+    // exists silently does nothing — the caller must pick a free index and then
+    // refetch to confirm the row actually landed.
+    async postAromaStages(formId, brewId, aromaId, stages, publicAccess) {
+        const response = await fetch(`${this._usersApiUrl}/my-aromas/${formId}/brew/${brewId}/aroma/${aromaId}`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: this._headers,
+            body: JSON.stringify({ ...stages, publicAccess: Boolean(publicAccess) })
+        });
+        return this.error(response);
+    }
+
+    async postTasteStages(formId, brewId, tasteId, stages, publicAccess) {
+        const response = await fetch(`${this._usersApiUrl}/my-tastes/${formId}/brew/${brewId}/taste/${tasteId}`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: this._headers,
+            body: JSON.stringify({ ...stages, publicAccess: Boolean(publicAccess) })
+        });
+        return this.error(response);
+    }
+
     async patchAromaStages(formId, brewId, aromaId, stages) {
         const body = {};
         ['aromaStage1', 'aromaStage2', 'aromaStage3'].forEach((key) => {
