@@ -24,6 +24,7 @@ export const FIELDS = [
 // overwrite costs data the user typed correctly.
 function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
     const [suggestions, setSuggestions] = useState(null);
+    const [cached, setCached] = useState(false);
     const [brewings, setBrewings] = useState([]);
     const [applied, setApplied] = useState({});
     const [loading, setLoading] = useState(false);
@@ -33,8 +34,9 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
         setLoading(true);
         setError('');
         mainApi.extractVoice(sessionId)
-            .then(({ data }) => {
+            .then(({ data, cached }) => {
                 setSuggestions(data || {});
+                setCached(Boolean(cached));
                 setBrewings((data && data.brewings) || []);
                 // The пролив suggestions are applied inside their own blocks
                 // further down the dialog, where the fields they target live.
@@ -69,7 +71,9 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
     return (
         <div className="voiceextract">
             <div className="voiceextract__head">
-                <span className="voiceextract__title">Предложения из записи</span>
+                <span className="voiceextract__title">
+                    Предложения из записи{cached ? ' (сохранённый разбор)' : ''}
+                </span>
                 {offered.length > 0 && (
                     <button type="button" className="voiceextract__all" onClick={applyAll}>
                         Применить всё

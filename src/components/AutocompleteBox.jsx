@@ -3,7 +3,11 @@ import { forwardRef } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 
 
-const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, value, StyledPopper }, ref) => {
+// `required` defaults to false: it used to be hard-coded on the inner TextField,
+// which put the browser's own validation in front of the form. Stage 1 could
+// then never be submitted from a voice note alone — react-hook-form never even
+// ran, because the native submit was rejected first.
+const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, value, StyledPopper, required = false }, ref) => {
 
     const filter = createFilterOptions();
 
@@ -71,7 +75,7 @@ const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, 
             // sx={{ width: 300 }}
             freeSolo
             renderInput={(params) => (
-                <TextField {...params} label={label} required/>
+                <TextField {...params} label={label} required={required}/>
             )}
             PopperComponent={StyledPopper}
         />

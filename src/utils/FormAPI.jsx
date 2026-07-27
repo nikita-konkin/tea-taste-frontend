@@ -1,5 +1,14 @@
 import { readVoiceDraft } from './voiceDraft.js';
 
+// Autocomplete values are {label, value} objects, plain strings when typed
+// freely, or null when left empty. Returns undefined for anything unusable so
+// JSON.stringify omits the key entirely rather than sending null.
+const label = (option) => {
+    if (!option) return undefined;
+    if (typeof option === 'string') return option.trim() || undefined;
+    return (option.label || '').trim() || undefined;
+};
+
 class FormApi {
     constructor(config) {
         this._headers = config.headers;
@@ -19,18 +28,25 @@ class FormApi {
                 method: 'POST',
                 credentials: 'include',
                 headers: this._headers,
+                // The Autocomplete fields default to null and, now that the
+                // required rules are gone, can legitimately stay that way. Reading
+                // .label off null threw a TypeError before fetch was even reached,
+                // so the tasting was never created while its brewings and
+                // descriptors — posted earlier in the same handler — were, leaving
+                // orphans behind. JSON.stringify drops the undefined keys, and the
+                // API treats every one of these as optional.
                 body: JSON.stringify({
-                    nameRU: data.teaName.label,
-                    country: data.teaCountry.label,
-                    shop: data.teaShop.label,
+                    nameRU: label(data.teaName),
+                    country: label(data.teaCountry),
+                    shop: label(data.teaShop),
                     weight: data.teaWeight,
-                    type: data.teaType.label,
-                    water: data.waterBrand.label,
+                    type: label(data.teaType),
+                    water: label(data.waterBrand),
                     volume: data.waterVolume,
                     temperature: data.waterTemperature,
                     price: data.teaPrice,
-                    teaware: data.teaWare.label,
-                    brewingtype: data.brewingType.label,
+                    teaware: label(data.teaWare),
+                    brewingtype: label(data.brewingType),
                     averageRating: data.avrRaiting,
                     publicAccess: data.publicAccess,
                     photos: data.teaPhotos || [],

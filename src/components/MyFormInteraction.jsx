@@ -11,6 +11,7 @@ import Header from './Header.jsx'
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
+import { usePopup } from './PopupContext.jsx';
 
 // import { useTeaFormContext } from './TeaFormContext.jsx';
 // import { use } from 'react';
@@ -18,6 +19,18 @@ import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
 
 
 function MyFormInteraction(props) {
+
+	const { openPopup } = usePopup();
+
+	// Ordered the way the server will merge them: the general note (0) first,
+	// then the проливы, so what you hear here is what the track will be.
+	const voiceDraft = [...readVoiceDraft()]
+		.sort((a, b) => (a.brewingNumber || 0) - (b.brewingNumber || 0));
+	const voiceTotal = voiceDraft.reduce((sum, s) => sum + (Number(s.duration) || 0), 0);
+	const mmss = (seconds) => {
+		const whole = Math.max(0, Math.round(seconds));
+		return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
+	};
 
 	const stage1Data = JSON.parse(localStorage.getItem('teaFormStage1')) != null ? JSON.parse(localStorage.getItem('teaFormStage1')) : [];
 	const stage2Data = JSON.parse(localStorage.getItem('teaFormStage2')) != null ? JSON.parse(localStorage.getItem('teaFormStage2')) : [];
@@ -205,17 +218,71 @@ function MyFormInteraction(props) {
 
 	function postTeaInfo(formID) {
 		stage1Data.avrRaiting = avrRaiting
-		props.postFormStage1(stage1Data, formID)
+		// Returned so the caller can await it and know whether it worked. Without
+		// this the submit could not tell success from failure.
+		return props.postFormStage1(stage1Data, formID)
 	}
 
 	const onSubmit = async (e) => {
 		e.preventDefault()
+
+		// The only gate left. Either the tasting has a name, or it has a recording
+		// the name can be lifted from later — everything else the extraction or a
+		// later edit can fill in. Blocking on twelve typed fields is what made the
+		// voice notes unusable in the first place.
+		const rawName = stage1Data.teaName;
+		const teaName = (typeof rawName === 'string' ? rawName : (rawName && rawName.label) || '').trim();
+		const hasRecording = readVoiceDraft().length > 0;
+
+		if (!teaName && !hasRecording) {
+			openPopup(
+				<div className="myforminteraction__section">
+					<h3 style={{ margin: '0 0 10px 0' }}>Не хватает данных</h3>
+					<p style={{ margin: '0 0 6px 0' }}>
+						Чтобы сохранить дегустацию, укажите название чая на первом шаге —
+						или запишите голосовую заметку, и название подставится из расшифровки.
+					</p>
+					<p style={{ margin: 0, color: '#d8f5cc' }}>
+						Остальные поля можно заполнить позже, в «Изменить».
+					</p>
+				</div>
+			);
+			return;
+		}
+
 		const publicAccess = stage1Data.publicAccess
+		// The tasting itself goes first and is awaited. Brewings and descriptors
+		// all reference its sessionId, so creating them against a form that failed
+		// to save leaves records nothing can ever clean up — the delete endpoint
+		// works from the teaform, which would not exist. That is precisely what
+		// happened when an empty Autocomplete threw inside this handler.
+		try {
+			await postTeaInfo(formId)
+		} catch (error) {
+			console.log(error)
+			openPopup(
+				<div className="myforminteraction__section">
+					<h3 style={{ margin: '0 0 10px 0' }}>Не удалось сохранить дегустацию</h3>
+					<p style={{ margin: '0 0 8px 0' }}>{error.message || 'Попробуйте ещё раз.'}</p>
+					<p style={{ margin: 0, color: '#d8f5cc' }}>
+						Данные остались в форме — ничего не потеряно, можно повторить отправку.
+					</p>
+				</div>
+			);
+			return
+		}
+
+		// The rest is additive. A failure here leaves a saved tasting missing some
+		// of its проливы, which is recoverable by hand — so it is reported rather
+		// than rolled back, instead of being swallowed into console.log.
+		const failed = []
+
 		try {
 			const result1 = await postTasteData(formId, publicAccess)
 			const result2 = await postTasteData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
+			failed.push('вкусы')
 		}
 
 		try {
@@ -223,13 +290,14 @@ function MyFormInteraction(props) {
 			const result2 = await postAromaData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
+			failed.push('ароматы')
 		}
 
 		try {
-			postStraitData(formId, publicAccess)
-			postTeaInfo(formId)
+			await postStraitData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
+			failed.push('проливы')
 		}
 
 		localStorage.removeItem('teaFormStage1');
@@ -238,7 +306,32 @@ function MyFormInteraction(props) {
 		// recordings behind and they reappeared in the next tasting.
 		clearVoiceDraft();
 
-		alert("Форма успешно отправлена =)");
+		openPopup(
+			<div className="myforminteraction__section">
+				<h3 style={{ margin: '0 0 10px 0' }}>Дегустация сохранена</h3>
+				{failed.length > 0 && (
+					<p style={{ margin: '0 0 8px 0', color: '#ffb4b4' }}>
+						Не удалось сохранить: {failed.join(', ')}. Дегустация создана — недостающее
+						можно добавить через «Изменить».
+					</p>
+				)}
+				<p style={{ margin: '0 0 8px 0' }}>
+					Запись появилась в разделе <b>«Мои формы»</b> — там её можно дополнить
+					кнопкой «Изменить» или посмотреть через «Просмотр».
+				</p>
+				{hasRecording && (
+					<p style={{ margin: '0 0 8px 0', color: '#d8f5cc' }}>
+						Голосовая заметка расшифровывается — на карточке будет видно, когда
+						она будет готова. После этого в «Изменить» появится кнопка
+						«Заполнить из расшифровки».
+					</p>
+				)}
+				<p style={{ margin: 0, color: '#d8f5cc' }}>
+					В блог дегустация с записью не публикуется автоматически — включите это
+					в «Изменить», когда прослушаете запись.
+				</p>
+			</div>
+		);
 
 		props.navigateAfterSubmit()
 	}
@@ -250,6 +343,27 @@ function MyFormInteraction(props) {
 
 				<section className="myforminteraction__section">
 					<TeaPhotoGallery photos={stage1Data.teaPhotos} />
+
+					{voiceDraft.length > 0 && (
+						<div className="myforminteraction__section">
+							<h3 style={{ margin: '0 0 8px 0' }}>Голосовые заметки</h3>
+							<p className="voicenote__budget" style={{ margin: '0 0 10px 0' }}>
+								{voiceDraft.length} шт., всего {mmss(voiceTotal)} из 5:00.
+								Записи склеятся в одну дорожку и уйдут на расшифровку после сохранения.
+							</p>
+							<ul className="voicenote__list">
+								{voiceDraft.map((segment) => (
+									<li className="voicenote__item" key={segment.url}>
+										<span className="voicenote__length" style={{ flex: '0 0 110px' }}>
+											{segment.brewingNumber ? `Пролив №${segment.brewingNumber}` : 'О чае'}
+										</span>
+										<audio className="voicenote__player" src={segment.url} controls preload="none" />
+										<span className="voicenote__length">{mmss(segment.duration)}</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 					<ul className="myforminteraction__list">
 						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName.label : ''}</li>
 						<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{stage1Data.teaType != null ? stage1Data.teaType.label : ''}</li>

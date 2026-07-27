@@ -109,7 +109,7 @@ const StyledSwitch = styled(Switch)({
 	},
 });
 
-const teaTypeOptions = [
+export const teaTypeOptions = [
 	{ label: 'Зелёный чай (绿茶 - Lǜ chá)', value: 'green' },
 	{ label: 'Белый чай (白茶 - Bái chá)', value: 'white' },
 	{ label: 'Жёлтый чай (黄茶 - Huáng chá)', value: 'yellow' },
@@ -123,7 +123,7 @@ const teaTypeOptions = [
 	{ label: 'Ройбуш (路易波士茶 - Lùyì bōshì chá)', value: 'rooibos' },
 ];
 
-const waterBrandOptions = [
+export const waterBrandOptions = [
 	{ label: 'Evian', value: 'evian' },
 	{ label: 'Сестрица', value: 'suster' },
 	{ label: 'Домашняя (из под крана)', value: 'home' },
@@ -166,7 +166,7 @@ const waterBrandOptions = [
 	{ label: 'Пилигрим', value: 'piligrim' },
 ];
 
-const teaWareOptions = [
+export const teaWareOptions = [
 	{ label: 'Чайник', value: 'teapot' },
 	{ label: 'Гайвань', value: 'gaiwan' },
 	{ label: 'Типот', value: 'teapot_with_button' },
@@ -184,7 +184,7 @@ const teaWareOptions = [
 	{ label: 'Люйчаван', value: 'luichawan' },
 ];
 
-const brewingTypeOptions = [
+export const brewingTypeOptions = [
 	{ label: 'Настаивание (по-европейски)', value: 'steeping' },
 	{ label: 'Проливы (по-китайски)', value: 'gongfu_brewing' },
 	{ label: 'Заваривание в термосе', value: 'thermos_brewing' },
@@ -195,7 +195,7 @@ const brewingTypeOptions = [
 	{ label: 'Заваривание в аэропрессе', value: 'aeropress_brewing' },
 ];
 
-const teaShopOptions = [
+export const teaShopOptions = [
 	{ label: 'Чайный квадрат (Йошкар-Ола)', value: 'tea_square_yosh' },
 	{ label: 'Мойчай.ру', value: 'moychay' },
 	{ label: 'OZON', value: 'ozon' },
@@ -213,7 +213,7 @@ const teaShopOptions = [
 	{ label: 'СберМегаМаркет', value: 'sber' },
 ];
 
-const teaCountryOptions = [
+export const teaCountryOptions = [
 	{ label: 'Китай', value: 'china' },
 	{ label: 'Индия', value: 'india' },
 	{ label: 'Кения', value: 'kenya' },
@@ -400,12 +400,25 @@ const TeaFormStage1 = (props) => {
 	// Kept outside react-hook-form: stage 2 records into the same list, and a
 	// field of this form would not be reachable from there.
 	const [voiceSegments, setVoiceSegments] = useVoiceDraft();
+	const [gateError, setGateError] = useState('');
 
 	const { control, handleSubmit, setValue, watch } = useForm({
 		defaultValues: formValues,
 	});
 
 	const onSubmit = (data) => {
+		// The fields are no longer individually required — a tasting is often
+		// recorded before it can be typed up. What the step does need is one of
+		// the two: a name, or a recording the name can be lifted from later.
+		const rawName = data.teaName;
+		const teaName = (typeof rawName === 'string' ? rawName : (rawName && rawName.label) || '').trim();
+
+		if (!teaName && voiceSegments.length === 0) {
+			setGateError('Укажите название чая или запишите голосовую заметку — остальное можно заполнить позже.');
+			return;
+		}
+
+		setGateError('');
 		setFormValues(data); // Save form values
 		localStorage.setItem('teaFormStage1', JSON.stringify(data)); // Save to localStorage
 		props.nextStage()
@@ -443,7 +456,6 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaName"
-							rules={{ required: 'Введите название чая' }}
 							render={({ field, fieldState: { error } }) =>
 								<AutocompleteBox
 									optionsObj={teaNamesOptions}
@@ -458,7 +470,6 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaCountry"
-							rules={{ required: 'Введите страну' }}
 							render={({ field, fieldState: { error } }) => (
 
 								<Autocomplete
@@ -468,7 +479,6 @@ const TeaFormStage1 = (props) => {
 									renderInput={(params) =>
 										<TextField {...params}
 											label="Страна"
-											required
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>
@@ -483,7 +493,6 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaShop"
-							rules={{ required: 'Введите магазина' }}
 							render={({ field, fieldState: { error } }) =>
 								<AutocompleteBox
 									optionsObj={teaShopOptions}
@@ -515,7 +524,6 @@ const TeaFormStage1 = (props) => {
 						<Controller
 							control={control}
 							name="teaType"
-							rules={{ required: 'Введите тип чая' }}
 							render={({ field, fieldState: { error } }) => (
 								<Autocomplete
 									{...field}
@@ -524,7 +532,6 @@ const TeaFormStage1 = (props) => {
 									renderInput={(params) =>
 										<TextField {...params}
 											label="Тип чая"
-											required
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>}
@@ -611,7 +618,6 @@ const TeaFormStage1 = (props) => {
 									renderInput={(params) =>
 										<TextField {...params}
 											label="Способ заваривания"
-											required
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>}
@@ -631,7 +637,6 @@ const TeaFormStage1 = (props) => {
 									renderInput={(params) =>
 										<TextField {...params}
 											label="Посуда для заваривания"
-											required
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>}
@@ -653,6 +658,7 @@ const TeaFormStage1 = (props) => {
 							brewingNumber={0}
 							label="о чае"
 						/>
+						{gateError && <p className="voicenote__error">{gateError}</p>}
 						<Stack direction={isSmallScreen ? "column" : "row"} spacing={2} useFlexGap sx={{ width: '100%' }}>
 							<Controller
 								control={control}

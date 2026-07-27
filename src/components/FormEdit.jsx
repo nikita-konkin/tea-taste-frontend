@@ -5,7 +5,18 @@ import { formApi } from '../utils/FormAPI.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import TeaPhotos from './TeaPhotos.jsx';
 import VoiceExtract from './VoiceExtract.jsx';
-import { TextField, Stack } from '@mui/material';
+import { TextField, Stack, Autocomplete } from '@mui/material';
+// Shared with the wizard so the two screens cannot drift apart. They belong in
+// utils/ eventually — exported from the stage-1 component for now to avoid
+// retyping forty water brands by hand.
+import {
+    teaTypeOptions,
+    teaCountryOptions,
+    teaShopOptions,
+    waterBrandOptions,
+    teaWareOptions,
+    brewingTypeOptions,
+} from './TeaFormStage1.jsx';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 // Same outlined-field look as TeaFormStage1/2: white label, white text,
@@ -56,6 +67,14 @@ const brewBlockStyle = {
 // complete field set, so every field is shown prefilled and sent on save).
 // The "Проливы" section below edits Stage-2 data: each brewing's
 // description/time/rating and its aroma/taste descriptors, saved per brewing.
+// Speech and typed text disagree about punctuation constantly: «из-под крана»
+// against «из под крана», «ё» against «е». Matching on letters and digits alone
+// keeps the suggestions reachable from whatever the transcript produced.
+const normalizeForMatch = (text) => String(text || '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/[^a-zа-я0-9]+/gi, '');
+
 function FormEdit({ formData, patchFormById }) {
     const { closePopup } = usePopup();
 
@@ -139,7 +158,17 @@ function FormEdit({ formData, patchFormById }) {
         };
 
         patchFormById(formData.sessionId, body)
-            .then(() => {
+            // Проливы are saved by the same button. They used to need a separate
+            // "Сохранить пролив" per block, so edits made here were silently lost
+            // by anyone who assumed the main button saved the whole dialog.
+            // Sequenced after the tasting, and only over проливы that exist.
+            .then(() => Promise.all((brewings || []).map((brew) => saveBrewing(brew))))
+            .then((results) => {
+                const failed = results.filter((r) => r && !r.ok).map((r) => r.bc);
+                if (failed.length) {
+                    setError(`Дегустация сохранена, но проливы №${failed.join(', №')} — нет.`);
+                    return;
+                }
                 setSaved(true);
                 removedUrls.forEach((url) => mainApi.deleteTeaPhoto(url));
                 setRemovedUrls([]);
@@ -287,11 +316,18 @@ function FormEdit({ formData, patchFormById }) {
                 .map((t) => formApi.patchTasteStages(formData.sessionId, bc, t.tasteCount, t)),
         ];
 
-        Promise.all(patches)
-            .then(() => setBrewStatus((prev) => ({ ...prev, [bc]: 'saved' })))
-            .catch((err) =>
-                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || 'Ошибка сохранения.' }))
-            );
+        // Returned so the main "Сохранить форму" can await every пролив. Resolves
+        // either way — one failed пролив should not abort the others — and reports
+        // itself through brewStatus, so the caller only needs to know which failed.
+        return Promise.all(patches)
+            .then(() => {
+                setBrewStatus((prev) => ({ ...prev, [bc]: 'saved' }));
+                return { bc, ok: true };
+            })
+            .catch((err) => {
+                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || 'Ошибка сохранения.' }));
+                return { bc, ok: false };
+            });
     };
 
     const textField = (label, name, minLength = 2, maxLength = 60) => (
@@ -303,6 +339,42 @@ function FormEdit({ formData, patchFormById }) {
             required
             size="small"
             inputProps={{ minLength, maxLength }}
+        />
+    );
+
+    // Same option lists as the wizard, but this dialog stores plain strings while
+    // stage 1 stores {label, value} objects — so the options are flattened to
+    // labels here rather than the shape being changed on either side.
+    //
+    // freeSolo on purpose: these are suggestions, not a closed set. A tea from a
+    // shop that is not in the list, or water nobody has added yet, still has to be
+    // typeable — and the extraction fills these fields with whatever the
+    // transcript said, which will often not match a list entry exactly.
+    const suggestField = (label, name, options) => (
+        <Autocomplete
+            freeSolo
+            openOnFocus
+            // The extracted value is selected on focus, so typing replaces it
+            // outright instead of appending to it.
+            selectOnFocus
+            options={options.map((option) => option.label)}
+            filterOptions={(list, state) => {
+                const query = normalizeForMatch(state.inputValue);
+                if (!query) return list;
+                const hits = list.filter((option) => normalizeForMatch(option).includes(query));
+                // Nothing matched — show the whole list rather than an empty menu.
+                // This is precisely the case that matters: the field holds text the
+                // transcript produced («из-под крана», «кружка», «настаивание»),
+                // which rarely matches a label exactly, and it is the moment the
+                // user most wants to pick a real one.
+                return hits.length ? hits : list;
+            }}
+            value={values[name] || ''}
+            onChange={(event, next) => setValues((prev) => ({ ...prev, [name]: next || '' }))}
+            onInputChange={(event, next, reason) => {
+                if (reason === 'input') setValues((prev) => ({ ...prev, [name]: next }));
+            }}
+            renderInput={(params) => <TextField {...params} label={label} size="small" />}
         />
     );
 
@@ -459,16 +531,16 @@ function FormEdit({ formData, patchFormById }) {
                     <h3 style={{ margin: '0 0 14px 0' }}>Редактирование формы</h3>
                     <Stack direction="column" spacing={1.5}>
                         {textField('Название', 'nameRU')}
-                        {textField('Тип чая', 'type')}
-                        {textField('Страна', 'country')}
-                        {textField('Магазин', 'shop')}
+                        {suggestField('Тип чая', 'type', teaTypeOptions)}
+                        {suggestField('Страна', 'country', teaCountryOptions)}
+                        {suggestField('Магазин', 'shop', teaShopOptions)}
                         {numberField('Вес, г', 'weight', 1, 10000)}
-                        {textField('Вода', 'water')}
+                        {suggestField('Вода', 'water', waterBrandOptions)}
                         {numberField('Объем воды, мл', 'volume', 1, 10000)}
                         {numberField('Температура воды, °C', 'temperature', 1, 100)}
                         {numberField('Цена за грамм, ₽', 'price', 0, 100000, 0.0001)}
-                        {textField('Посуда', 'teaware')}
-                        {textField('Метод заваривания', 'brewingtype')}
+                        {suggestField('Посуда', 'teaware', teaWareOptions)}
+                        {suggestField('Метод заваривания', 'brewingtype', brewingTypeOptions)}
                         {numberField('Итоговый рейтинг (1–10)', 'averageRating', 1, 10, 0.01)}
                         {formData.voice && formData.voice.transcript && (
                             <VoiceExtract
