@@ -15,6 +15,20 @@ const LABEL = {
 // simply renders whatever the form already carries.
 function VoicePlayer({ voice, sessionId }) {
     const [state, setState] = useState(voice || {});
+    const [retrying, setRetrying] = useState(false);
+
+    // Flipping the local status to "queued" restarts the polling effect below,
+    // so progress appears immediately instead of after the next page load.
+    const retry = () => {
+        setRetrying(true);
+        mainApi.retryVoice(sessionId)
+            .then(() => setState((prev) => ({ ...prev, status: 'queued', error: '' })))
+            .catch((err) => setState((prev) => ({
+                ...prev,
+                error: err.message || 'Не удалось отправить повторно.',
+            })))
+            .finally(() => setRetrying(false));
+    };
 
     useEffect(() => {
         setState(voice || {});
@@ -53,9 +67,20 @@ function VoicePlayer({ voice, sessionId }) {
             {pending && <p className="voiceplayer__status">{LABEL[state.status]}</p>}
 
             {state.status === 'error' && (
-                <p className="voiceplayer__status voiceplayer__status_error">
-                    {LABEL.error}{state.error ? `: ${state.error}` : ''}
-                </p>
+                <div className="voiceplayer__failure">
+                    <p className="voiceplayer__status voiceplayer__status_error">
+                        {LABEL.error}{state.error ? `: ${state.error}` : ''}
+                    </p>
+                    {/* Recognition is a network call to a third party, so most
+                        failures are transient. The audio is still on the server —
+                        only the recognition has to be re-run. */}
+                    {sessionId && (
+                        <button type="button" className="voicenote__button"
+                            onClick={retry} disabled={retrying}>
+                            {retrying ? 'Отправляем…' : 'Повторить расшифровку'}
+                        </button>
+                    )}
+                </div>
             )}
 
             {state.transcript && (

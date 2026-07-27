@@ -25,6 +25,7 @@ export const FIELDS = [
 function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
     const [suggestions, setSuggestions] = useState(null);
     const [cached, setCached] = useState(false);
+    const [offTopic, setOffTopic] = useState('');
     const [brewings, setBrewings] = useState([]);
     const [applied, setApplied] = useState({});
     const [loading, setLoading] = useState(false);
@@ -34,9 +35,10 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
         setLoading(true);
         setError('');
         mainApi.extractVoice(sessionId)
-            .then(({ data, cached }) => {
+            .then(({ data, cached, offTopic: off, topic }) => {
                 setSuggestions(data || {});
                 setCached(Boolean(cached));
+                setOffTopic(off ? (topic || 'не удалось определить тему') : '');
                 setBrewings((data && data.brewings) || []);
                 // The пролив suggestions are applied inside their own blocks
                 // further down the dialog, where the fields they target live.
@@ -64,6 +66,22 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
                     {loading ? 'Разбираем…' : 'Заполнить из расшифровки'}
                 </button>
                 {error && <p className="voicenote__error">{error}</p>}
+            </div>
+        );
+    }
+
+    // Nothing is offered when the recording turned out to be about something
+    // else — filling tea fields from it would be invention. The recording and
+    // its transcript are kept regardless; they are the user's either way.
+    if (offTopic) {
+        return (
+            <div className="voiceextract">
+                <span className="voiceextract__title">Похоже, запись не о дегустации чая</span>
+                <span className="voiceextract__value">Тема записи: {offTopic}</span>
+                <p className="voicenote__hint">
+                    Поля не заполнены — запись и расшифровка сохранены, их можно послушать
+                    и прочитать выше.
+                </p>
             </div>
         );
     }

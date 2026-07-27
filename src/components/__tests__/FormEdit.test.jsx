@@ -10,6 +10,9 @@ jest.mock('../../utils/FormAPI.jsx', () => ({
         getAllMyBrewingsById: jest.fn(),
         getAllMyAromasById: jest.fn(),
         getAllMyTastesById: jest.fn(),
+        // The descriptor dictionaries behind the пролив stage suggestions.
+        getAllFromAromaDB: jest.fn(),
+        getAllFromTasteDB: jest.fn(),
         patchFormStage2Brew: jest.fn(),
         patchAromaStages: jest.fn(),
         patchTasteStages: jest.fn(),
@@ -56,6 +59,12 @@ beforeEach(() => {
     formApi.getAllMyBrewingsById.mockResolvedValue({ data: [brewing] });
     formApi.getAllMyAromasById.mockResolvedValue({ data: [aroma] });
     formApi.getAllMyTastesById.mockResolvedValue({ data: [] });
+    // These two endpoints answer with `response`, unlike every other call here —
+    // the mock has to mirror that or it hides the bug it should catch.
+    formApi.getAllFromAromaDB.mockResolvedValue({
+        response: [{ category: 'Цветочный', subcategories: [{ name: 'Роза', descriptors: [] }] }],
+    });
+    formApi.getAllFromTasteDB.mockResolvedValue({ response: [] });
     formApi.patchFormStage2Brew.mockResolvedValue({ data: {} });
     formApi.patchAromaStages.mockResolvedValue({ data: {} });
     formApi.patchTasteStages.mockResolvedValue({ data: {} });
@@ -132,14 +141,17 @@ test('loads brewings with aroma stages and saves an edited brewing', async () =>
 
     await screen.findByTestId('brew-edit-1');
     expect(screen.getByDisplayValue('Первый пролив')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Цветочный')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Жасмин')).toBeInTheDocument();
+    // One field per descriptor now, showing the whole path rather than three
+    // separate stage inputs.
+    expect(screen.getByDisplayValue('Цветочный → Жасмин')).toBeInTheDocument();
 
     fireEvent.change(screen.getByDisplayValue('Первый пролив'), {
         target: { value: 'Обновлённое описание' },
     });
-    fireEvent.change(screen.getByDisplayValue('Жасмин'), {
-        target: { value: 'Роза' },
+    // The descriptor is one field holding the whole path, so it is edited as a
+    // path rather than by retyping a single stage.
+    fireEvent.change(screen.getByDisplayValue('Цветочный → Жасмин'), {
+        target: { value: 'Цветочный → Роза' },
     });
     fireEvent.click(screen.getByText('Сохранить пролив'));
 

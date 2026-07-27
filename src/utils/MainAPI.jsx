@@ -199,6 +199,15 @@ class MainApi {
 
 	}
 
+	retryVoice(sessionId) {
+
+		return fetch(`${this._usersApiUrl}/my-form/${sessionId}/voice/retry`, {
+			method: 'POST',
+			credentials: 'include'
+		}).then(res => this.error(res));
+
+	}
+
 	getVoiceStatus(sessionId) {
 
 		return fetch(`${this._usersApiUrl}/my-form/${sessionId}/voice`, {

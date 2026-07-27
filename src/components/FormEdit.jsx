@@ -5,6 +5,7 @@ import { formApi } from '../utils/FormAPI.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import TeaPhotos from './TeaPhotos.jsx';
 import VoiceExtract from './VoiceExtract.jsx';
+import { flattenDescriptorDB } from './DescriptorPicker.jsx';
 import { TextField, Stack, Autocomplete } from '@mui/material';
 // Shared with the wizard so the two screens cannot drift apart. They belong in
 // utils/ eventually — exported from the stage-1 component for now to avoid
@@ -107,6 +108,44 @@ function FormEdit({ formData, patchFormById }) {
     // Stage-2 data, editable copies keyed for controlled inputs.
     const [brewings, setBrewings] = useState(null); // null = loading, [] = none
     const [voiceSuggestions, setVoiceSuggestions] = useState(null);
+    // The descriptor dictionaries, so the пролив stages can suggest instead of
+    // demanding that the vocabulary be typed from memory.
+    const [aromaTree, setAromaTree] = useState([]);
+    const [tasteTree, setTasteTree] = useState([]);
+
+    useEffect(() => {
+        // These endpoints answer with {response: [...]}, not the {data: [...]}
+        // every other call in this file uses — which is why DescriptorPicker
+        // reads db.response. Reading .data here silently produced an empty
+        // dictionary and a suggestion list that never had anything in it.
+        const tree = (r) => (r && (r.response || r.data)) || [];
+        formApi.getAllFromAromaDB().then((r) => setAromaTree(tree(r))).catch(() => {});
+        formApi.getAllFromTasteDB().then((r) => setTasteTree(tree(r))).catch(() => {});
+    }, []);
+
+    // Cascades: category -> its subcategories -> that subcategory's descriptors.
+    // Falls back to the whole level when the field above holds something the
+    // dictionary does not know — which is common, because the extraction writes
+    // whatever the transcript said. An unrecognised parent must not leave the
+    // next field with an empty list.
+    const stageOptions = (prefix, rec, stage) => {
+        const tree = prefix.startsWith('aroma') ? aromaTree : tasteTree;
+        if (!tree.length) return [];
+
+        if (stage === 1) return tree.map((c) => c.category);
+
+        const category = tree.find((c) => c.category === rec[`${prefix}1`]);
+        const subs = category ? category.subcategories || [] : [];
+
+        if (stage === 2) {
+            if (subs.length) return subs.map((s) => s.name);
+            return tree.flatMap((c) => (c.subcategories || []).map((s) => s.name));
+        }
+
+        const pool = subs.length ? subs : tree.flatMap((c) => c.subcategories || []);
+        const sub = pool.find((s) => s.name === rec[`${prefix}2`]);
+        return sub ? sub.descriptors || [] : [];
+    };
     const [appliedBrews, setAppliedBrews] = useState({});
     const [aromas, setAromas] = useState([]);
     const [tastes, setTastes] = useState([]);
@@ -306,14 +345,24 @@ function FormEdit({ formData, patchFormById }) {
         const patches = [
             formApi.patchFormStage2Brew(
                 brewBody,
-                formData.sessionId, bc, brew.publicAccess
+                // The dialog's current value, never the one loaded with the
+                // document: publishing propagates publicAccess to the проливы, and
+                // saving them with their stale copy immediately undid it — the
+                // tasting went public while its проливы silently stayed hidden.
+                formData.sessionId, bc, values.publicAccess
             ),
             ...aromas
                 .filter((a) => a.brewingCount === bc)
-                .map((a) => formApi.patchAromaStages(formData.sessionId, bc, a.aromaCount, a)),
+                .map((a) => formApi.patchAromaStages(
+                    formData.sessionId, bc, a.aromaCount,
+                    { ...a, publicAccess: values.publicAccess },
+                )),
             ...tastes
                 .filter((t) => t.brewingCount === bc)
-                .map((t) => formApi.patchTasteStages(formData.sessionId, bc, t.tasteCount, t)),
+                .map((t) => formApi.patchTasteStages(
+                    formData.sessionId, bc, t.tasteCount,
+                    { ...t, publicAccess: values.publicAccess },
+                )),
         ];
 
         // Returned so the main "Сохранить форму" can await every пролив. Resolves
@@ -370,6 +419,7 @@ function FormEdit({ formData, patchFormById }) {
                 return hits.length ? hits : list;
             }}
             value={values[name] || ''}
+            inputValue={values[name] || ''}
             onChange={(event, next) => setValues((prev) => ({ ...prev, [name]: next || '' }))}
             onInputChange={(event, next, reason) => {
                 if (reason === 'input') setValues((prev) => ({ ...prev, [name]: next }));
@@ -397,14 +447,78 @@ function FormEdit({ formData, patchFormById }) {
             return (
                 <Stack direction="column" spacing={1.5} key={rec._id} style={{ margin: '10px 0 0 0' }}>
                     <span style={{ color: '#d8f5cc', fontWeight: 600 }}>{label} №{count}</span>
-                    {[1, 2, 3].map((n) => (
-                        <TextField key={n}
-                            label={`Стадия ${n}`}
-                            size="small"
-                            inputProps={{ maxLength: 30, 'aria-label': `${label} ${count} — стадия ${n}` }}
-                            value={rec[`${prefix}${n}`] || ''}
-                            onChange={(e) => changeStage(setter, rec._id, `${prefix}${n}`, e.target.value)} />
-                    ))}
+                    {(() => {
+                        // One field over the whole flattened dictionary rather than
+                        // three cascading ones: typing «мята» finds «Травяной →
+                        // Мята» and stores all three stages at once. Same control
+                        // the wizard uses, so both screens behave alike.
+                        const flat = flattenDescriptorDB({
+                            response: prefix.startsWith('aroma') ? aromaTree : tasteTree,
+                        });
+                        const paths = flat.map((o) => o.path);
+                        const current = [1, 2, 3]
+                            .map((n) => rec[`${prefix}${n}`])
+                            .filter((v) => v && v !== 'none')
+                            .join(' → ');
+
+                        const commit = (text) => {
+                            const typed = String(text || '');
+                            const hit = flat.find(
+                                (o) => normalizeForMatch(o.path) === normalizeForMatch(typed),
+                            );
+                            // Not in the dictionary: keep it rather than refuse it —
+                            // the extraction writes whatever was said — but still
+                            // split on the arrow. Storing "Цветочный → Роза" whole
+                            // in stage 1 would leave a descriptor no view can read,
+                            // since every consumer joins the three stages itself.
+                            const parts = typed
+                                .split(/\s*(?:→|->|\/|>)\s*/)
+                                .map((s) => s.trim())
+                                .filter(Boolean);
+                            const stages = hit
+                                ? hit.stages
+                                : [parts[0] || '', parts[1] || null, parts[2] || null];
+                            [1, 2, 3].forEach((n) => changeStage(
+                                setter, rec._id, `${prefix}${n}`, stages[n - 1] || '',
+                            ));
+                        };
+
+                        return (
+                            <Autocomplete
+                                freeSolo
+                                openOnFocus
+                                selectOnFocus
+                                options={paths}
+                            filterOptions={(list, state) => {
+                                const query = normalizeForMatch(state.inputValue);
+                                if (!query) return list;
+                                const hits = list.filter((o) => normalizeForMatch(o).includes(query));
+                                // An extracted value rarely matches a dictionary
+                                // entry exactly; an empty menu at that moment is
+                                // the opposite of helpful.
+                                return hits.length ? hits : list;
+                            }}
+                                value={current}
+                                // inputValue is controlled too: with freeSolo, MUI
+                                // otherwise shows its own internal text state,
+                                // which need not equal what we store.
+                                inputValue={current}
+                                onChange={(event, next) => commit(next)}
+                                onInputChange={(event, next, reason) => {
+                                    if (reason === 'input') commit(next);
+                                }}
+                                renderInput={(params) => (
+                                    <TextField {...params}
+                                        label={label}
+                                        size="small"
+                                        placeholder="начните печатать: мята, лаванда…"
+                                        inputProps={{
+                                            ...params.inputProps,
+                                            'aria-label': `${label} ${count}`,
+                                        }} />
+                                )} />
+                        );
+                    })()}
                 </Stack>
             );
         });
