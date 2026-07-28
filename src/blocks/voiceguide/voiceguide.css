@@ -1,0 +1,66 @@
+.voiceguide {
+	font-family: 'jura', Arial, sans-serif;
+	color: #ffffff;
+}
+
+.voiceguide__title {
+	margin: 0 0 4px;
+	font-size: 20px;
+	font-weight: 600;
+}
+
+.voiceguide__lead {
+	margin: 0 0 12px;
+	font-size: 14px;
+	line-height: 1.45;
+	color: #d8f5cc;
+}
+
+.voiceguide__block {
+	/* Inherits the glass card from .myforminteraction__section. */
+	margin: 0 0 10px 0;
+}
+
+.voiceguide__block-title {
+	margin: 0 0 8px;
+	font-size: 15px;
+	font-weight: 600;
+	color: #a8f493;
+}
+
+.voiceguide__list {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	margin: 0;
+	padding: 0 0 0 18px;
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+/* Names of real buttons, so they read as things to look for on the page.
+   Deliberately allowed to wrap: «Публиковать аудиозапись и расшифровку» is wider
+   than a 320px phone, and nowrap would push the whole popup sideways. */
+.voiceguide__key {
+	color: #a8f493;
+}
+
+.voiceguide__note {
+	margin: 4px 0 0;
+	font-size: 13px;
+	line-height: 1.45;
+	color: #d8f5cc;
+	opacity: 0.85;
+}
+
+/* The trigger button in /my_forms: same glass pill as the recorder's own
+   controls, but it must be free to wrap — the label is long and the narrowest
+   phones give it about 280px. */
+.voiceguide__open {
+	white-space: normal;
+	text-align: left;
+}
+
+.voiceguide__icon {
+	flex: 0 0 auto;
+}

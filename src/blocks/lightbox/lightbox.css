@@ -46,10 +46,14 @@
 	align-items: baseline;
 	gap: 10px;
 	font-size: 15px;
+	color: #a8f493;
 }
 
+/* Stays neutral inside the mint caption: the accent marks the slot label, and
+   "2 / 3" is not a label. */
 .lightbox__counter {
 	font-size: 13px;
+	color: #ffffff;
 	opacity: 0.7;
 }
 

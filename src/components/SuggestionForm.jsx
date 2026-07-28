@@ -44,7 +44,7 @@ function SuggestionForm() {
 	if (status === 'sent') {
 		return (
 			<section className="myforminteraction__section">
-				<h3 style={{ margin: '0 0 8px 0' }}>Спасибо!</h3>
+				<h3>Спасибо!</h3>
 				<p style={{ margin: 0 }}>Предложение отправлено — мы его обязательно посмотрим.</p>
 				<FormButton buttonName={'Закрыть'} onClick={closePopup} />
 			</section>
@@ -53,8 +53,8 @@ function SuggestionForm() {
 
 	return (
 		<section className="myforminteraction__section">
-			<h3 style={{ margin: 0 }}>Предложить улучшение</h3>
-			<p style={{ margin: '6px 0 0 0', fontSize: '14px', opacity: 0.85 }}>
+			<h3>Предложить улучшение</h3>
+			<p style={{ margin: '0 0 0 0', fontSize: '14px', opacity: 0.85 }}>
 				Чего не хватает сервису? Что неудобно? Напишите — это читает автор.
 			</p>
 			<textarea style={textareaStyle} value={text} maxLength={1000}

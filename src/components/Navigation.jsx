@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { usePopup } from './PopupContext.jsx';
 import SuggestionForm from './SuggestionForm.jsx';
+import VoiceGuide from './VoiceGuide.jsx';
 
 const PAGE_TITLES = [
 	['form_submit', 'Проверка формы'],
@@ -64,6 +65,12 @@ const ICONS = {
 		<NavIcon>
 			<path d="M9 18h6M10 21h4" />
 			<path d="M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3z" />
+		</NavIcon>
+	),
+	mic: (
+		<NavIcon>
+			<rect x="9" y="3" width="6" height="11" rx="3" />
+			<path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" />
 		</NavIcon>
 	),
 };
@@ -162,6 +169,14 @@ function Navigation(props) {
 							))}
 						</div>
 					))}
+					<div className="navigation__section">
+						<span className="navigation__section-title">Справка</span>
+						<button type="button" className="navigation__link navigation__link_button"
+							onClick={() => { closeMenu(); openPopup(<VoiceGuide />); }}>
+							{ICONS.mic}
+							Голосовые заметки
+						</button>
+					</div>
 					<div className="navigation__section">
 						<span className="navigation__section-title">Обратная связь</span>
 						<button type="button" className="navigation__link navigation__link_button"

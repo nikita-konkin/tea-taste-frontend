@@ -642,7 +642,7 @@ function FormEdit({ formData, patchFormById }) {
         <ThemeProvider theme={theme}>
             <section className="myforminteraction__section">
                 <form onSubmit={handleSubmit} data-testid="form-edit">
-                    <h3 style={{ margin: '0 0 14px 0' }}>Редактирование формы</h3>
+                    <h3>Редактирование формы</h3>
                     <Stack direction="column" spacing={1.5}>
                         {textField('Название', 'nameRU')}
                         {suggestField('Тип чая', 'type', teaTypeOptions)}
@@ -691,7 +691,9 @@ function FormEdit({ formData, patchFormById }) {
                         width={'100%'} />
                 </form>
 
-                <h3 style={{ margin: '18px 0 8px 0' }}>Проливы</h3>
+                {/* Keeps its own top margin — it separates the проливы from the
+                    form above; the bottom comes from the section rule. */}
+                <h3 style={{ marginTop: '18px' }}>Проливы</h3>
                 {brewingsSection()}
                 {unmatchedBrewings()}
                 {brewings !== null && (

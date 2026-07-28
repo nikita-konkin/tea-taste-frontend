@@ -170,7 +170,7 @@ function Profile(props) {
 
 					<p style={fieldLabelStyle}>Никнейм</p>
 					<input className="authorization__email" type="text"
-						name="nickname" placeholder="Как вас показывать в блоге"
+						name="nickname" placeholder="Как вас называть в блоге"
 						value={profile.nickname} onChange={handleProfileChange}
 						minLength={2} maxLength={30} />
 					<p style={{ ...fieldLabelStyle, fontSize: '13px', opacity: 0.7, margin: '4px 0 6px 0' }}>

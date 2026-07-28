@@ -9,3 +9,11 @@
 	padding: 12px 14px;
 	margin: 0 0 10px 0;
 }
+
+/* One heading rhythm for every card built on this section. The top margin is
+   zeroed as part of the same rule: the browser default (0.83em) is what the
+   components were each cancelling with their own inline `margin`, and those
+   inline values are what kept a stylesheet rule from ever applying. */
+.myforminteraction__section h3 {
+	margin: 0 0 10px 0;
+}

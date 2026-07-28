@@ -43,7 +43,9 @@ const imageStyle = {
     border: '1px solid rgba(255, 255, 255, 0.25)',
 };
 
-const captionStyle = { fontSize: '12px', opacity: 0.8 };
+// Same mint as the picker's captions (.teaphotos__caption) — one slot label,
+// one colour, wherever it is shown.
+const captionStyle = { fontSize: '12px', color: '#a8f493' };
 
 // Read-only photo strip for the detail popup, the public page and the review
 // step. Inline-styled to match the surfaces it sits on, which are inline-styled

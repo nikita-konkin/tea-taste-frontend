@@ -8,7 +8,9 @@ import PopupButton from './PopupButton.jsx';
 
 import Header from './Header.jsx'
 import Form from './Form.jsx'
+import VoiceGuide, { MicIcon } from './VoiceGuide.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
+import { usePopup } from './PopupContext.jsx';
 import { teaTypeLabels } from '../utils/teaTypes.js';
 import { Select, MenuItem } from '@mui/material';
 
@@ -77,6 +79,7 @@ function Forms({ forms, navigation,
 		removedBrewsById, removedTastesById,
 		removedAromasById
 	} = useMyFormConext();
+	const { openPopup } = usePopup();
 	const [checkLS, setCheckLS] = useState(false)
 	const [renderForms, setRenderForms] = useState([])
 	const [removed, setRemoved] = useState(false)
@@ -190,24 +193,37 @@ function Forms({ forms, navigation,
 		)
 	}
 
-	const myFormsControls = () => {
+	// withSort is false on the empty page: sorting cannot bring the list back,
+	// but the voice guide is exactly what a user with no tastings yet is looking
+	// for, so the row itself stays.
+	const myFormsControls = (withSort) => {
 		if (!isMyForms) return null;
 		return (
-			<div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 16px 0' }}>
-				<Select size="small" sx={selectSx} MenuProps={selectMenuProps}
-					value={mySort}
-					inputProps={{ 'aria-label': 'Сортировка' }}
-					onChange={(e) => {
-						setMySort(e.target.value);
-						localStorage.setItem('myFormsSort', e.target.value);
-					}}>
-					<MenuItem value="date">Сначала новые</MenuItem>
-					<MenuItem value="-date">Сначала старые</MenuItem>
-					<MenuItem value="rating">Рейтинг: по убыванию</MenuItem>
-					<MenuItem value="-rating">Рейтинг: по возрастанию</MenuItem>
-					<MenuItem value="name">Название: А–Я</MenuItem>
-					<MenuItem value="-name">Название: Я–А</MenuItem>
-				</Select>
+			<div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', margin: '0 0 16px 0' }}>
+				{withSort && (
+					<Select size="small" sx={selectSx} MenuProps={selectMenuProps}
+						value={mySort}
+						inputProps={{ 'aria-label': 'Сортировка' }}
+						onChange={(e) => {
+							setMySort(e.target.value);
+							localStorage.setItem('myFormsSort', e.target.value);
+						}}>
+						<MenuItem value="date">Сначала новые</MenuItem>
+						<MenuItem value="-date">Сначала старые</MenuItem>
+						<MenuItem value="rating">Рейтинг: по убыванию</MenuItem>
+						<MenuItem value="-rating">Рейтинг: по возрастанию</MenuItem>
+						<MenuItem value="name">Название: А–Я</MenuItem>
+						<MenuItem value="-name">Название: Я–А</MenuItem>
+					</Select>
+				)}
+				{/* Not «О голосовых заметках»: in Jura a standalone «О» is
+				    indistinguishable from a zero, and the button read "0 голосовых
+				    заметках" on the real page. */}
+				<button type="button" className="voicenote__button voiceguide__open"
+					onClick={() => openPopup(<VoiceGuide />)}>
+					<MicIcon />
+					Как работают голосовые заметки
+				</button>
 			</div>
 		);
 	};
@@ -256,6 +272,7 @@ function Forms({ forms, navigation,
 				<div className="myforms">
 					<h2 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h2>
 					{blogControls()}
+					{myFormsControls(false)}
 					<h2 className="header__myforms">{isMyForms ? 'У вас пока нет форм' : 'Ничего не найдено'}</h2>
 				</div>
 				<PopupButton naviagteTo={'/form_1'} content={'Создать форму'}/>
@@ -269,9 +286,7 @@ function Forms({ forms, navigation,
 			<div className="myforms">
 				<h2 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h2>
 				{blogControls()}
-				{/* Only with something to sort — a lone select above "у вас пока
-				    нет форм" is noise, and sorting cannot bring the list back. */}
-				{myFormsControls()}
+				{myFormsControls(true)}
 				{renderForms}
 				{pagination()}
 			</div>

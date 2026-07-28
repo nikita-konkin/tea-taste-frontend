@@ -120,7 +120,9 @@
 .teaphotos__caption {
 	font-size: 13px;
 	text-align: center;
-	opacity: 0.85;
+	/* Mint accent, full strength: at 0.85 opacity the green washes out to grey
+	   against the glass. */
+	color: #a8f493;
 	margin: 6px 0 0 0;
 }
 

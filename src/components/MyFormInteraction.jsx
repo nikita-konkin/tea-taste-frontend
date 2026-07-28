@@ -240,7 +240,7 @@ function MyFormInteraction(props) {
 		if (!teaName && !hasRecording) {
 			openPopup(
 				<div className="myforminteraction__section">
-					<h3 style={{ margin: '0 0 10px 0' }}>Не хватает данных</h3>
+					<h3>Не хватает данных</h3>
 					<p style={{ margin: '0 0 6px 0' }}>
 						Чтобы сохранить дегустацию, укажите название чая на первом шаге —
 						или запишите голосовую заметку, и название подставится из расшифровки.
@@ -265,7 +265,7 @@ function MyFormInteraction(props) {
 			console.log(error)
 			openPopup(
 				<div className="myforminteraction__section">
-					<h3 style={{ margin: '0 0 10px 0' }}>Не удалось сохранить дегустацию</h3>
+					<h3>Не удалось сохранить дегустацию</h3>
 					<p style={{ margin: '0 0 8px 0' }}>{error.message || 'Попробуйте ещё раз.'}</p>
 					<p style={{ margin: 0, color: '#d8f5cc' }}>
 						Данные остались в форме — ничего не потеряно, можно повторить отправку.
@@ -311,7 +311,7 @@ function MyFormInteraction(props) {
 
 		openPopup(
 			<div className="myforminteraction__section">
-				<h3 style={{ margin: '0 0 10px 0' }}>Дегустация сохранена</h3>
+				<h3>Дегустация сохранена</h3>
 				{failed.length > 0 && (
 					<p style={{ margin: '0 0 8px 0', color: '#ffb4b4' }}>
 						Не удалось сохранить: {failed.join(', ')}. Дегустация создана — недостающее
@@ -349,7 +349,7 @@ function MyFormInteraction(props) {
 
 					{voiceDraft.length > 0 && (
 						<div className="myforminteraction__section">
-							<h3 style={{ margin: '0 0 8px 0' }}>Голосовые заметки</h3>
+							<h3>Голосовые заметки</h3>
 							<p className="voicenote__budget" style={{ margin: '0 0 10px 0' }}>
 								{voiceDraft.length} шт., всего {mmss(voiceTotal)} из 5:00.
 								Записи склеятся в одну дорожку и уйдут на расшифровку после сохранения.
