@@ -33,7 +33,7 @@ const avatarPlaceholderStyle = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	fontSize: '48px',
-	background: '#96B295',
+	background: '#40684d',
 	color: '#ffffff',
 	fontFamily: 'inherit',
 };

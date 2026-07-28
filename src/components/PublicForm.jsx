@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import PageMeta from './PageMeta.jsx';
 import Header from './Header.jsx';
+import { orderPhotos } from './TeaPhotos.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import VoicePlayer from './VoicePlayer.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
-import { formatShortDateTime } from '../utils/utils.js';
+import { formatShortDateTime, plural } from '../utils/utils.js';
 
 const chipStyle = {
     display: 'inline-block',
@@ -92,16 +93,60 @@ function PublicForm() {
             </li>
         ) : null;
 
+    // What the page is actually about, in the order a reader would say it.
+    const summary = [
+        form.type,
+        form.country,
+        form.averageRating != null ? `оценка ${form.averageRating}/10` : '',
+        brewings.length
+            ? `${brewings.length} ${plural(brewings.length, ['пролив', 'пролива', 'проливов'])}`
+            : '',
+        (brewings.find((b) => b.description && b.description !== 'none') || {}).description,
+    ].filter(Boolean).join(' · ');
+
+    const preview = orderPhotos(form.photos)[0];
+
+    // Schema.org for the tasting itself. A dated, authored, rated write-up of a
+    // named product is a Review — the type search engines can actually show a
+    // rating for.
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Review',
+        name: form.nameRU,
+        datePublished: form.createdAt,
+        inLanguage: 'ru-RU',
+        itemReviewed: {
+            '@type': 'Product',
+            name: form.nameRU,
+            category: form.type || 'Чай',
+            ...(form.country ? { countryOfOrigin: form.country } : {}),
+        },
+        ...(author ? { author: { '@type': 'Person', name: author.nickname || author.name } } : {}),
+        ...(form.averageRating != null ? {
+            reviewRating: {
+                '@type': 'Rating',
+                ratingValue: form.averageRating,
+                bestRating: 10,
+                worstRating: 1,
+            },
+        } : {}),
+        ...(preview ? { image: `https://teaform.ru${preview.url}` } : {}),
+    };
+
     return (
         <>
-            <Helmet>
-                <title>{`${form.nameRU} — Форма Чая`}</title>
-                <meta name="description" content={`Дегустационная запись: ${form.nameRU}`} />
-            </Helmet>
+            <PageMeta
+                title={form.nameRU}
+                description={`Дегустация чая «${form.nameRU}»${summary ? `. ${summary}` : ''}`}
+                image={preview && preview.url}
+                path={`/blog/${sessionId}`}
+                type="article"
+                jsonLd={jsonLd}
+            />
             <Header />
             <div className="myforms">
                 <section className="myforminteraction__section">
-                    <h3 style={{ margin: '0 0 2px 0', fontSize: '20px', color: '#ffffff' }}>{form.nameRU}</h3>
+                    <h1 style={{ margin: '0 0 2px 0', fontSize: '20px', color: '#ffffff', fontWeight: 600 }}>{form.nameRU}</h1>
                     <TeaPhotoGallery photos={form.photos} />
                     {/* No sessionId: the public page has no owner endpoint to
                         poll, so it shows whatever the form already carries. */}

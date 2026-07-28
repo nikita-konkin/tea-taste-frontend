@@ -21,7 +21,7 @@ const rowStyle = { display: 'flex', alignItems: 'center', gap: '10px', flexWrap:
 const avatarStyle = {
 	width: '36px', height: '36px', borderRadius: '50%',
 	objectFit: 'cover', flexShrink: 0,
-	background: '#96B295', display: 'inline-flex',
+	background: '#40684d', display: 'inline-flex',
 	alignItems: 'center', justifyContent: 'center', fontSize: '16px',
 };
 
@@ -73,8 +73,15 @@ function Admin({ navigation }) {
 	const [voicePeriod, setVoicePeriod] = useState('');
 	const [settings, setSettings] = useState(null);
 	const [savingSettings, setSavingSettings] = useState(false);
+	const [blocked, setBlocked] = useState([]);
+	const [confirmSession, setConfirmSession] = useState(null);
 
 	const load = () => {
+		// The moderation queue: blocked tastings are out of the feed, so this is
+		// the only place they can be found and let back in.
+		mainApi.adminGetBlockedForms()
+			.then((res) => setBlocked(res.data))
+			.catch(() => setBlocked([]));
 		mainApi.adminGetUsers()
 			.then((res) => {
 				setUsers(res.data);
@@ -131,6 +138,23 @@ function Admin({ navigation }) {
 			.catch((err) => openPopup(err.message || 'Не удалось удалить пользователя.'));
 	};
 
+	const unblockForm = (form) => {
+		mainApi.adminSetFormBlocked(form.sessionId, false)
+			.then(() => {
+				load();
+				// Said out loud because nothing visible happens in the feed: the
+				// tasting stays private until its author publishes it again.
+				openPopup('Запись разблокирована. В ленту она вернётся, когда автор снова её опубликует.');
+			})
+			.catch((err) => openPopup(err.message || 'Не удалось разблокировать запись.'));
+	};
+
+	const removeForm = (form) => {
+		mainApi.adminDeleteForm(form.sessionId)
+			.then(() => { setConfirmSession(null); load(); })
+			.catch((err) => openPopup(err.message || 'Не удалось удалить запись.'));
+	};
+
 	return (
 		<>
 			<Header navigation={navigation} />
@@ -175,6 +199,38 @@ function Admin({ navigation }) {
 						<div style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{s.text}</div>
 						<div style={{ marginTop: '10px' }}>
 							<button style={btnStyle} onClick={() => dismissSuggestion(s._id)}>Обработано — убрать</button>
+						</div>
+					</section>
+				))}
+
+				<h2 className="header__myforms">
+					Скрытые записи {blocked.length > 0 && `(${blocked.length})`}
+				</h2>
+				{blocked.length === 0 && (
+					<p style={{ color: '#ffffff', opacity: 0.7, margin: '0 0 14px 0' }}>
+						Ничего не скрыто. Кнопки модерации — на карточках в ленте.
+					</p>
+				)}
+				{blocked.map((f) => (
+					<section key={f.sessionId} style={cardStyle}>
+						<div style={{ fontWeight: 600 }}>
+							{f.nameRU} <span style={warnBadgeStyle}>скрыта</span>
+						</div>
+						<div style={{ fontSize: '14px', opacity: 0.85, margin: '6px 0' }}>
+							{f.owner ? `${f.owner.nickname || f.owner.name} · ${f.owner.email}` : 'Автор удалён'}
+							{f.type ? ` · ${f.type}` : ''}
+							{f.blockedAt ? ` · скрыта ${formatShortDateTime(f.blockedAt)}` : ''}
+						</div>
+						<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+							<button style={btnStyle} onClick={() => unblockForm(f)}>Вернуть автору</button>
+							{confirmSession === f.sessionId
+								? (
+									<>
+										<button style={dangerBtnStyle} onClick={() => removeForm(f)}>Точно удалить?</button>
+										<button style={btnStyle} onClick={() => setConfirmSession(null)}>Отмена</button>
+									</>
+								)
+								: <button style={dangerBtnStyle} onClick={() => setConfirmSession(f.sessionId)}>Удалить навсегда</button>}
 						</div>
 					</section>
 				))}

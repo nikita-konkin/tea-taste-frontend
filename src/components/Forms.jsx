@@ -7,10 +7,12 @@ import React, {
 import PopupButton from './PopupButton.jsx';
 
 import Header from './Header.jsx'
+import PageMeta from './PageMeta.jsx'
 import Form from './Form.jsx'
 import VoiceGuide, { MicIcon } from './VoiceGuide.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { usePopup } from './PopupContext.jsx';
+import { mainApi } from '../utils/MainAPI.jsx';
 import { teaTypeLabels } from '../utils/teaTypes.js';
 import { Select, MenuItem } from '@mui/material';
 
@@ -80,6 +82,10 @@ function Forms({ forms, navigation,
 		removedAromasById
 	} = useMyFormConext();
 	const { openPopup } = usePopup();
+	// Moderation controls appear on blog cards for admins only. The blog is a
+	// public page, so this asks the server and quietly settles on "not an admin"
+	// for a signed-out visitor or any failure — the endpoints refuse anyway.
+	const [isAdmin, setIsAdmin] = useState(false)
 	const [checkLS, setCheckLS] = useState(false)
 	const [renderForms, setRenderForms] = useState([])
 	const [removed, setRemoved] = useState(false)
@@ -106,11 +112,25 @@ function Forms({ forms, navigation,
 	}, [isMyForms, isBlog, page, typeFilter, sortOrder])
 
 	useEffect(() => {
+		if (!isBlog || localStorage.getItem('loggedIn') !== 'true') return;
+		mainApi.getProfile()
+			.then((res) => setIsAdmin((res.data || res).role === 'admin'))
+			.catch(() => setIsAdmin(false));
+	}, [isBlog])
+
+	// Blocking or deleting changes what belongs on the page, and the feed is
+	// paginated server-side — refetching is the only honest way to redraw it.
+	const refetchFeed = () => forms({ page, type: typeFilter, sort: sortOrder })
+
+	// isAdmin belongs in the deps: the cards are built into state, and the role
+	// arrives from its own request after the first build — without it the admin
+	// sees a feed rendered while the answer was still "no".
+	useEffect(() => {
 		if (myForms) {
 			setCheckLS(true)
 			prepareFormsRender(myForms)
 		}
-	}, [myForms, mySort])
+	}, [myForms, mySort, isAdmin])
 
 	useEffect(() => {
 		if (removedFormById && removed) {
@@ -175,6 +195,8 @@ function Forms({ forms, navigation,
 					patchFormById={patchFormById}
 					key={formData.sessionId}
 					isMyForms={isMyForms}
+					isAdmin={isAdmin}
+					onModerated={refetchFeed}
 				/>
 			);
 		}
@@ -252,6 +274,18 @@ function Forms({ forms, navigation,
 		);
 	};
 
+	// /my_forms is behind a login and is in robots.txt as Disallow, so it says so
+	// rather than competing with the feed for the same search result.
+	const pageMeta = () => (isMyForms
+		? <PageMeta title="Мои дегустации" path="/my_forms" noIndex />
+		: (
+			<PageMeta
+				title="Лента дегустаций"
+				description="Дегустации чая, которыми поделились участники: аромат, вкус, проливы, фотографии и голосовые заметки."
+				path="/blog"
+			/>
+		));
+
 	const pagination = () => {
 		if (!isBlog || !myForms || !myForms.pages || myForms.pages <= 1) return null;
 		return (
@@ -268,9 +302,10 @@ function Forms({ forms, navigation,
 	if (renderForms.length === 0) {
 		return (
 			<>
+				{pageMeta()}
 				<Header navigation={navigation} />
 				<div className="myforms">
-					<h2 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h2>
+					<h1 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h1>
 					{blogControls()}
 					{myFormsControls(false)}
 					<h2 className="header__myforms">{isMyForms ? 'У вас пока нет форм' : 'Ничего не найдено'}</h2>
@@ -282,9 +317,10 @@ function Forms({ forms, navigation,
 
 	return (
 		<>
+			{pageMeta()}
 			<Header navigation={navigation} />
 			<div className="myforms">
-				<h2 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h2>
+				<h1 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h1>
 				{blogControls()}
 				{myFormsControls(true)}
 				{renderForms}

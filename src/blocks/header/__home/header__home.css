@@ -1,0 +1,26 @@
+/* The logo and the wordmark are one control: a single tab stop that goes home,
+   instead of two click handlers the keyboard could never reach. Styled to look
+   exactly like the two elements it replaced. */
+.header__home {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	padding: 0;
+	margin: 0;
+
+	font-family: inherit;
+	color: inherit;
+	text-align: left;
+
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.header__home:focus-visible {
+	outline: none;
+	border-radius: 12px;
+	box-shadow: 0 0 0 2px rgba(168, 244, 147, 0.65);
+}

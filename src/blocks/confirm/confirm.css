@@ -1,0 +1,60 @@
+.confirm {
+	font-family: 'jura', Arial, sans-serif;
+	color: #ffffff;
+}
+
+.confirm__text {
+	margin: 0 0 12px;
+	font-size: 14px;
+	line-height: 1.45;
+	color: #d8f5cc;
+}
+
+.confirm__error {
+	margin: 0 0 12px;
+	font-size: 13px;
+	color: #ffb4b4;
+}
+
+.confirm__buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+/* Destructive answer: red enough to read as a warning, still a glass pill. */
+.confirm__button_danger {
+	background-color: rgba(200, 40, 40, 0.45);
+	border-color: rgba(255, 140, 140, 0.65);
+}
+
+.confirm__button_danger:hover:not(:disabled) {
+	background-color: rgba(200, 40, 40, 0.60);
+	border-color: #ffb4b4;
+}
+
+/* Admin-only row on a blog card, kept visually apart from the reader's own
+   actions so moderation never sits flush against «Просмотр». */
+.myform__moderation {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 10px 0 0 0;
+	padding: 10px 0 0 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.myform__moderation-label {
+	width: 100%;
+	margin: 0;
+	font-family: 'jura', Arial, sans-serif;
+	font-size: 12px;
+	color: #d8f5cc;
+	opacity: 0.8;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.confirm__button_danger {
+		background-color: #8c3030;
+	}
+}

@@ -3,3 +3,8 @@
   justify-content: space-between;
   margin: 0;
 }
+
+/* 44px is the smallest target a thumb hits reliably; these sat at 41. */
+.myform__buttons button{
+  min-height: 44px;
+}

@@ -329,6 +329,39 @@ class MainApi {
 
 	}
 
+	// Moderation. Blocking hides a tasting from the feed without touching the
+	// owner's copy; deleting removes it and its files for good.
+	adminGetBlockedForms() {
+
+		return fetch(`${this._usersApiUrl}/admin/forms?blocked=true`, {
+			method: 'GET',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
+	adminSetFormBlocked(sessionId, blocked) {
+
+		return fetch(`${this._usersApiUrl}/admin/forms/${sessionId}/block`, {
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify({ blocked: blocked })
+		}).then(res => this.error(res));
+
+	}
+
+	adminDeleteForm(sessionId) {
+
+		return fetch(`${this._usersApiUrl}/admin/forms/${sessionId}`, {
+			method: 'DELETE',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
 	updatePassword(oldPassword, newPassword) {
 
 		return fetch(`${this._usersApiUrl}/profile/password`, {

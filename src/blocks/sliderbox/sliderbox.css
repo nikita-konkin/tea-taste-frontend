@@ -1,0 +1,51 @@
+.sliderbox {
+	width: 100%;
+	box-sizing: border-box;
+	/* Bottom room for the mark labels, which hang below the rail and past the
+	   slider's own box. Without it the labels of one slider sit on the name of
+	   the next field. */
+	margin: 0 0 22px 0;
+	font-family: 'jura', Arial, sans-serif;
+	color: #ffffff;
+}
+
+.sliderbox__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	/* The slider carries 20px of touch padding above its rail, so the head row
+	   needs almost none of its own. */
+	margin: 0 0 -6px 0;
+}
+
+.sliderbox__name {
+	min-width: 0;
+	font-size: 16px;
+	line-height: 1.25;
+}
+
+.sliderbox__value {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 4px;
+	flex: 0 0 auto;
+}
+
+.sliderbox__units {
+	font-size: 14px;
+	color: #d8f5cc;
+}
+
+/* The measured element: the labels are thinned against this width, so it must
+   be exactly as wide as the slider itself. */
+.sliderbox__track {
+	width: 100%;
+	padding: 0;
+}
+
+@media screen and (max-width: 360px) {
+	.sliderbox__name {
+		font-size: 15px;
+	}
+}

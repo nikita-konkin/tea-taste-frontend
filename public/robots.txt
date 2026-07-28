@@ -1,3 +1,18 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Signed-in areas: a crawler gets the same empty shell there as everywhere, and
+# none of it is public content.
+Disallow: /my_forms
+Disallow: /form_1
+Disallow: /form_2
+Disallow: /form_submit
+Disallow: /profile
+Disallow: /admin
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /reset-password
+Disallow: /oauth/
+
+Sitemap: https://teaform.ru/api/sitemap.xml

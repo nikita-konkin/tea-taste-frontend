@@ -2,61 +2,67 @@
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="https://teaform.ru/favicon.ico" type="image/x-icon"/>
-
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Сохраните впечатления о чае"
-    />
-    <title>Форма чая</title>
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-    <meta name="keywords" content="tea form, teaform" />
-    <meta property="og:title" content="Форма чая" />
-    <meta property="og:description" content="Сохраните впечатления о чае" />
-    <meta property="og:image" content="%PUBLIC_URL%/logo192.png" /> 
+    <!-- The mobile address bar and the PWA splash take this colour. #000000 was
+         the Create React App default and matched nothing on the site. -->
+    <meta name="theme-color" content="#1d5c41" />
+
+    <!-- Defaults only. Any page with something better to say overrides these
+         through react-helmet (PageMeta.jsx) — a tasting sets its own title,
+         description and preview image, which is what a link posted to Telegram
+         or VK actually shows. -->
+    <title>Форма чая — дневник чайных дегустаций</title>
+    <!-- data-react-helmet on the defaults below is load-bearing: without it
+         react-helmet appends a second description/og:* instead of replacing
+         these, and a crawler reading the first one gets the site default on
+         every tasting page. -->
+    <meta
+      data-react-helmet="true"
+      name="description"
+      content="Дневник чайных дегустаций: аромат, вкус и проливы, фото и голосовые заметки. Ведите свои записи и читайте дегустации других."
+    />
+
+    <meta data-react-helmet="true" property="og:type" content="website" />
+    <meta data-react-helmet="true" property="og:site_name" content="Форма чая" />
+    <meta data-react-helmet="true" property="og:locale" content="ru_RU" />
+    <meta data-react-helmet="true" property="og:url" content="https://teaform.ru/" />
+    <meta data-react-helmet="true" property="og:title" content="Форма чая — дневник чайных дегустаций" />
+    <meta
+      data-react-helmet="true"
+      property="og:description"
+      content="Дневник чайных дегустаций: аромат, вкус и проливы, фото и голосовые заметки."
+    />
+    <meta data-react-helmet="true" property="og:image" content="https://teaform.ru/logo512.png" />
+    <meta data-react-helmet="true" name="twitter:card" content="summary_large_image" />
 
     <meta name="yandex-verification" content="56c39326587125eb" />
     <meta name="yandex-verification" content="3d5917344191772e" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
+    <!-- @context must be schema.org. Pointing it at the site's own domain made
+         the block unparseable, so no search engine has ever read it. -->
     <script type="application/ld+json">
       {
-        "@context": "https://teaform.ru/",
-        "@type": "Organization",
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Форма чая",
         "url": "https://teaform.ru/",
-        "logo": "https://teaform.ru/logo192.png"
+        "inLanguage": "ru-RU",
+        "description": "Дневник чайных дегустаций",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Форма чая",
+          "url": "https://teaform.ru/",
+          "logo": "https://teaform.ru/logo512.png"
+        }
       }
-      </script>
-    <title>Форма Чая</title>
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>Для работы «Формы чая» нужен включённый JavaScript.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

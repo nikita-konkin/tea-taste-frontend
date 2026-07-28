@@ -66,6 +66,7 @@ function TeaPhotoGallery({ photos }) {
                                 aria-label={`Открыть фото во весь экран: ${label}`}
                                 onClick={() => setViewing(i)}>
                                 <img src={photo.url} alt={label} style={imageStyle}
+                                    loading="lazy" decoding="async"
                                     onError={(e) => { e.target.closest('li').style.display = 'none'; }} />
                             </button>
                             <span style={captionStyle}>{label}</span>

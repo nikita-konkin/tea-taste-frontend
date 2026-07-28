@@ -595,7 +595,7 @@ const TeaFormStage1 = (props) => {
 							name="teaPrice"
 							render={({ field }) =>
 								<SliderBox
-									sliderName='Цена за  грамм чая'
+									sliderName='Цена за грамм чая'
 									maxValue={150}
 									// defaultValue={5}
 									units='₽'

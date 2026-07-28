@@ -6,9 +6,11 @@ import { RaitingPial } from './TeaRaiting.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import VoicePlayer from './VoicePlayer.jsx';
 import TeaPhotoLightbox from './TeaPhotoLightbox.jsx';
+import ConfirmDialog from './ConfirmDialog.jsx';
 import { orderPhotos } from './TeaPhotos.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
+import { mainApi } from '../utils/MainAPI.jsx';
 import { formatDateTime, formatShortDateTime } from '../utils/utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import { set } from 'react-hook-form';
@@ -20,7 +22,11 @@ function Form({
     tastesById,
     removeFormFromArrById,
     patchFormById,
-    isMyForms
+    isMyForms,
+    // Moderation is off unless the signed-in account is an admin; onModerated
+    // asks the feed to refetch, since the card usually has to disappear.
+    isAdmin,
+    onModerated,
 }) {
     const { openPopup } = usePopup();
     const { aromasByIdCxt, tastesByIdCxt, brewsByIdCxt } = useMyFormConext();
@@ -52,11 +58,14 @@ function Form({
             }}>
                 {author.avatar ? (
                     <img src={author.avatar} alt="" style={avatarStyle}
+                        loading="lazy" decoding="async" width="22" height="22"
                         onError={(e) => { e.target.style.display = 'none'; }} />
                 ) : (
+                    // Darker than the old #96B295, on which white lettering came
+                    // out at 2.3:1 — the one outright contrast failure on the feed.
                     <span aria-hidden="true" style={{
                         ...avatarStyle, display: 'inline-flex', alignItems: 'center',
-                        justifyContent: 'center', background: '#96B295',
+                        justifyContent: 'center', background: '#40684d',
                         color: '#ffffff', fontSize: '12px',
                     }}>{authorName.charAt(0).toUpperCase()}</span>
                 )}
@@ -105,7 +114,13 @@ function Form({
             <button type="button" className="myform__media"
                 aria-label={`Открыть фото во весь экран: ${formData.nameRU}`}
                 onClick={(e) => { e.preventDefault(); setViewingPhotos(true); }}>
-                <img className="myform__media-image" src={cardPhotos[0].url} alt=""
+                {/* A feed of ten tastings is ten full-size uploads; below the
+                    fold none of them need to be fetched until they are scrolled
+                    to. The dimensions reserve the space so the card does not
+                    jump when the picture lands. */}
+                <img className="myform__media-image" src={cardPhotos[0].url}
+                    alt={`Фото чая: ${formData.nameRU}`}
+                    loading="lazy" decoding="async" width="130" height="130"
                     onError={(e) => { e.target.closest('button').style.display = 'none'; }} />
             </button>
         );
@@ -314,6 +329,46 @@ function Form({
         }
     }
 
+    // Admin-only actions on someone else's post. Both are confirmed in a popup
+    // rather than done on the click: one is irreversible, the other is visible
+    // to the author, and neither should be a mis-tap away on a phone.
+    const moderationButtons = () => {
+        if (!isAdmin || isMyForms) return null;
+
+        const title = formData.nameRU || 'эта запись';
+
+        return (
+            <div className="myform__moderation">
+                <p className="myform__moderation-label">Модерация</p>
+                <button type="button" className="voicenote__button"
+                    onClick={() => openPopup(
+                        <ConfirmDialog
+                            title="Скрыть запись из ленты?"
+                            text={`«${title}» пропадёт из ленты и со своей публичной страницы. Автор сохранит её у себя, но не сможет опубликовать снова — вернуть запись можно в админ-панели, раздел «Скрытые записи».`}
+                            confirmLabel="Да, скрыть"
+                            onConfirm={() => mainApi.adminSetFormBlocked(formData.sessionId, true)}
+                            onDone={onModerated}
+                        />
+                    )}>
+                    Скрыть из ленты
+                </button>
+                <button type="button" className="voicenote__button confirm__button_danger"
+                    onClick={() => openPopup(
+                        <ConfirmDialog
+                            title="Удалить запись навсегда?"
+                            text={`«${title}» будет удалена вместе с проливами, дескрипторами, фотографиями и аудиозаписью. Это необратимо — если нужно просто убрать её из ленты, выберите «Скрыть».`}
+                            confirmLabel="Да, удалить"
+                            danger
+                            onConfirm={() => mainApi.adminDeleteForm(formData.sessionId)}
+                            onDone={onModerated}
+                        />
+                    )}>
+                    Удалить
+                </button>
+            </div>
+        );
+    };
+
     return (
         <section className="myform" key={formData.sessionId}>
             {authorChip()}
@@ -330,6 +385,7 @@ function Form({
             <div className="myform__buttons">
                 {formButtons()}
             </div>
+            {moderationButtons()}
             {viewingPhotos && (
                 <TeaPhotoLightbox photos={cardPhotos} onClose={() => setViewingPhotos(false)} />
             )}
