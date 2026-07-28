@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 
 import { usePopup } from './PopupContext';
 import Header from './Header';
+import { mainApi } from '../utils/MainAPI.jsx';
 
 import PopupButton from './PopupButton.jsx';
 
@@ -13,6 +14,10 @@ function Registration({ auth, popupContent }) {
 
 
 	const { openPopup } = usePopup();
+	// null while unknown: assume open, because the server refuses on its own
+	// anyway. Hiding the form on a failed check would lock people out of a
+	// working site over one dropped request.
+	const [registrationOpen, setRegistrationOpen] = useState(null);
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
@@ -20,6 +25,12 @@ function Registration({ auth, popupContent }) {
 		password2: '',
 
 	})
+
+	useEffect(() => {
+		mainApi.getPublicSettings()
+			.then((res) => setRegistrationOpen(res.data.registrationOpen !== false))
+			.catch(() => setRegistrationOpen(true));
+	}, []);
 
 	const handleForm = (e) => {
 		setFormData({
@@ -61,6 +72,16 @@ function Registration({ auth, popupContent }) {
 			<form className="registration" onSubmit={handleOnSubmit}>
 				<h1 className="registration__header">Регистрация</h1>
 				<div className="registration__fields-box">
+					{registrationOpen === false ? (
+						<>
+							<h2 className="registration__check-text" style={{ lineHeight: 1.4 }}>
+								Регистрация новых аккаунтов временно закрыта.
+								Если у вас уже есть аккаунт — войдите.
+							</h2>
+							<Link className="registration__check-text_link" to="/sign-in">Войти</Link>
+						</>
+					) : (
+					<>
 					<input className="registration__name" type="text"
 						name="name" placeholder="Имя"
 						onChange={e => handleForm(e)}
@@ -88,6 +109,8 @@ function Registration({ auth, popupContent }) {
 					<h2 className="registration__check-text">Уже зарегистрированы?</h2>
 					<Link
 						className="registration__check-text_link" to="/sign-in">Войти</Link>
+					</>
+					)}
 
 				</div>
 

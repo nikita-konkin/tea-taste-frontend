@@ -5,6 +5,7 @@ import Header from './Header.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import VoicePlayer from './VoicePlayer.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
+import { formatShortDateTime } from '../utils/utils.js';
 
 const chipStyle = {
     display: 'inline-block',
@@ -107,7 +108,7 @@ function PublicForm() {
                     <VoicePlayer voice={form.voice} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 10px 0', color: '#ffffff' }}>
                         <span style={{ opacity: 0.85, fontSize: '14px' }}>
-                            {[author && author.name, form.createdAt && new Date(form.createdAt).toLocaleDateString('ru-RU')]
+                            {[author && (author.nickname || author.name), formatShortDateTime(form.createdAt)]
                                 .filter(Boolean).join(' · ')}
                         </span>
                         {form.averageRating != null && (

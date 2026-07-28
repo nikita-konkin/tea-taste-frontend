@@ -86,6 +86,14 @@ function Forms({ forms, navigation,
 	const [typeFilter, setTypeFilter] = useState('')
 	const [sortOrder, setSortOrder] = useState('date')
 
+	// /my_forms sorts in the browser instead: the endpoint returns the whole
+	// list in one response, so re-ordering it is free and a refetch would only
+	// make the list flicker. The choice is remembered, since a user who prefers
+	// their tastings by rating prefers that on every visit.
+	const [mySort, setMySort] = useState(
+		() => localStorage.getItem('myFormsSort') || 'date'
+	)
+
 	useEffect(() => {
 		if (isBlog) {
 			forms({ page, type: typeFilter, sort: sortOrder })
@@ -99,7 +107,7 @@ function Forms({ forms, navigation,
 			setCheckLS(true)
 			prepareFormsRender(myForms)
 		}
-	}, [myForms])
+	}, [myForms, mySort])
 
 	useEffect(() => {
 		if (removedFormById && removed) {
@@ -132,9 +140,27 @@ function Forms({ forms, navigation,
 	}
 
 
+	// Comparators for the /my_forms list. Undated or unrated tastings sort last
+	// rather than to the top, which is where a 0 default would put them.
+	const mySortComparators = {
+		date: (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+		'-date': (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0),
+		rating: (a, b) => (b.averageRating || 0) - (a.averageRating || 0),
+		'-rating': (a, b) => (a.averageRating || 0) - (b.averageRating || 0),
+		name: (a, b) => String(a.nameRU || '').localeCompare(String(b.nameRU || ''), 'ru'),
+		'-name': (a, b) => String(b.nameRU || '').localeCompare(String(a.nameRU || ''), 'ru'),
+	}
+
 	const prepareFormsRender = (myFormsData) => {
 		const forms = []
-		for (let formData of Object.values(myFormsData)[0]) {
+		// The blog arrives already sorted by the server; only /my_forms is ours
+		// to order. Copied first — this array is the context's own state.
+		const list = Object.values(myFormsData)[0]
+		const ordered = isMyForms
+			? [...list].sort(mySortComparators[mySort] || mySortComparators.date)
+			: list
+
+		for (let formData of ordered) {
 			forms.push(
 				<Form
 					navigation={navigation}
@@ -163,6 +189,28 @@ function Forms({ forms, navigation,
 			</>
 		)
 	}
+
+	const myFormsControls = () => {
+		if (!isMyForms) return null;
+		return (
+			<div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '0 0 16px 0' }}>
+				<Select size="small" sx={selectSx} MenuProps={selectMenuProps}
+					value={mySort}
+					inputProps={{ 'aria-label': 'Сортировка' }}
+					onChange={(e) => {
+						setMySort(e.target.value);
+						localStorage.setItem('myFormsSort', e.target.value);
+					}}>
+					<MenuItem value="date">Сначала новые</MenuItem>
+					<MenuItem value="-date">Сначала старые</MenuItem>
+					<MenuItem value="rating">Рейтинг: по убыванию</MenuItem>
+					<MenuItem value="-rating">Рейтинг: по возрастанию</MenuItem>
+					<MenuItem value="name">Название: А–Я</MenuItem>
+					<MenuItem value="-name">Название: Я–А</MenuItem>
+				</Select>
+			</div>
+		);
+	};
 
 	const blogControls = () => {
 		if (!isBlog) return null;
@@ -221,6 +269,9 @@ function Forms({ forms, navigation,
 			<div className="myforms">
 				<h2 className="header__myforms">{isMyForms ? 'Мои Формы' : 'Публичные формы'}</h2>
 				{blogControls()}
+				{/* Only with something to sort — a lone select above "у вас пока
+				    нет форм" is noise, and sorting cannot bring the list back. */}
+				{myFormsControls()}
 				{renderForms}
 				{pagination()}
 			</div>

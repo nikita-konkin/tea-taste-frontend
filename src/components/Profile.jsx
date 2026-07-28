@@ -7,6 +7,8 @@ import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
 import { mainApi } from '../utils/MainAPI.jsx';
 import { usePopup } from './PopupContext.jsx';
+import { formatMinutes } from '../utils/utils.js';
+import QuotaBar from './QuotaBar.jsx';
 
 const fieldLabelStyle = {
 	width: '100%',
@@ -41,6 +43,7 @@ function Profile(props) {
 
 	const [profile, setProfile] = useState({
 		name: '',
+		nickname: '',
 		email: '',
 		career: '',
 		about: '',
@@ -48,6 +51,7 @@ function Profile(props) {
 	});
 	const [passwords, setPasswords] = useState({ oldPassword: '', newPassword: '' });
 	const [isAdmin, setIsAdmin] = useState(false);
+	const [quota, setQuota] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [avatarBroken, setAvatarBroken] = useState(false);
@@ -57,12 +61,14 @@ function Profile(props) {
 			.then((res) => {
 				setProfile({
 					name: res.data.name || '',
+					nickname: res.data.nickname || '',
 					email: res.data.email || '',
 					career: res.data.career || '',
 					about: res.data.about || '',
 					avatar: res.data.avatar || '',
 				});
 				setIsAdmin(res.data.role === 'admin');
+				setQuota(res.voiceQuota || null);
 			})
 			.catch((err) => openPopup(err.message || 'Не удалось загрузить профиль.'))
 			.finally(() => setLoading(false));
@@ -162,6 +168,15 @@ function Profile(props) {
 						value={profile.name} onChange={handleProfileChange}
 						minLength={2} maxLength={30} required />
 
+					<p style={fieldLabelStyle}>Никнейм</p>
+					<input className="authorization__email" type="text"
+						name="nickname" placeholder="Как вас показывать в блоге"
+						value={profile.nickname} onChange={handleProfileChange}
+						minLength={2} maxLength={30} />
+					<p style={{ ...fieldLabelStyle, fontSize: '13px', opacity: 0.7, margin: '4px 0 6px 0' }}>
+						Показывается вместо имени под вашими дегустациями. Оставьте пустым, чтобы показывалось имя.
+					</p>
+
 					<p style={fieldLabelStyle}>Email</p>
 					<input className="authorization__email" type="email"
 						name="email" placeholder="Email"
@@ -186,6 +201,31 @@ function Profile(props) {
 					/>
 				</div>
 			</form>
+
+			{/* The allowance is spent silently in the background, so the only
+			    place a user can find out where they stand before recording is
+			    here. */}
+			{quota && (
+				<div className="authorization authorization_compact">
+					<div className="authorization__fields-box">
+						<h2 className="authorization__check-text">Голосовые заметки</h2>
+						<p style={{ ...fieldLabelStyle, margin: '6px 0 0 0' }}>
+							Расшифровано в этом месяце: {formatMinutes(quota.usedSeconds)} из {formatMinutes(quota.limitSeconds)}
+						</p>
+						<div style={{ width: '100%' }}>
+							<QuotaBar used={quota.usedSeconds} limit={quota.limitSeconds} />
+						</div>
+						<p style={{ ...fieldLabelStyle, fontSize: '13px', opacity: 0.75, margin: '8px 0 0 0' }}>
+							{quota.leftSeconds > 0
+								? `Осталось ${formatMinutes(quota.leftSeconds)}. Лимит обновляется первого числа каждого месяца.`
+								: 'Лимит на этот месяц исчерпан. Записи сохраняются и воспроизводятся, но расшифровка будет доступна в следующем месяце.'}
+						</p>
+						<p style={{ ...fieldLabelStyle, fontSize: '13px', opacity: 0.75, margin: '4px 0 0 0' }}>
+							Одна дегустация — не длиннее {formatMinutes(quota.maxTrackSeconds)} записи суммарно.
+						</p>
+					</div>
+				</div>
+			)}
 
 			<form className="authorization authorization_compact" onSubmit={handlePasswordSubmit}>
 				<div className="authorization__fields-box">

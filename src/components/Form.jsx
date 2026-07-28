@@ -9,6 +9,7 @@ import TeaPhotoLightbox from './TeaPhotoLightbox.jsx';
 import { orderPhotos } from './TeaPhotos.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
+import { formatDateTime, formatShortDateTime } from '../utils/utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import { set } from 'react-hook-form';
 
@@ -34,8 +35,12 @@ function Form({
     const rawOwner = Array.isArray(formData.owner) ? formData.owner[0] : formData.owner;
     const author = rawOwner && typeof rawOwner === 'object' ? rawOwner : null;
 
+    // A nickname is the handle its owner chose to be known by, so it wins over
+    // the real name wherever a tasting is attributed in public.
+    const authorName = author ? (author.nickname || author.name) : '';
+
     const authorChip = () => {
-        if (!author || !author.name) return null;
+        if (!authorName) return null;
         const avatarStyle = {
             width: '22px', height: '22px', borderRadius: '50%',
             objectFit: 'cover', flexShrink: 0,
@@ -53,9 +58,9 @@ function Form({
                         ...avatarStyle, display: 'inline-flex', alignItems: 'center',
                         justifyContent: 'center', background: '#96B295',
                         color: '#ffffff', fontSize: '12px',
-                    }}>{author.name.charAt(0).toUpperCase()}</span>
+                    }}>{authorName.charAt(0).toUpperCase()}</span>
                 )}
-                <span>{author.name}</span>
+                <span>{authorName}</span>
             </div>
         );
     };
@@ -213,7 +218,7 @@ function Form({
                 <VoicePlayer voice={formData.voice} sessionId={formData.sessionId} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 10px 0' }}>
                     <span style={{ opacity: 0.85, fontSize: '14px' }}>
-                        {[author && author.name, formData.createdAt && new Date(formData.createdAt).toLocaleDateString('ru-RU')]
+                        {[authorName, formatShortDateTime(formData.createdAt)]
                             .filter(Boolean).join(' · ')}
                     </span>
                     {formData.averageRating != null && (
@@ -316,11 +321,7 @@ function Form({
                 {cardThumb()}
                 <ul className="myform__list">
                     <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>{formData.nameRU}</li>
-                    <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{
-                        formData.createdAt
-                            ? new Date(formData.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
-                            : ''
-                    }</li>
+                    <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{formatDateTime(formData.createdAt)}</li>
                     <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
                 </ul>
             </div>

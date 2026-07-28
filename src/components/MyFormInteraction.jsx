@@ -11,6 +11,7 @@ import Header from './Header.jsx'
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
+import { formatDateTime } from '../utils/utils.js';
 import { usePopup } from './PopupContext.jsx';
 
 // import { useTeaFormContext } from './TeaFormContext.jsx';
@@ -53,7 +54,9 @@ function MyFormInteraction(props) {
 
 	const history = useNavigate();
 
-	const currentTimestamp = new Date().toLocaleString()
+	// Same formatter the saved card uses, so the preview matches what the
+	// tasting will look like in /my_forms rather than the browser's default.
+	const currentTimestamp = formatDateTime(new Date())
 
 	const averageRating = (arr) => {
 

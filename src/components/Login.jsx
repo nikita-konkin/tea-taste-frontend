@@ -16,7 +16,12 @@ function Login(props) {
 	const [email, setEmail] = useState('')
 
 	useEffect(() => {
-		if (new URLSearchParams(window.location.search).has('vk_error')) {
+		const vkError = new URLSearchParams(window.location.search).get('vk_error');
+		if (vkError === 'closed') {
+			// Not a failure on the user's side — VK worked, the site is closed
+			// to new accounts. Telling them to "try again" would be a lie.
+			openPopup('Регистрация новых аккаунтов временно закрыта. Войдите в существующий аккаунт.');
+		} else if (vkError) {
 			openPopup('Не удалось войти через VK. Попробуйте ещё раз.');
 		}
 	}, []);

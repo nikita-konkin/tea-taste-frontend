@@ -267,6 +267,37 @@ class MainApi {
 
 	}
 
+	// Unauthenticated: the sign-up page asks this before anyone has an account.
+	getPublicSettings() {
+
+		return fetch(`${this._usersApiUrl}/settings`, {
+			method: 'GET',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
+	adminGetSettings() {
+
+		return fetch(`${this._usersApiUrl}/admin/settings`, {
+			method: 'GET',
+			credentials: 'include',
+			headers: this._headers
+		}).then(res => this.error(res));
+
+	}
+
+	adminUpdateSettings(patch) {
+
+		return fetch(`${this._usersApiUrl}/admin/settings`, {
+			method: 'PATCH',
+			credentials: 'include',
+			headers: this._headers,
+			body: JSON.stringify(patch)
+		}).then(res => this.error(res));
+
+	}
+
 	adminGetUsers() {
 
 		return fetch(`${this._usersApiUrl}/admin/users`, {
