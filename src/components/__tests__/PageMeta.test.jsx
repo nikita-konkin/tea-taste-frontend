@@ -1,5 +1,16 @@
 /* Per-page metadata. Every URL used to report the same title and the same logo,
-   so a tasting shared to Telegram or VK said nothing about what was behind it. */
+   so a tasting shared to Telegram or VK said nothing about what was behind it.
+
+   A warning about what this file can prove. These assertions passed for the
+   whole time the metadata was reaching no browser at all: under react-helmet,
+   jsdom was updated and a real React 18 page was not. Green here means the
+   component asks for the right tags — confirm the built app writes them by
+   opening it:
+
+     docker compose up -d --build   # in sandbox/
+     # then, on /blog/<slug>:  document.querySelector('link[rel=canonical]')
+
+   which is in DEPLOY-SEO.md as a release check. */
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import PageMeta, { clamp } from '../PageMeta.jsx';
@@ -8,8 +19,10 @@ import { plural } from '../../utils/utils.js';
 const head = (selector) => document.head.querySelector(selector);
 const content = (selector) => (head(selector) || {}).content;
 
+const renderMeta = (ui) => render(ui);
+
 test('a tasting gets its own title, description, canonical and preview image', async () => {
-    render(
+    renderMeta(
         <PageMeta
             title="Шэн пуэр 2019"
             description="Дегустация чая «Шэн пуэр 2019». Шэн пуэр · Китай · оценка 8/10"
@@ -29,14 +42,14 @@ test('a tasting gets its own title, description, canonical and preview image', a
 // A chat preview resolves og:image against nothing, so a stored upload path has
 // to leave here absolute.
 test('makes an upload path absolute for the preview image', async () => {
-    render(<PageMeta title="Чай" image="/api/uploads/abc-123.jpg" path="/blog/xyz" />);
+    renderMeta(<PageMeta title="Чай" image="/api/uploads/abc-123.jpg" path="/blog/xyz" />);
 
     await waitFor(() => expect(content('meta[property="og:image"]'))
         .toBe('https://teaform.ru/api/uploads/abc-123.jpg'));
 });
 
 test('falls back to the site logo when a tasting has no photo', async () => {
-    render(<PageMeta title="Без фото" path="/blog/xyz" />);
+    renderMeta(<PageMeta title="Без фото" path="/blog/xyz" />);
 
     await waitFor(() => expect(content('meta[property="og:image"]'))
         .toBe('https://teaform.ru/logo512.png'));
@@ -46,7 +59,7 @@ test('falls back to the site logo when a tasting has no photo', async () => {
 // mounted instances left the static index.html tags winning for description and
 // og:*, so a tasting page shipped the site's default preview.
 test('carries the page\'s schema markup in the same head block', async () => {
-    render(
+    renderMeta(
         <PageMeta
             title="Шэн пуэр 2019"
             description="Дегустация"
@@ -64,7 +77,7 @@ test('carries the page\'s schema markup in the same head block', async () => {
 });
 
 test('private pages ask not to be indexed', async () => {
-    render(<PageMeta title="Мои дегустации" path="/my_forms" noIndex />);
+    renderMeta(<PageMeta title="Мои дегустации" path="/my_forms" noIndex />);
 
     await waitFor(() => expect(content('meta[name="robots"]')).toBe('noindex, nofollow'));
 });

@@ -2,8 +2,8 @@
 User-agent: *
 Allow: /
 
-# Signed-in areas: a crawler gets the same empty shell there as everywhere, and
-# none of it is public content.
+# Signed-in areas: none of it is public content, and a crawler gets the same
+# empty shell there as everywhere.
 Disallow: /my_forms
 Disallow: /form_1
 Disallow: /form_2
@@ -15,4 +15,14 @@ Disallow: /sign-up
 Disallow: /reset-password
 Disallow: /oauth/
 
-Sitemap: https://teaform.ru/api/sitemap.xml
+# The server-rendered copies of the public pages. nginx serves these to crawlers
+# under the real URLs; the /render prefix is plumbing and must never be indexed
+# as a second address for the same page.
+Disallow: /render/
+
+# Sorting reorders a list without changing what is on it. Without this Yandex
+# treats every order as its own page and indexes four near-identical copies of
+# the feed. ?page is deliberately not listed — page 2 is different content.
+Clean-param: sort /blog
+
+Sitemap: https://teaform.ru/sitemap.xml

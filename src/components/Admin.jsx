@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Header from './Header.jsx';
+import PageMeta from './PageMeta.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { formatMinutes, formatShortDateTime } from '../utils/utils.js';
@@ -157,6 +158,7 @@ function Admin({ navigation }) {
 
 	return (
 		<>
+			<PageMeta title="Админ-панель" path="/admin" noIndex />
 			<Header navigation={navigation} />
 			<div className="myforms">
 				<h2 className="header__myforms">Настройки сайта</h2>

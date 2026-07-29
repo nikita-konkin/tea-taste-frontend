@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet';
+import PageMeta from './PageMeta.jsx';
 
 import Header from './Header.jsx'
 import TeaRaiting from './TeaRaiting.jsx';
@@ -148,20 +148,8 @@ function TeaFormStage2(props) {
 
 	return (
 		<>
-			<Helmet>
-				<title>Страница ввода информации вкуса и аромата чая</title>
-				<meta name="description" content="Страница на которой можно ввести информацию 
-				о вкусе и аромате чая, засечь время заваривания, оставить отзыв и рейтинг пролива. 
-				Можно описывать необходимое количество проливов и добавлять несколько оттенков вкуса или аромата." />
-				<meta name="keywords" content="tea, taste, aroma, strait, description, time, raiting, form, multi form" />
-				<meta property="og:title" content="Страница на которой можно ввести информацию 
-				о вкусе и аромате чая, засечь время заваривания, оставить отзыв и рейтинг пролива. 
-				Можно описывать необходимое количество проливов и добавлять несколько оттенков вкуса или аромата." />
-				<meta property="og:description" content="Страница на которой можно ввести информацию 
-				о вкусе и аромате чая, засечь время заваривания, оставить отзыв и рейтинг пролива. 
-				Можно описывать необходимое количество проливов и добавлять несколько оттенков вкуса или аромата." />
-				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
-			</Helmet>
+			<PageMeta title="Новая дегустация — проливы" path="/form_2" noIndex
+				description="Вкус и аромат по проливам: время заваривания, оценка и описание каждого пролива." />
 			<Header navigation={props.navigation} />
 
 			<ThemeProvider theme={theme}>

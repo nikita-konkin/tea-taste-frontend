@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useMediaQuery, Autocomplete, TextField, Switch, Popper, Button, Stack, autocompleteClasses, FormControlLabel } from '@mui/material';
-import { Helmet } from 'react-helmet';
+import PageMeta from './PageMeta.jsx';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
@@ -438,14 +438,12 @@ const TeaFormStage1 = (props) => {
 
 	return (
 		<>
-			<Helmet>
-				<title>Главная страница</title>
-				<meta name="description" content="Страница вводна основной (первичной) информации о чае" />
-				<meta name="keywords" content="tea, tea name, tea type, tea weight, tea price, info, start" />
-				<meta property="og:title" content="Страница вводна основной (первичной) информации о чае" />
-				<meta property="og:description" content="Страница вводна основной (первичной) информации о чае" />
-				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
-			</Helmet>
+			{/* Titled «Главная страница» until now, on a page that is neither
+			    the front page nor public. Behind a login and Disallowed in
+			    robots.txt, so it says noindex rather than competing with the
+			    feed for a search result. */}
+			<PageMeta title="Новая дегустация — этап 1" path="/form_1" noIndex
+				description="Основная информация о чае: название, тип, вес, вода и посуда." />
 
 			<Header navigation={props.navigation} />
 

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { mainApi } from '../utils/MainAPI.jsx';
+import PageMeta from './PageMeta.jsx';
 
 // Landing page for the VK ID callback: the backend has already set the jwt
 // cookie, so confirm it works and hand the SPA its localStorage auth flags.
@@ -18,9 +19,12 @@ function VkAuthDone() {
 	}, []);
 
 	return (
-		<div className="myforms">
-			<h2 className="header__myforms">Входим через VK...</h2>
-		</div>
+		<>
+			<PageMeta title="Вход через VK ID" path="/oauth/vk" noIndex />
+			<div className="myforms">
+				<h2 className="header__myforms">Входим через VK...</h2>
+			</div>
+		</>
 	);
 }
 

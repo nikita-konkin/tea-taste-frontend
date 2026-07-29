@@ -1,5 +1,6 @@
 /* The logo and the wordmark are one control: a single tab stop that goes home,
-   instead of two click handlers the keyboard could never reach. Styled to look
+   instead of two click handlers the keyboard could never reach. Now an <a> so
+   it is also a link anything reading the HTML can follow — styled to look
    exactly like the two elements it replaced. */
 .header__home {
 	display: flex;
@@ -13,6 +14,7 @@
 	font-family: inherit;
 	color: inherit;
 	text-align: left;
+	text-decoration: none;
 
 	background: none;
 	border: none;

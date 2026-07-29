@@ -48,7 +48,11 @@ function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
             const prepared = await downscaleImage(file);
             const res = await mainApi.uploadTeaPhoto(prepared);
             const previous = byKind(kind);
-            emit([...photos.filter((p) => p.kind !== kind), { url: res.data.url, kind }]);
+            // `thumb` is what the feed renders. Carried through the form state
+            // rather than derived from the url, because the server only makes
+            // one when it can — without it the card falls back to the original.
+            emit([...photos.filter((p) => p.kind !== kind),
+                { url: res.data.url, kind, ...(res.data.thumb ? { thumb: res.data.thumb } : {}) }]);
             if (previous) dropFile(previous.url);
         } catch (err) {
             setErrors((prev) => ({ ...prev, [kind]: err.message || 'Не удалось загрузить фото.' }));
@@ -74,7 +78,7 @@ function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
                         <div className="teaphotos__slot" key={kind}>
                             {photo ? (
                                 <div className="teaphotos__frame">
-                                    <img className="teaphotos__image" src={photo.url} alt={label} />
+                                    <img className="teaphotos__image" src={photo.thumb || photo.url} alt={label} />
                                     <button type="button" className="teaphotos__remove"
                                         aria-label={`Удалить фото: ${label}`}
                                         onClick={() => handleRemove(kind)}>&times;</button>

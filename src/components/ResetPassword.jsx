@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Header from './Header.jsx';
+import PageMeta from './PageMeta.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 
 // /reset-password           — request a reset link by email
@@ -40,6 +41,10 @@ function ResetPassword() {
 
 	return (
 		<>
+			{/* noIndex is not belt-and-braces here: the URL carries a
+			    single-use reset token, and an indexed copy of it is a link
+			    anyone can read out of a search result. */}
+			<PageMeta title="Восстановление пароля" path="/reset-password" noIndex />
 			<Header />
 			{token ? (
 				<form className="authorization" onSubmit={handleConfirm}>

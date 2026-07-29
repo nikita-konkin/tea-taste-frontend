@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import PageMeta from './PageMeta.jsx';
 import Header from './Header.jsx';
+import SiteFooter from './SiteFooter.jsx';
 import { orderPhotos } from './TeaPhotos.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import VoicePlayer from './VoicePlayer.jsx';
 import { formApi } from '../utils/FormAPI.jsx';
-import { formatShortDateTime, plural } from '../utils/utils.js';
+import { formatShortDateTime, formUrl } from '../utils/utils.js';
+import { formDescription, formJsonLd } from '../utils/formMeta.js';
 
 const chipStyle = {
     display: 'inline-block',
@@ -35,9 +37,13 @@ const descriptorPath = (rec, prefix) =>
         .filter((v) => v && v !== 'none')
         .join(' → ');
 
-// Shareable page for one public tasting: /blog/:sessionId
+// Shareable page for one public tasting: /blog/:slugOrId
 function PublicForm() {
-    const { sessionId } = useParams();
+    // Named sessionId for the route param, but it holds either address a
+    // tasting answers to — its slug or, for links shared before slugs existed,
+    // its raw sessionId.
+    const { sessionId: slugOrId } = useParams();
+    const navigate = useNavigate();
 
     const [form, setForm] = useState(null);
     const [brewings, setBrewings] = useState([]);
@@ -46,20 +52,40 @@ function PublicForm() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        Promise.all([
-            formApi.getPublicFormById(sessionId),
-            formApi.getPublicBrewingsById(sessionId),
-            formApi.getPublicAromasById(sessionId),
-            formApi.getPublicTastesById(sessionId),
-        ])
-            .then(([f, b, a, t]) => {
+        let cancelled = false;
+        // The form is fetched first and the rest afterwards, rather than all
+        // four at once: the proliferations, aromas and tastes are keyed by the
+        // real sessionId, which only the form itself can supply when the page
+        // was reached by slug.
+        formApi.getPublicFormById(slugOrId)
+            .then((f) => {
+                if (cancelled) return null;
                 setForm(f.data);
-                setBrewings((b.data || []).sort((x, y) => x.brewingCount - y.brewingCount));
-                setAromas(a.data || []);
-                setTastes(t.data || []);
+                const id = f.data.sessionId;
+                return Promise.all([
+                    formApi.getPublicBrewingsById(id),
+                    formApi.getPublicAromasById(id),
+                    formApi.getPublicTastesById(id),
+                ]).then(([b, a, t]) => {
+                    if (cancelled) return;
+                    setBrewings((b.data || []).sort((x, y) => x.brewingCount - y.brewingCount));
+                    setAromas(a.data || []);
+                    setTastes(t.data || []);
+                });
             })
-            .catch((err) => setError(err.message || 'Форма не найдена.'));
-    }, [sessionId]);
+            .catch((err) => { if (!cancelled) setError(err.message || 'Форма не найдена.'); });
+        return () => { cancelled = true; };
+    }, [slugOrId]);
+
+    // An old /blog/<uuid> link lands on the right tasting but under the wrong
+    // address. Moving to the canonical one keeps a shared link working while
+    // making sure only one URL is ever indexed or copied out of the address bar.
+    // `replace`, so the back button does not bounce between the two.
+    useEffect(() => {
+        if (form && form.slug && form.slug !== slugOrId) {
+            navigate(`/blog/${form.slug}`, { replace: true });
+        }
+    }, [form, slugOrId, navigate]);
 
     if (error) {
         return (
@@ -93,53 +119,19 @@ function PublicForm() {
             </li>
         ) : null;
 
-    // What the page is actually about, in the order a reader would say it.
-    const summary = [
-        form.type,
-        form.country,
-        form.averageRating != null ? `оценка ${form.averageRating}/10` : '',
-        brewings.length
-            ? `${brewings.length} ${plural(brewings.length, ['пролив', 'пролива', 'проливов'])}`
-            : '',
-        (brewings.find((b) => b.description && b.description !== 'none') || {}).description,
-    ].filter(Boolean).join(' · ');
-
     const preview = orderPhotos(form.photos)[0];
 
-    // Schema.org for the tasting itself. A dated, authored, rated write-up of a
-    // named product is a Review — the type search engines can actually show a
-    // rating for.
-    const jsonLd = {
-        '@context': 'https://schema.org',
-        '@type': 'Review',
-        name: form.nameRU,
-        datePublished: form.createdAt,
-        inLanguage: 'ru-RU',
-        itemReviewed: {
-            '@type': 'Product',
-            name: form.nameRU,
-            category: form.type || 'Чай',
-            ...(form.country ? { countryOfOrigin: form.country } : {}),
-        },
-        ...(author ? { author: { '@type': 'Person', name: author.nickname || author.name } } : {}),
-        ...(form.averageRating != null ? {
-            reviewRating: {
-                '@type': 'Rating',
-                ratingValue: form.averageRating,
-                bestRating: 10,
-                worstRating: 1,
-            },
-        } : {}),
-        ...(preview ? { image: `https://teaform.ru${preview.url}` } : {}),
-    };
+    // Derived in utils/formMeta.js, which the API's renderer mirrors: the HTML a
+    // crawler is served and the page a reader sees have to make the same claims.
+    const jsonLd = formJsonLd(form, brewings, preview && preview.url);
 
     return (
         <>
             <PageMeta
                 title={form.nameRU}
-                description={`Дегустация чая «${form.nameRU}»${summary ? `. ${summary}` : ''}`}
+                description={formDescription(form, brewings)}
                 image={preview && preview.url}
-                path={`/blog/${sessionId}`}
+                path={formUrl(form)}
                 type="article"
                 jsonLd={jsonLd}
             />
@@ -213,6 +205,7 @@ function PublicForm() {
                     <Link to="/blog" style={{ color: '#d8f5cc', display: 'inline-block', marginTop: '10px' }}>← Все публичные формы</Link>
                 </section>
             </div>
+            <SiteFooter />
         </>
     );
 }

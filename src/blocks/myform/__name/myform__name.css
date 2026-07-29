@@ -1,0 +1,14 @@
+/* The tasting's name as a link to its own page. Underlined only on hover: on a
+   card that is already dense with labelled rows, a permanent underline reads as
+   another label rather than as the one thing worth tapping. */
+.myform__name {
+	color: #ffffff;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.myform__name:hover,
+.myform__name:focus-visible {
+	text-decoration: underline;
+	color: #d8f5cc;
+}

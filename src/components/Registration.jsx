@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import PageMeta from './PageMeta.jsx';
 
 import { usePopup } from './PopupContext';
 import Header from './Header';
@@ -60,14 +60,8 @@ function Registration({ auth, popupContent }) {
 
 	return (
 		<>
-			<Helmet>
-				<title>Страница регистрации нофого аккаунта</title>
-				<meta name="description" content="Страница регистрации нового аккаунта" />
-				<meta name="keywords" content="tea, sign-up, login, password" />
-				<meta property="og:title" content="Страница регистрации нового аккаунта" />
-				<meta property="og:description" content="Страница регистрации нового аккаунта" />
-				{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
-			</Helmet>
+			<PageMeta title="Регистрация" path="/sign-up" noIndex
+				description="Заведите свой дневник чайных дегустаций." />
 			<Header />
 			<form className="registration" onSubmit={handleOnSubmit}>
 				<h1 className="registration__header">Регистрация</h1>

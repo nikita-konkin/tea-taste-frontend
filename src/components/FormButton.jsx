@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { purple } from '@mui/material/colors';
 import Button from '@mui/material/Button';
@@ -41,10 +42,20 @@ function FormButton(props){
     },
   });
 
+  // `to` renders the same button as a real <a href>. Navigation done with
+  // onClick + navigate() produces no anchor at all: a crawler finds no route
+  // out of the page, and a middle-click or "open in new tab" does nothing. The
+  // feed's only way into a tasting used to be exactly that.
+  // `type` is deliberately not forwarded to the link form — on an <a> the
+  // attribute means the MIME type of the target, not "button".
+  const asLink = props.to
+    ? { component: Link, to: props.to }
+    : { type: props.type || 'button' };
+
 	return(
 
 		<>
-		<BootstrapButton onClick={props.onClick} type={props.type || 'button'} variant="contained">{props.buttonName}</BootstrapButton>
+		<BootstrapButton {...asLink} onClick={props.onClick} variant="contained">{props.buttonName}</BootstrapButton>
 		</>
 
 		)

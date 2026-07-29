@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import ProtectedRoute from "./ProtectedRoute";
 import { mainApi } from "../utils/MainAPI.jsx";
 import { formApi } from "../utils/FormAPI.jsx";
@@ -10,6 +10,7 @@ import Registration from './Registration.jsx';
 import Profile from './Profile.jsx';
 import Forms from './Forms.jsx';
 import PublicForm from './PublicForm.jsx';
+import Landing from './Landing.jsx';
 import ResetPassword from './ResetPassword.jsx';
 import VkAuthDone from './VkAuthDone.jsx';
 import Admin from './Admin.jsx';
@@ -312,12 +313,13 @@ function AppContent({ navigate }) {
   return (
     <div className="root">
       <Routes>
-        {/* The feed is the front page: it is the only part of the site a visitor
-            can read without an account. Redirected rather than rendered in place
-            so /blog stays the one address for it — the menu highlights it, and
-            the previous root route rendered a ProtectedRoute with no component
-            at all, which threw for anyone already signed in. */}
-        <Route path="/" element={<Navigate to="/blog" replace />} />
+        {/* A real page, not a redirect. `/` was <Navigate to="/blog">, which
+            meant the site's most important URL served no HTML, no text and no
+            links — nothing that does not run JavaScript could follow it, and a
+            visitor arriving from a search landed in a wall of tasting cards
+            with no sentence saying what any of it was. /blog is still the one
+            address of the feed. */}
+        <Route path="/" element={<Landing />} />
         <Route path="/form_1" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} />} />
         <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
         <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
@@ -353,6 +355,20 @@ function AppContent({ navigate }) {
         />} /> */}
 
           <Route path="/blog" element={<Forms localStorageLoggedIn={localStorageLoggedIn}
+          isMyForms={false}
+          isBlog={true}
+          navigation={FormNavigatePrevSatge}
+          forms={getAllPublicForms}
+          brewingsById={getPublicBrewingsById}
+          tastesById={getPublicTastesById}
+          aromasById={getPublicAromasById}
+        />} />
+
+          {/* One page per tea type, with an address of its own — the feed's
+              filter used to be component state, so a type could not be linked
+              to or indexed. Declared before /blog/:sessionId so «type» matches
+              as the literal segment it is rather than as a tasting's slug. */}
+          <Route path="/blog/type/:typeSlug" element={<Forms localStorageLoggedIn={localStorageLoggedIn}
           isMyForms={false}
           isBlog={true}
           navigation={FormNavigatePrevSatge}

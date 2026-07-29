@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import PageMeta from './PageMeta.jsx';
 
 import Header from './Header.jsx'
 
@@ -44,14 +44,8 @@ function Login(props) {
 
 	return (
 		<>
-		<Helmet>
-			<title>Страница входа в форму</title>
-			<meta name="description" content="Страница входа в форму заполнения информации о чае и его проливах" />
-			<meta name="keywords" content="tea, sign-in, login, password" />
-			<meta property="og:title" content="Страница входа в форму заполнения информации о чае и его проливах" />
-			<meta property="og:description" content="Страница входа в форму заполнения информации о чае и его проливах" />
-			{/* <meta property="og:image" content="https://example.com/image.jpg" /> */}
-		</Helmet>
+		<PageMeta title="Вход" path="/sign-in" noIndex
+			description="Вход в дневник чайных дегустаций." />
 		    <Header />
 			<form className="authorization" onSubmit={e => handleOnSubmit(e)}>
 				<h1 className="authorization__header">Вход</h1>

@@ -37,7 +37,25 @@
       content="Дневник чайных дегустаций: аромат, вкус и проливы, фото и голосовые заметки."
     />
     <meta data-react-helmet="true" property="og:image" content="https://teaform.ru/logo512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Форма чая" />
     <meta data-react-helmet="true" name="twitter:card" content="summary_large_image" />
+    <!-- The Twitter title/description/image were only ever set by PageMeta,
+         i.e. after the JavaScript ran. Anything reading the raw HTML — which is
+         every chat preview and every crawler that does not execute JS — got a
+         card with an image and nothing else. -->
+    <meta data-react-helmet="true" name="twitter:title" content="Форма чая — дневник чайных дегустаций" />
+    <meta
+      data-react-helmet="true"
+      name="twitter:description"
+      content="Дневник чайных дегустаций: аромат, вкус и проливы, фото и голосовые заметки."
+    />
+    <meta data-react-helmet="true" name="twitter:image" content="https://teaform.ru/logo512.png" />
+    <!-- Default canonical for the shell. Every real page replaces it through
+         PageMeta; without one here, a URL that arrived with tracking parameters
+         had nothing to fold back to. -->
+    <link data-react-helmet="true" rel="canonical" href="https://teaform.ru/" />
 
     <meta name="yandex-verification" content="56c39326587125eb" />
     <meta name="yandex-verification" content="3d5917344191772e" />

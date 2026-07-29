@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import FormEdit from './FormEdit.jsx';
 import { RaitingPial } from './TeaRaiting.jsx';
@@ -11,7 +11,7 @@ import { orderPhotos } from './TeaPhotos.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
-import { formatDateTime, formatShortDateTime } from '../utils/utils.js';
+import { formatDateTime, formatShortDateTime, formUrl } from '../utils/utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import { set } from 'react-hook-form';
 
@@ -30,7 +30,6 @@ function Form({
 }) {
     const { openPopup } = usePopup();
     const { aromasByIdCxt, tastesByIdCxt, brewsByIdCxt } = useMyFormConext();
-    const navigate = useNavigate();
     const brewsRender = useRef([]);
     const [openDetails, setOpenDetails] = React.useState(false);
     const [viewingPhotos, setViewingPhotos] = React.useState(false);
@@ -117,8 +116,13 @@ function Form({
                 {/* A feed of ten tastings is ten full-size uploads; below the
                     fold none of them need to be fetched until they are scrolled
                     to. The dimensions reserve the space so the card does not
-                    jump when the picture lands. */}
-                <img className="myform__media-image" src={cardPhotos[0].url}
+                    jump when the picture lands.
+                    `thumb` is a 320px WebP made at upload time — the original is
+                    1600px and this renders it at 130. Photos uploaded before
+                    thumbnails existed have none and fall back to the original,
+                    which is what every card used to do. */}
+                <img className="myform__media-image"
+                    src={cardPhotos[0].thumb || cardPhotos[0].url}
                     alt={`Фото чая: ${formData.nameRU}`}
                     loading="lazy" decoding="async" width="130" height="130"
                     onError={(e) => { e.target.closest('button').style.display = 'none'; }} />
@@ -315,14 +319,15 @@ function Form({
                             setOpenDetails(true);
                         }}
                     />
+                    {/* A link, not a navigate() handler: this is the only route
+                        from the feed into a tasting, and as a button it existed
+                        for nobody but a mouse — no crawler could follow it and
+                        no reader could open it in a new tab. */}
                     <FormButton
                         buttonName={'Открыть'}
                         width={'49%'}
                         margin={'0px'}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            navigate(`/blog/${formData.sessionId}`);
-                        }}
+                        to={formUrl(formData)}
                     />
                 </>
             )
@@ -375,7 +380,16 @@ function Form({
             <div className="myform__body">
                 {cardThumb()}
                 <ul className="myform__list">
-                    <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>{formData.nameRU}</li>
+                    {/* The tea's own name is the anchor text that says what is
+                        behind the link — «Открыть» says nothing to a reader
+                        scanning the page or to a search engine weighing it. Not
+                        linked on /my_forms: an unpublished tasting has no
+                        public address to point at. */}
+                    <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>
+                        {isMyForms
+                            ? formData.nameRU
+                            : <Link className="myform__name" to={formUrl(formData)}>{formData.nameRU}</Link>}
+                    </li>
                     <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{formatDateTime(formData.createdAt)}</li>
                     <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
                 </ul>

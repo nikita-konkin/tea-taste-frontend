@@ -5,6 +5,7 @@ import React, {
 
 import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
+import PageMeta from './PageMeta.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { formatMinutes } from '../utils/utils.js';
@@ -125,6 +126,7 @@ function Profile(props) {
 
 	return (
 		<>
+			<PageMeta title="Профиль" path="/profile" noIndex />
 			<Header navigation={props.navigation} />
 
 			<form className="authorization authorization_compact" onSubmit={handleProfileSubmit}>

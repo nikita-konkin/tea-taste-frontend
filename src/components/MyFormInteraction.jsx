@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
+import PageMeta from './PageMeta.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
@@ -341,6 +342,7 @@ function MyFormInteraction(props) {
 
 	return (
 		<>
+			<PageMeta title="Проверка формы" path="/form_submit" noIndex />
 			<Header navigation={props.navigation} />
 			<div className="myforminteraction">
 

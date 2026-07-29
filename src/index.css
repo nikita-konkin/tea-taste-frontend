@@ -20,8 +20,12 @@
 @import url(./blocks/myforms/myforms.css);
 @import url(./blocks/myform/__list/myform__list.css);
 @import url(./blocks/myform/__row/myform__row.css);
+@import url(./blocks/myform/__name/myform__name.css);
 @import url(./blocks/myform/__buttons/myform__buttons.css);
 @import url(./blocks/myform/__media/myform__media.css);
+
+@import url(./blocks/landing/landing.css);
+@import url(./blocks/sitefooter/sitefooter.css);
 
 @import url(./blocks/teaphotos/teaphotos.css);
 @import url(./blocks/lightbox/lightbox.css);
