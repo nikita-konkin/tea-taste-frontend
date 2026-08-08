@@ -15,7 +15,8 @@ import VoiceGuide, { MicIcon } from './VoiceGuide.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
-import { teaTypeSlugs, teaTypeBySlug } from '../utils/teaTypes.js';
+import { teaTypeSlugs, teaTypeBySlug, teaTypeShort } from '../utils/teaTypes.js';
+import { useT } from '../i18n/index.js';
 import { Select, MenuItem } from '@mui/material';
 
 // Anything else in ?sort= is ignored rather than passed through: the value goes
@@ -95,6 +96,7 @@ function Forms({ forms, navigation,
 	} = useMyFormConext();
 	const { openPopup } = usePopup();
 	const navigate = useNavigate();
+	const { t, url, locale } = useT();
 	// Moderation controls appear on blog cards for admins only. The blog is a
 	// public page, so this asks the server and quietly settles on "not an admin"
 	// for a signed-out visitor or any failure — the endpoints refuse anyway.
@@ -122,6 +124,8 @@ function Forms({ forms, navigation,
 	const typeFilter = teaType ? teaType.label : ''
 
 	// Base path of the feed the user is looking at — the type hub or the feed.
+	// Bare, without the locale prefix: PageMeta adds it when building the
+	// canonical and the hreflang alternates, and `url()` adds it for links.
 	const basePath = teaType ? `/blog/type/${teaType.slug}` : '/blog'
 
 	// Page 1 is written as the bare path, not `?page=1`: two addresses for one
@@ -131,7 +135,7 @@ function Forms({ forms, navigation,
 		if (nextPage > 1) params.set('page', String(nextPage))
 		if (nextSort !== 'date') params.set('sort', nextSort)
 		const query = params.toString()
-		return query ? `${basePath}?${query}` : basePath
+		return url(query ? `${basePath}?${query}` : basePath)
 	}
 
 	// Changing the order starts again from page 1: page 3 of one ordering has
@@ -262,17 +266,17 @@ function Forms({ forms, navigation,
 				{withSort && (
 					<Select size="small" sx={selectSx} MenuProps={selectMenuProps}
 						value={mySort}
-						inputProps={{ 'aria-label': 'Сортировка' }}
+						inputProps={{ 'aria-label': t('feed.sort') }}
 						onChange={(e) => {
 							setMySort(e.target.value);
 							localStorage.setItem('myFormsSort', e.target.value);
 						}}>
-						<MenuItem value="date">Сначала новые</MenuItem>
-						<MenuItem value="-date">Сначала старые</MenuItem>
-						<MenuItem value="rating">Рейтинг: по убыванию</MenuItem>
-						<MenuItem value="-rating">Рейтинг: по возрастанию</MenuItem>
-						<MenuItem value="name">Название: А–Я</MenuItem>
-						<MenuItem value="-name">Название: Я–А</MenuItem>
+						<MenuItem value="date">{t('feed.sortNewest')}</MenuItem>
+						<MenuItem value="-date">{t('feed.sortOldest')}</MenuItem>
+						<MenuItem value="rating">{t('feed.sortRatingDesc')}</MenuItem>
+						<MenuItem value="-rating">{t('feed.sortRatingAsc')}</MenuItem>
+						<MenuItem value="name">{t('feed.sortNameAsc')}</MenuItem>
+						<MenuItem value="-name">{t('feed.sortNameDesc')}</MenuItem>
 					</Select>
 				)}
 				{/* Not «О голосовых заметках»: in Jura a standalone «О» is
@@ -281,7 +285,7 @@ function Forms({ forms, navigation,
 				<button type="button" className="voicenote__button voiceguide__open"
 					onClick={() => openPopup(<VoiceGuide />)}>
 					<MicIcon />
-					Как работают голосовые заметки
+					{t('voice.howItWorks')}
 				</button>
 			</div>
 		);
@@ -297,28 +301,32 @@ function Forms({ forms, navigation,
 				    («пуэр отзывы»), and there is only ever one URL per type. */}
 				<Select size="small" sx={selectSx} MenuProps={selectMenuProps}
 					value={typeSlug || ''} displayEmpty
-					inputProps={{ 'aria-label': 'Фильтр по типу чая' }}
-					onChange={(e) => navigate(e.target.value ? `/blog/type/${e.target.value}` : '/blog')}>
-					<MenuItem value="">Все типы чая</MenuItem>
-					{teaTypeSlugs.map((t) => <MenuItem key={t.slug} value={t.slug}>{t.label}</MenuItem>)}
+					inputProps={{ 'aria-label': t('feed.filterByType') }}
+					onChange={(e) => navigate(url(e.target.value ? `/blog/type/${e.target.value}` : '/blog'))}>
+					<MenuItem value="">{t('feed.allTypes')}</MenuItem>
+					{teaTypeSlugs.map((type) => (
+						<MenuItem key={type.slug} value={type.slug}>{teaTypeShort(type, locale)}</MenuItem>
+					))}
 				</Select>
 				<Select size="small" sx={selectSx} MenuProps={selectMenuProps}
 					value={sortOrder}
-					inputProps={{ 'aria-label': 'Сортировка' }}
+					inputProps={{ 'aria-label': t('feed.sort') }}
 					onChange={(e) => setSortOrder(e.target.value)}>
-					<MenuItem value="date">Сначала новые</MenuItem>
-					<MenuItem value="-date">Сначала старые</MenuItem>
-					<MenuItem value="rating">Рейтинг: по убыванию</MenuItem>
-					<MenuItem value="-rating">Рейтинг: по возрастанию</MenuItem>
+					<MenuItem value="date">{t('feed.sortNewest')}</MenuItem>
+					<MenuItem value="-date">{t('feed.sortOldest')}</MenuItem>
+					<MenuItem value="rating">{t('feed.sortRatingDesc')}</MenuItem>
+					<MenuItem value="-rating">{t('feed.sortRatingAsc')}</MenuItem>
 				</Select>
 			</div>
 		);
 	};
 
+	const typeName = teaType ? teaTypeShort(teaType, locale) : '';
+
 	const feedTitle = () => {
-		if (isMyForms) return 'Мои Формы';
-		if (teaType) return `${teaType.short} — дегустации`;
-		return 'Публичные формы';
+		if (isMyForms) return t('feed.mine');
+		if (teaType) return t('feed.typeHeading', { type: typeName });
+		return t('feed.public');
 	};
 
 	// /my_forms is behind a login and is in robots.txt as Disallow, so it says so
@@ -329,16 +337,17 @@ function Forms({ forms, navigation,
 	// a separate near-identical URL. Page 2 is genuinely different content and
 	// keeps its own.
 	const pageMeta = () => {
-		if (isMyForms) return <PageMeta title="Мои дегустации" path="/my_forms" noIndex />;
+		if (isMyForms) return <PageMeta title={t('feed.myTastings')} path="/my_forms" noIndex />;
 
 		const canonical = page > 1 ? `${basePath}?page=${page}` : basePath;
-		const suffix = page > 1 ? ` — страница ${page}` : '';
 
 		if (teaType) {
 			return (
 				<PageMeta
-					title={`${teaType.short}: дегустации и отзывы${suffix}`}
-					description={`Дегустации, собранные читателями: ${teaType.short.toLowerCase()} — аромат, вкус, проливы, оценки и фотографии.`}
+					title={page > 1
+						? t('feed.typeTitlePage', { type: typeName, page })
+						: t('feed.typeTitle', { type: typeName })}
+					description={t('feed.typeDescription', { type: typeName })}
 					path={canonical}
 				/>
 			);
@@ -346,8 +355,8 @@ function Forms({ forms, navigation,
 
 		return (
 			<PageMeta
-				title={`Лента дегустаций${suffix}`}
-				description="Дегустации чая, которыми поделились участники: аромат, вкус, проливы, фотографии и голосовые заметки."
+				title={page > 1 ? t('feed.titlePage', { page }) : t('feed.title')}
+				description={t('feed.description')}
 				path={canonical}
 			/>
 		);
@@ -380,7 +389,7 @@ function Forms({ forms, navigation,
 				{pageMeta()}
 				<Header navigation={navigation} />
 				<div className="myforms">
-					<h2 className="header__myforms">Ищем формы...</h2>
+					<h2 className="header__myforms">{t('feed.loading')}</h2>
 				</div>
 			</>
 		)
@@ -395,9 +404,9 @@ function Forms({ forms, navigation,
 					<h1 className="header__myforms">{feedTitle()}</h1>
 					{blogControls()}
 					{myFormsControls(false)}
-					<h2 className="header__myforms">{isMyForms ? 'У вас пока нет форм' : 'Ничего не найдено'}</h2>
+					<h2 className="header__myforms">{isMyForms ? t('feed.emptyMine') : t('feed.empty')}</h2>
 				</div>
-				<PopupButton naviagteTo={'/form_1'} content={'Создать форму'}/>
+				<PopupButton naviagteTo={url('/form_1')} content={t('feed.createForm')}/>
 				{isBlog && <SiteFooter />}
 			</>
 		)
@@ -414,7 +423,7 @@ function Forms({ forms, navigation,
 				{renderForms}
 				{pagination()}
 			</div>
-			<PopupButton naviagteTo={'/form_1'} content={'Создать форму'}/>
+			<PopupButton naviagteTo={url('/form_1')} content={t('feed.createForm')}/>
 			{isBlog && <SiteFooter />}
 		</>
 

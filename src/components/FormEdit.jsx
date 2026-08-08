@@ -6,6 +6,8 @@ import { mainApi } from '../utils/MainAPI.jsx';
 import TeaPhotos from './TeaPhotos.jsx';
 import VoiceExtract from './VoiceExtract.jsx';
 import { flattenDescriptorDB } from './DescriptorPicker.jsx';
+import { useT } from '../i18n/index.js';
+import { optionLabel, canonicalOption } from '../i18n/options.js';
 import { TextField, Stack, Autocomplete } from '@mui/material';
 // Shared with the wizard so the two screens cannot drift apart. They belong in
 // utils/ eventually — exported from the stage-1 component for now to avoid
@@ -78,6 +80,15 @@ const normalizeForMatch = (text) => String(text || '')
 
 function FormEdit({ formData, patchFormById }) {
     const { closePopup } = usePopup();
+    const { t, locale } = useT();
+
+    // «пролив №1, пролив №3» / "steep no. 1, steep no. 3" / 第 1 泡, 第 3 泡.
+    // Built from the label rather than by gluing «№» onto joined numbers: the
+    // numbering sits in a different place in each language, and Chinese puts it
+    // inside the word.
+    const brewList = (numbers) => numbers
+        .map((n) => t('wizard.steepLabel', { n }))
+        .join(', ');
 
     const [values, setValues] = useState({
         nameRU: formData.nameRU || '',
@@ -205,7 +216,7 @@ function FormEdit({ formData, patchFormById }) {
             .then((results) => {
                 const failed = results.filter((r) => r && !r.ok).map((r) => r.bc);
                 if (failed.length) {
-                    setError(`Дегустация сохранена, но проливы №${failed.join(', №')} — нет.`);
+                    setError(t('edit.brewsFailed', { list: brewList(failed) }));
                     return;
                 }
                 setSaved(true);
@@ -213,7 +224,7 @@ function FormEdit({ formData, patchFormById }) {
                 setRemovedUrls([]);
             })
             .catch((err) => {
-                setError(err.message || 'Не удалось сохранить изменения.');
+                setError(err.message || t('edit.saveFailed'));
             })
             .finally(() => setSaving(false));
     };
@@ -293,7 +304,7 @@ function FormEdit({ formData, patchFormById }) {
             })
             .catch(() => setBrewStatus((prev) => ({
                 ...prev,
-                [bc]: 'Не удалось добавить дескрипторы из записи.',
+                [bc]: t('edit.descriptorsFailed'),
             })));
     };
 
@@ -310,19 +321,21 @@ function FormEdit({ formData, patchFormById }) {
                 setTastes((prev) => prev.filter((t) => t.brewingCount !== bc));
             })
             .catch((err) =>
-                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || 'Ошибка удаления.' }))
+                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || t('edit.brewDeleteFailed') }))
             );
     };
 
     const addBrewing = () => {
         const next = brewings.reduce((m, b) => Math.max(m, b.brewingCount), 0) + 1;
         formApi.postFormStage2Brew(
-            { description: 'Новый пролив', brewingRating: 7, brewingTime: '0:00:10' },
+            // Stored, not displayed: from here on it is the user's own text, so
+            // it is written in the language they are reading in.
+            { description: t('edit.newBrew'), brewingRating: 7, brewingTime: '0:00:10' },
             formData.sessionId, next, values.publicAccess
         )
             .then(() => formApi.getAllMyBrewingsById(formData.sessionId))
             .then((b) => setBrewings((b.data || []).map((x) => ({ ...x }))))
-            .catch((err) => setError(err.message || 'Не удалось добавить пролив.'));
+            .catch((err) => setError(err.message || t('edit.addBrewFailed')));
     };
 
     const saveBrewing = (brew) => {
@@ -374,7 +387,7 @@ function FormEdit({ formData, patchFormById }) {
                 return { bc, ok: true };
             })
             .catch((err) => {
-                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || 'Ошибка сохранения.' }));
+                setBrewStatus((prev) => ({ ...prev, [bc]: err.message || t('edit.brewSaveFailed') }));
                 return { bc, ok: false };
             });
     };
@@ -406,7 +419,10 @@ function FormEdit({ formData, patchFormById }) {
             // The extracted value is selected on focus, so typing replaces it
             // outright instead of appending to it.
             selectOnFocus
-            options={options.map((option) => option.label)}
+            // Displayed translated, stored Russian. The Russian string is the
+            // key every other language looks up against, so a picked "Gaiwan"
+            // has to land in the document as «Гайвань» — see canonicalOption.
+            options={options.map((option) => optionLabel(option, locale))}
             filterOptions={(list, state) => {
                 const query = normalizeForMatch(state.inputValue);
                 if (!query) return list;
@@ -418,9 +434,11 @@ function FormEdit({ formData, patchFormById }) {
                 // user most wants to pick a real one.
                 return hits.length ? hits : list;
             }}
-            value={values[name] || ''}
-            inputValue={values[name] || ''}
-            onChange={(event, next) => setValues((prev) => ({ ...prev, [name]: next || '' }))}
+            value={optionLabel(values[name] || '', locale)}
+            inputValue={optionLabel(values[name] || '', locale)}
+            onChange={(event, next) => setValues((prev) => ({
+                ...prev, [name]: canonicalOption(next || '', locale),
+            }))}
             onInputChange={(event, next, reason) => {
                 if (reason === 'input') setValues((prev) => ({ ...prev, [name]: next }));
             }}
@@ -444,9 +462,15 @@ function FormEdit({ formData, patchFormById }) {
     const stageInputs = (records, setter, prefix, label) =>
         records.map((rec) => {
             const count = rec[`${prefix.replace('Stage', '')}Count`];
+            // «Аромат №2» / "Aroma no. 2" / 香气 2 — the same heading the wizard
+            // gives the same row, numbering included.
+            const heading = t(
+                prefix.startsWith('aroma') ? 'wizard.aromaHeading' : 'wizard.tasteHeading',
+                { n: count },
+            );
             return (
                 <Stack direction="column" spacing={1.5} key={rec._id} style={{ margin: '10px 0 0 0' }}>
-                    <span style={{ color: '#d8f5cc', fontWeight: 600 }}>{label} №{count}</span>
+                    <span style={{ color: '#d8f5cc', fontWeight: 600 }}>{heading}</span>
                     {(() => {
                         // One field over the whole flattened dictionary rather than
                         // three cascading ones: typing «мята» finds «Травяной →
@@ -511,10 +535,10 @@ function FormEdit({ formData, patchFormById }) {
                                     <TextField {...params}
                                         label={label}
                                         size="small"
-                                        placeholder="начните печатать: мята, лаванда…"
+                                        placeholder={t('wizard.descriptorPlaceholder')}
                                         inputProps={{
                                             ...params.inputProps,
-                                            'aria-label': `${label} ${count}`,
+                                            'aria-label': heading,
                                         }} />
                                 )} />
                         );
@@ -531,23 +555,25 @@ function FormEdit({ formData, patchFormById }) {
         if (!found) return null;
 
         const notes = [
-            (found.aromas || []).length ? `Аромат: ${found.aromas.join('; ')}` : '',
-            (found.tastes || []).length ? `Вкус: ${found.tastes.join('; ')}` : '',
+            (found.aromas || []).length ? `${t('tasting.aroma')}: ${found.aromas.join('; ')}` : '',
+            (found.tastes || []).length ? `${t('tasting.taste')}: ${found.tastes.join('; ')}` : '',
         ].filter(Boolean);
 
         return (
             <div className="voiceextract" style={{ margin: '0 0 12px 0' }}>
                 <div className="voiceextract__head">
-                    <span className="voiceextract__title">Из записи</span>
+                    <span className="voiceextract__title">{t('edit.fromRecording')}</span>
                     <button type="button" className="voiceextract__apply"
                         onClick={() => applyBrewingSuggestion(bc, found)}
                         disabled={Boolean(appliedBrews[bc])}>
-                        {appliedBrews[bc] ? '✓' : 'Применить'}
+                        {appliedBrews[bc] ? '✓' : t('extract.apply')}
                     </button>
                 </div>
                 {found.description && <span className="voiceextract__value">{found.description}</span>}
                 {found.time !== undefined && found.time !== null && (
-                    <span className="voiceextract__tags">Время: {asBrewingTime(found.time)}</span>
+                    <span className="voiceextract__tags">
+                        {t('tasting.steepTime')}: {asBrewingTime(found.time)}
+                    </span>
                 )}
                 {notes.map((note) => (
                     <span className="voiceextract__tags" key={note}>{note}</span>
@@ -568,11 +594,11 @@ function FormEdit({ formData, patchFormById }) {
         return (
             <div className="voiceextract">
                 <span className="voiceextract__title">
-                    В записи есть проливы, которых нет в форме: №{extra.map((b) => b.number).join(', №')}
+                    {t('edit.unmatchedBrews', { list: brewList(extra.map((b) => b.number)) })}
                 </span>
                 {extra.map((brewing) => (
                     <span className="voiceextract__brewing" key={brewing.number}>
-                        <b>№{brewing.number}</b> {brewing.description || ''}
+                        <b>{t('wizard.steepHeading', { n: brewing.number })}</b> {brewing.description || ''}
                     </span>
                 ))}
             </div>
@@ -581,54 +607,56 @@ function FormEdit({ formData, patchFormById }) {
 
     const brewingsSection = () => {
         if (brewings === null) {
-            return <p className="myforminteraction__row">Загружаем проливы...</p>;
+            return <p className="myforminteraction__row">{t('edit.loadingBrews')}</p>;
         }
         if (brewings.length === 0) {
-            return <p className="myforminteraction__row">У этой формы пока нет проливов.</p>;
+            return <p className="myforminteraction__row">{t('edit.noBrews')}</p>;
         }
         return brewings.map((brew) => {
             const bc = brew.brewingCount;
             const status = brewStatus[bc];
             return (
                 <div key={bc} style={brewBlockStyle} data-testid={`brew-edit-${bc}`}>
-                    <p style={{ color: '#d8f5cc', fontWeight: 600, margin: '0 0 12px 0' }}>Пролив №{bc}</p>
+                    <p style={{ color: '#d8f5cc', fontWeight: 600, margin: '0 0 12px 0' }}>
+                        {t('wizard.steepHeading', { n: bc })}
+                    </p>
                     {brewSuggestion(bc)}
                     <Stack direction="column" spacing={1.5}>
                         <TextField
-                            label="Время заваривания (Ч:ММ:СС)"
+                            label={t('edit.brewTime')}
                             size="small"
                             placeholder="0:00:15"
                             value={brew.brewingTime || ''}
                             inputProps={{ pattern: '^(2[0-3]|[01]?[0-9]):([0-5]?[0-9]):([0-5]?[0-9])$' }}
                             onChange={(e) => changeBrewing(bc, 'brewingTime', e.target.value)} />
                         <TextField
-                            label="Рейтинг пролива"
+                            label={t('wizard.steepRating')}
                             type="number"
                             size="small"
                             inputProps={{ min: 0, max: 10, step: 1 }}
                             value={brew.brewingRating ?? ''}
                             onChange={(e) => changeBrewing(bc, 'brewingRating', e.target.value)} />
                         <TextField
-                            label="Описание"
+                            label={t('wizard.steepDescription')}
                             multiline
                             minRows={3}
                             value={brew.description || ''}
                             inputProps={{ minLength: 2, maxLength: 2000 }}
                             onChange={(e) => changeBrewing(bc, 'description', e.target.value)} />
                     </Stack>
-                    {stageInputs(aromas.filter((a) => a.brewingCount === bc), setAromas, 'aromaStage', 'Аромат')}
-                    {stageInputs(tastes.filter((t) => t.brewingCount === bc), setTastes, 'tasteStage', 'Вкус')}
+                    {stageInputs(aromas.filter((a) => a.brewingCount === bc), setAromas, 'aromaStage', t('tasting.aroma'))}
+                    {stageInputs(tastes.filter((t) => t.brewingCount === bc), setTastes, 'tasteStage', t('tasting.taste'))}
                     {status && status !== 'saving' && status !== 'saved' && (
                         <p style={{ color: '#ffb4a8', margin: '8px 0 0 0' }}>{status}</p>
                     )}
                     <div style={{ display: 'flex', gap: '2%' }}>
                         <FormButton
-                            buttonName={status === 'saving' ? 'Сохраняем...' : status === 'saved' ? 'Сохранено ✓' : 'Сохранить пролив'}
+                            buttonName={status === 'saving' ? t('edit.saving') : status === 'saved' ? t('edit.savedMark') : t('edit.saveBrew')}
                             width={'66%'} margin={'12px 0 0 0'}
                             onClick={(e) => { e.preventDefault(); saveBrewing(brew); }}
                         />
                         <FormButton
-                            buttonName={'Удалить'}
+                            buttonName={t('card.delete')}
                             width={'32%'} margin={'12px 0 0 0'}
                             onClick={(e) => { e.preventDefault(); deleteBrewing(bc); }}
                         />
@@ -642,20 +670,20 @@ function FormEdit({ formData, patchFormById }) {
         <ThemeProvider theme={theme}>
             <section className="myforminteraction__section">
                 <form onSubmit={handleSubmit} data-testid="form-edit">
-                    <h3>Редактирование формы</h3>
+                    <h3>{t('edit.title')}</h3>
                     <Stack direction="column" spacing={1.5}>
-                        {textField('Название', 'nameRU')}
-                        {suggestField('Тип чая', 'type', teaTypeOptions)}
-                        {suggestField('Страна', 'country', teaCountryOptions)}
-                        {suggestField('Магазин', 'shop', teaShopOptions)}
-                        {numberField('Вес, г', 'weight', 1, 10000)}
-                        {suggestField('Вода', 'water', waterBrandOptions)}
-                        {numberField('Объем воды, мл', 'volume', 1, 10000)}
-                        {numberField('Температура воды, °C', 'temperature', 1, 100)}
-                        {numberField('Цена за грамм, ₽', 'price', 0, 100000, 0.0001)}
-                        {suggestField('Посуда', 'teaware', teaWareOptions)}
-                        {suggestField('Метод заваривания', 'brewingtype', brewingTypeOptions)}
-                        {numberField('Итоговый рейтинг (1–10)', 'averageRating', 1, 10, 0.01)}
+                        {textField(t('card.name'), 'nameRU')}
+                        {suggestField(t('card.teaType'), 'type', teaTypeOptions)}
+                        {suggestField(t('tasting.country'), 'country', teaCountryOptions)}
+                        {suggestField(t('tasting.shop'), 'shop', teaShopOptions)}
+                        {numberField(t('edit.weight'), 'weight', 1, 10000)}
+                        {suggestField(t('tasting.water'), 'water', waterBrandOptions)}
+                        {numberField(t('edit.volume'), 'volume', 1, 10000)}
+                        {numberField(t('edit.temperature'), 'temperature', 1, 100)}
+                        {numberField(t('edit.price'), 'price', 0, 100000, 0.0001)}
+                        {suggestField(t('tasting.teaware'), 'teaware', teaWareOptions)}
+                        {suggestField(t('tasting.brewingMethod'), 'brewingtype', brewingTypeOptions)}
+                        {numberField(t('edit.finalRating'), 'averageRating', 1, 10, 0.01)}
                         {formData.voice && formData.voice.transcript && (
                             <VoiceExtract
                                 sessionId={formData.sessionId}
@@ -670,7 +698,7 @@ function FormEdit({ formData, patchFormById }) {
                             onRemovedUrl={(url) => setRemovedUrls((prev) => [...prev, url])}
                         />
                         <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <bdi>Публикация в блоге: </bdi>
+                            <bdi>{t('tasting.publicAccess')}: </bdi>
                             <input type="checkbox" name="publicAccess"
                                 checked={values.publicAccess} onChange={handleChange} />
                         </label>
@@ -679,7 +707,7 @@ function FormEdit({ formData, patchFormById }) {
                             // the tasting text is not the same decision as publishing
                             // the audio, which caught whatever else was in the room.
                             <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <bdi>Публиковать аудиозапись и расшифровку: </bdi>
+                                <bdi>{t('edit.publishVoice')}: </bdi>
                                 <input type="checkbox" name="voicePublic"
                                     checked={values.voicePublic} onChange={handleChange} />
                             </label>
@@ -687,21 +715,21 @@ function FormEdit({ formData, patchFormById }) {
                     </Stack>
                     {error && <p style={{ color: '#ffb4a8' }}>{error}</p>}
                     <FormButton type="submit"
-                        buttonName={saving ? 'Сохраняем...' : saved ? 'Сохранено ✓' : 'Сохранить форму'}
+                        buttonName={saving ? t('edit.saving') : saved ? t('edit.savedMark') : t('edit.saveForm')}
                         width={'100%'} />
                 </form>
 
                 {/* Keeps its own top margin — it separates the проливы from the
                     form above; the bottom comes from the section rule. */}
-                <h3 style={{ marginTop: '18px' }}>Проливы</h3>
+                <h3 style={{ marginTop: '18px' }}>{t('edit.brews')}</h3>
                 {brewingsSection()}
                 {unmatchedBrewings()}
                 {brewings !== null && (
-                    <FormButton buttonName={'Добавить пролив'} width={'100%'} margin={'4px 0 0 0'}
+                    <FormButton buttonName={t('wizard.addSteep')} width={'100%'} margin={'4px 0 0 0'}
                         onClick={(e) => { e.preventDefault(); addBrewing(); }} />
                 )}
 
-                <FormButton buttonName={'Закрыть'} width={'100%'} margin={'12px 0 0 0'}
+                <FormButton buttonName={t('edit.close')} width={'100%'} margin={'12px 0 0 0'}
                     onClick={(e) => { e.preventDefault(); closePopup(); }} />
             </section>
         </ThemeProvider>

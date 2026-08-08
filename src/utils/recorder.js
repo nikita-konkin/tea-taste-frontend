@@ -1,6 +1,7 @@
 // Thin wrapper over MediaRecorder. Kept separate from the component so the
 // component can be tested in jsdom, which has neither MediaRecorder nor
 // getUserMedia.
+import { translateHere } from '../i18n/index.js';
 
 // Chrome, Firefox and Edge record webm/opus; Safari and iOS only offer mp4/aac.
 // The server accepts both and normalises to mp3, so the first supported one wins.
@@ -29,7 +30,7 @@ const pickMimeType = () => CANDIDATES.find((type) => {
 // explicitly: leaving it live keeps the browser's recording indicator on, which
 // users read — correctly — as "this page is still listening".
 export const startRecording = async ({ onTick } = {}) => {
-    if (!isSupported()) throw new Error('Запись не поддерживается этим браузером.');
+    if (!isSupported()) throw new Error(translateHere('voice.recordUnsupported'));
 
     const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true },
@@ -63,7 +64,7 @@ export const startRecording = async ({ onTick } = {}) => {
         });
         recorder.addEventListener('error', (event) => {
             release();
-            reject(event.error || new Error('Ошибка записи.'));
+            reject(event.error || new Error(translateHere('voice.recordError')));
         });
     });
 

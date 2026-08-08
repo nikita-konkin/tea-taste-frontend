@@ -1,0 +1,87 @@
+/* Language switcher, in two shapes.
+
+   `inline` — the footer. Sits there rather than in the header because it is a
+   once-per-visit choice, and the header is already tight at 320px.
+
+   `block` — the profile page, where the same component is a setting rather than
+   a footer afterthought: one full-width row per language, so it reads and taps
+   like the other controls on that page. */
+.localeswitcher {
+	display: flex;
+}
+
+.localeswitcher_inline {
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 10px;
+}
+
+.localeswitcher_block {
+	flex-direction: column;
+	align-items: stretch;
+	width: 100%;
+	gap: 6px;
+	margin: 6px 0 0 0;
+}
+
+.localeswitcher__link {
+	color: #d8f5cc;
+	text-decoration: none;
+	font-size: 14px;
+	/* 44px touch target without changing the visual size of the text. */
+	padding: 11px 2px;
+}
+
+.localeswitcher__link:hover,
+.localeswitcher__link:focus-visible {
+	text-decoration: underline;
+}
+
+.localeswitcher__current {
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: 600;
+	padding: 11px 2px;
+}
+
+/* The block variant styles both states as rows: the current language is not a
+   link, so it needs the same box to line up with the ones that are. */
+.localeswitcher_block .localeswitcher__link,
+.localeswitcher_block .localeswitcher__current {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0 14px;
+	border-radius: 10px;
+	font-size: 16px;
+	border: 1px solid rgba(255, 255, 255, 0.30);
+	background: rgba(255, 255, 255, 0.10);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+}
+
+.localeswitcher_block .localeswitcher__link:hover,
+.localeswitcher_block .localeswitcher__link:focus-visible {
+	text-decoration: none;
+	background: rgba(255, 255, 255, 0.20);
+	border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* The current language reads as chosen, not as another option to pick. */
+.localeswitcher_block .localeswitcher__current {
+	background: rgba(168, 244, 147, 0.20);
+	border-color: rgba(168, 244, 147, 0.55);
+}
+
+.localeswitcher_block .localeswitcher__current::after {
+	content: '✓';
+	margin-left: auto;
+	color: #a8f493;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.localeswitcher_block .localeswitcher__link {
+		background: #4a7a5e;
+	}
+}

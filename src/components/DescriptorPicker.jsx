@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Autocomplete, TextField, Popper, autocompleteClasses } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useT } from '../i18n/index.js';
+import { translateDescriptor, translateDescriptorPath } from '../i18n/descriptors.js';
 
 const StyledPopper = styled(Popper)({
     [`& .${autocompleteClasses.listbox}`]: {
@@ -67,6 +69,7 @@ const quickPickStyle = {
 // quickPicks (optional): [{stages: [s1, s2, s3], count}] — the user's most
 // frequent descriptors, rendered as one-tap chips under the field.
 function DescriptorPicker({ label, db, stage1, stage2, stage3, onStagesChange, quickPicks }) {
+    const { t, locale } = useT();
     const options = useMemo(() => flattenDescriptorDB(db), [db]);
 
     const currentPath = [stage1, stage2, stage3]
@@ -82,10 +85,15 @@ function DescriptorPicker({ label, db, stage1, stage2, stage3, onStagesChange, q
 
     return (
         <div>
+            {/* Display translates, storage does not: `stages` goes back to the
+                caller as the Russian the database is keyed by, while the label
+                MUI both shows and filters on is in the reading language — so
+                typing "jasm" finds it on the English site and "茉莉" on the
+                Chinese one. `path` stays the identity used for equality. */}
             <Autocomplete
                 options={options}
-                groupBy={(o) => o.stages[0]}
-                getOptionLabel={(o) => o.path}
+                groupBy={(o) => translateDescriptor(o.stages[0], locale)}
+                getOptionLabel={(o) => translateDescriptorPath(o.path, locale)}
                 isOptionEqualToValue={(o, v) => o.path === v.path}
                 value={value}
                 onChange={(_, data) =>
@@ -95,23 +103,23 @@ function DescriptorPicker({ label, db, stage1, stage2, stage3, onStagesChange, q
                     <TextField
                         {...params}
                         label={label}
-                        placeholder="Начните вводить, например: жасмин"
+                        placeholder={t('wizard.descriptorPlaceholder')}
                     />
                 )}
                 PopperComponent={StyledPopper}
-                noOptionsText="Не найдено — выберите категорию «Другое»"
+                noOptionsText={t('wizard.descriptorNotFound')}
             />
             {quickPicks && quickPicks.length > 0 && (
-                <div aria-label="Часто используемые">
+                <div aria-label={t('wizard.frequentlyUsed')}>
                     {quickPicks.map((q) => {
                         const stages = q.stages.filter(Boolean);
                         const short = stages[stages.length - 1];
                         return (
                             <button type="button" key={stages.join('|')}
                                 style={quickPickStyle}
-                                title={stages.join(' → ')}
+                                title={translateDescriptorPath(stages.join(' → '), locale)}
                                 onClick={() => onStagesChange([q.stages[0] || null, q.stages[1] || null, q.stages[2] || null])}>
-                                {short}
+                                {translateDescriptor(short, locale)}
                             </button>
                         );
                     })}

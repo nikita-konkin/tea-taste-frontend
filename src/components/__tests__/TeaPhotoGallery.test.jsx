@@ -1,7 +1,15 @@
 /* Tests for the read-only photo strip and its full-screen viewer. */
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render as rtlRender, screen, fireEvent } from '@testing-library/react';
 import TeaPhotoGallery from '../TeaPhotoGallery.jsx';
+
+import { MemoryRouter } from 'react-router-dom';
+
+// These components read the reader's language from the URL (useT -> useLocation),
+// so they need router context even in tests that have nothing to do with routing.
+// Shadowing render keeps every call below unchanged.
+const render = (ui, options) => rtlRender(ui, { wrapper: MemoryRouter, ...options });
+
 
 const photos = [
     { url: '/api/uploads/u-dry.png', kind: 'dry' },

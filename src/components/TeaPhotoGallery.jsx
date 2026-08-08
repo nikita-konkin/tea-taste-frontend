@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PHOTO_SLOTS, orderPhotos } from './TeaPhotos.jsx';
 import TeaPhotoLightbox from './TeaPhotoLightbox.jsx';
+import { useT } from '../i18n/index.js';
 
 const LABELS = PHOTO_SLOTS.reduce((acc, s) => ({ ...acc, [s.kind]: s.label }), {});
 
@@ -51,6 +52,7 @@ const captionStyle = { fontSize: '12px', color: '#a8f493' };
 // step. Inline-styled to match the surfaces it sits on, which are inline-styled
 // throughout; a missing file hides its figure rather than showing a broken icon.
 function TeaPhotoGallery({ photos }) {
+    const { t } = useT();
     const [viewing, setViewing] = useState(null);
     const list = orderPhotos(photos);
     if (list.length === 0) return null;
@@ -59,11 +61,12 @@ function TeaPhotoGallery({ photos }) {
         <>
             <ul style={rowStyle}>
                 {list.map((photo, i) => {
-                    const label = LABELS[photo.kind] || 'Фото чая';
+                    // LABELS holds message keys (PHOTO_SLOTS), not text.
+                    const label = LABELS[photo.kind] ? t(LABELS[photo.kind]) : t('photo.fallback');
                     return (
                         <li key={photo.url} style={figureStyle}>
                             <button type="button" style={buttonStyle}
-                                aria-label={`Открыть фото во весь экран: ${label}`}
+                                aria-label={t('card.openPhotos', { name: label })}
                                 onClick={() => setViewing(i)}>
                                 <img src={photo.url} alt={label} style={imageStyle}
                                     loading="lazy" decoding="async"

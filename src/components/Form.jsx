@@ -12,6 +12,10 @@ import { usePopup } from './PopupContext.jsx';
 import { useMyFormConext } from './MyFormConext.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { formatDateTime, formatShortDateTime, formUrl } from '../utils/utils.js';
+import { teaTypeName } from '../utils/teaTypes.js';
+import { useT } from '../i18n/index.js';
+import { translateDescriptorPath } from '../i18n/descriptors.js';
+import { translateOption } from '../i18n/options.js';
 import { v4 as uuidv4 } from 'uuid';
 import { set } from 'react-hook-form';
 
@@ -29,6 +33,7 @@ function Form({
     onModerated,
 }) {
     const { openPopup } = usePopup();
+    const { t, url, locale } = useT();
     const { aromasByIdCxt, tastesByIdCxt, brewsByIdCxt } = useMyFormConext();
     const brewsRender = useRef([]);
     const [openDetails, setOpenDetails] = React.useState(false);
@@ -96,8 +101,8 @@ function Form({
         if (status !== 'queued' && status !== 'processing' && status !== 'error') return null;
 
         const text = status === 'error'
-            ? 'Расшифровка не удалась'
-            : 'Расшифровка записи…';
+            ? t('card.transcribeFailed')
+            : t('card.transcribing');
 
         return (
             <p className={`myform__voice${status === 'error' ? ' myform__voice_error' : ''}`}>
@@ -111,7 +116,7 @@ function Form({
         if (cardPhotos.length === 0) return null;
         return (
             <button type="button" className="myform__media"
-                aria-label={`Открыть фото во весь экран: ${formData.nameRU}`}
+                aria-label={t('card.openPhotos', { name: formData.nameRU })}
                 onClick={(e) => { e.preventDefault(); setViewingPhotos(true); }}>
                 {/* A feed of ten tastings is ten full-size uploads; below the
                     fold none of them need to be fetched until they are scrolled
@@ -123,7 +128,7 @@ function Form({
                     which is what every card used to do. */}
                 <img className="myform__media-image"
                     src={cardPhotos[0].thumb || cardPhotos[0].url}
-                    alt={`Фото чая: ${formData.nameRU}`}
+                    alt={t('card.photoAlt', { name: formData.nameRU })}
                     loading="lazy" decoding="async" width="130" height="130"
                     onError={(e) => { e.target.closest('button').style.display = 'none'; }} />
             </button>
@@ -135,7 +140,7 @@ function Form({
         const r = Number(formData.averageRating);
         if (!r || r < 1) return null;
         return (
-            <div className="myform__rating" aria-label={`Оценка ${r} из 10`} style={{
+            <div className="myform__rating" aria-label={t('card.rating', { n: r })} style={{
                 display: 'flex', alignItems: 'center', flexWrap: 'wrap',
                 gap: '2px', margin: '6px 0 14px 0',
             }}>
@@ -196,25 +201,33 @@ function Form({
             return (
                 <li key={`brew-${brew.brewingCount}`} style={brewSectionStyle}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <span style={accentStyle}>Пролив №{brew.brewingCount}</span>
-                        {brew.brewingRating != null && <span>{brew.brewingRating}/10 пиал</span>}
+                        <span style={accentStyle}>{t('tasting.steep', { n: brew.brewingCount })}</span>
+                        {brew.brewingRating != null && <span>{t('tasting.bowls', { n: brew.brewingRating })}</span>}
                     </div>
                     {brew.brewingTime && brew.brewingTime !== 'none' && brew.brewingTime !== '00:00:00' && (
-                        <div style={{ margin: '4px 0 0 0' }}>Время заваривания: {brew.brewingTime}</div>
+                        <div style={{ margin: '4px 0 0 0' }}>{t('tasting.steepTime')}: {brew.brewingTime}</div>
                     )}
                     {brew.description && brew.description !== 'none' && (
                         <div style={{ margin: '4px 0 0 0', fontStyle: 'italic' }}>{brew.description}</div>
                     )}
                     {aromaPaths.length > 0 && (
                         <div style={{ margin: '8px 0 0 0' }}>
-                            <span style={accentStyle}>Аромат</span><br />
-                            {aromaPaths.map((p, i) => <span key={`a-${i}`} style={chipStyle}>{p}</span>)}
+                            <span style={accentStyle}>{t('tasting.aroma')}</span><br />
+                            {aromaPaths.map((p, i) => (
+                                <span key={`a-${i}`} style={chipStyle}>
+                                    {translateDescriptorPath(p, locale)}
+                                </span>
+                            ))}
                         </div>
                     )}
                     {tastePaths.length > 0 && (
                         <div style={{ margin: '8px 0 0 0' }}>
-                            <span style={accentStyle}>Вкус</span><br />
-                            {tastePaths.map((p, i) => <span key={`t-${i}`} style={chipStyle}>{p}</span>)}
+                            <span style={accentStyle}>{t('tasting.taste')}</span><br />
+                            {tastePaths.map((p, i) => (
+                                <span key={`t-${i}`} style={chipStyle}>
+                                    {translateDescriptorPath(p, locale)}
+                                </span>
+                            ))}
                         </div>
                     )}
                 </li>
@@ -241,21 +254,24 @@ function Form({
                             .filter(Boolean).join(' · ')}
                     </span>
                     {formData.averageRating != null && (
-                        <span style={accentStyle}>{formData.averageRating}/10 пиал</span>
+                        <span style={accentStyle}>{t('tasting.bowls', { n: formData.averageRating })}</span>
                     )}
                 </div>
+                {/* The same rows as the public page, read the same way: the
+                    labels translate, and so do the values that came from a
+                    list. A shop or a water is a brand name and stays put. */}
                 <ul className="myforminteraction__list" style={{ margin: 0, padding: 0 }}>
-                    {metaRow('Тип чая', formData.type)}
-                    {metaRow('Страна', formData.country)}
-                    {metaRow('Магазин', formData.shop)}
-                    {metaRow('Вес', formData.weight != null ? `${formData.weight} г` : null)}
-                    {metaRow('Вода', formData.water)}
-                    {metaRow('Объем воды', formData.volume != null ? `${formData.volume} мл` : null)}
-                    {metaRow('Температура воды', formData.temperature != null ? `${formData.temperature} °C` : null)}
-                    {metaRow('Цена за грамм', formData.price != null ? `${formData.price} ₽` : null)}
-                    {metaRow('Посуда', formData.teaware)}
-                    {metaRow('Метод заваривания', formData.brewingtype)}
-                    {metaRow('Публикация в блоге', formData.publicAccess ? 'да' : 'нет')}
+                    {metaRow(t('card.teaType'), teaTypeName(formData.type, locale))}
+                    {metaRow(t('tasting.country'), translateOption(formData.country, locale))}
+                    {metaRow(t('tasting.shop'), formData.shop)}
+                    {metaRow(t('tasting.weight'), formData.weight != null ? `${formData.weight} ${t('unit.gram')}` : null)}
+                    {metaRow(t('tasting.water'), formData.water)}
+                    {metaRow(t('tasting.volume'), formData.volume != null ? `${formData.volume} ${t('unit.ml')}` : null)}
+                    {metaRow(t('tasting.temperature'), formData.temperature != null ? `${formData.temperature} °C` : null)}
+                    {metaRow(t('tasting.price'), formData.price != null ? `${formData.price} ₽` : null)}
+                    {metaRow(t('tasting.teaware'), translateOption(formData.teaware, locale))}
+                    {metaRow(t('tasting.brewingMethod'), translateOption(formData.brewingtype, locale))}
+                    {metaRow(t('tasting.publicAccess'), formData.publicAccess ? t('review.yes') : t('review.no'))}
                     {test}
                 </ul>
             </section>
@@ -267,7 +283,7 @@ function Form({
             return (
                 <>
                     <FormButton
-                        buttonName={'Удалить'}
+                        buttonName={t('card.delete')}
                         width={'32%'}
                         margin={'0px'}
                         onClick={() => {
@@ -276,7 +292,7 @@ function Form({
                         }}
                     />
                     <FormButton
-                        buttonName={'Изменить'}
+                        buttonName={t('card.edit')}
                         width={'32%'}
                         margin={'0px'}
                         onClick={(e) => {
@@ -290,7 +306,7 @@ function Form({
                         }}
                     />
                     <FormButton
-                        buttonName={'Просмотр'}
+                        buttonName={t('card.view')}
                         width={'32%'}
                         margin={'0px'}
                         onClick={(e) => {
@@ -308,7 +324,7 @@ function Form({
             return (
                 <>
                     <FormButton
-                        buttonName={'Просмотр'}
+                        buttonName={t('card.view')}
                         width={'49%'}
                         margin={'0px'}
                         onClick={(e) => {
@@ -324,10 +340,10 @@ function Form({
                         for nobody but a mouse — no crawler could follow it and
                         no reader could open it in a new tab. */}
                     <FormButton
-                        buttonName={'Открыть'}
+                        buttonName={t('card.open')}
                         width={'49%'}
                         margin={'0px'}
-                        to={formUrl(formData)}
+                        to={url(formUrl(formData))}
                     />
                 </>
             )
@@ -340,35 +356,35 @@ function Form({
     const moderationButtons = () => {
         if (!isAdmin || isMyForms) return null;
 
-        const title = formData.nameRU || 'эта запись';
+        const title = formData.nameRU || t('card.thisRecord');
 
         return (
             <div className="myform__moderation">
-                <p className="myform__moderation-label">Модерация</p>
+                <p className="myform__moderation-label">{t('card.moderation')}</p>
                 <button type="button" className="voicenote__button"
                     onClick={() => openPopup(
                         <ConfirmDialog
-                            title="Скрыть запись из ленты?"
-                            text={`«${title}» пропадёт из ленты и со своей публичной страницы. Автор сохранит её у себя, но не сможет опубликовать снова — вернуть запись можно в админ-панели, раздел «Скрытые записи».`}
-                            confirmLabel="Да, скрыть"
+                            title={t('card.hideTitle')}
+                            text={t('card.hideText', { name: title })}
+                            confirmLabel={t('card.hideConfirm')}
                             onConfirm={() => mainApi.adminSetFormBlocked(formData.sessionId, true)}
                             onDone={onModerated}
                         />
                     )}>
-                    Скрыть из ленты
+                    {t('card.hideFromFeed')}
                 </button>
                 <button type="button" className="voicenote__button confirm__button_danger"
                     onClick={() => openPopup(
                         <ConfirmDialog
-                            title="Удалить запись навсегда?"
-                            text={`«${title}» будет удалена вместе с проливами, дескрипторами, фотографиями и аудиозаписью. Это необратимо — если нужно просто убрать её из ленты, выберите «Скрыть».`}
-                            confirmLabel="Да, удалить"
+                            title={t('card.deleteTitle')}
+                            text={t('card.deleteText', { name: title })}
+                            confirmLabel={t('card.deleteConfirm')}
                             danger
                             onConfirm={() => mainApi.adminDeleteForm(formData.sessionId)}
                             onDone={onModerated}
                         />
                     )}>
-                    Удалить
+                    {t('card.delete')}
                 </button>
             </div>
         );
@@ -385,13 +401,13 @@ function Form({
                         scanning the page or to a search engine weighing it. Not
                         linked on /my_forms: an unpublished tasting has no
                         public address to point at. */}
-                    <li key={uuidv4()} className="myform__row"><bdi>Название: </bdi>
+                    <li key={uuidv4()} className="myform__row"><bdi>{t('card.name')}: </bdi>
                         {isMyForms
                             ? formData.nameRU
-                            : <Link className="myform__name" to={formUrl(formData)}>{formData.nameRU}</Link>}
+                            : <Link className="myform__name" to={url(formUrl(formData))}>{formData.nameRU}</Link>}
                     </li>
-                    <li key={uuidv4()} className="myform__row"><bdi>Дата публикации: </bdi>{formatDateTime(formData.createdAt)}</li>
-                    <li key={uuidv4()} className="myform__row"><bdi>Тип чая: </bdi>{formData.type}</li>
+                    <li key={uuidv4()} className="myform__row"><bdi>{t('card.published')}: </bdi>{formatDateTime(formData.createdAt)}</li>
+                    <li key={uuidv4()} className="myform__row"><bdi>{t('card.teaType')}: </bdi>{teaTypeName(formData.type, locale)}</li>
                 </ul>
             </div>
             {voiceBadge()}

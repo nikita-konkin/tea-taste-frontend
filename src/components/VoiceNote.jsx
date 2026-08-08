@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { isSupported, startRecording } from '../utils/recorder.js';
+import { useT } from '../i18n/index.js';
 
 export const MAX_TOTAL_SECONDS = 300;
 
@@ -20,6 +21,7 @@ const mmss = (seconds) => {
 // file goes immediately, while the edit dialog collects the urls and unlinks
 // them only once the PATCH has succeeded — the same contract as TeaPhotos.
 function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUrl }) {
+	const { t } = useT();
     const [recording, setRecording] = useState(false);
     const [elapsed, setElapsed] = useState(0);
     const [busy, setBusy] = useState(false);
@@ -45,7 +47,7 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
             setRecording(true);
         } catch (err) {
             setError(err.name === 'NotAllowedError'
-                ? 'Нет доступа к микрофону. Разрешите запись в настройках браузера.'
+                ? t('voice.noMic')
                 : err.message);
         }
     };
@@ -70,7 +72,7 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
                 duration: Number(data.duration) || seconds,
             }]);
         } catch (err) {
-            setError(err.message || 'Не удалось загрузить запись.');
+            setError(err.message || t('voice.uploadFailed'));
         } finally {
             setBusy(false);
             setElapsed(0);
@@ -86,7 +88,7 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
     if (!supported) {
         return (
             <p className="voicenote__hint">
-                Этот браузер не умеет записывать звук. Откройте страницу в Chrome, Firefox или Safari.
+                {t('voice.unsupported')}
             </p>
         );
     }
@@ -96,20 +98,20 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
             <div className="voicenote__row">
                 {recording ? (
                     <button type="button" className="voicenote__button voicenote__button_stop"
-                        onClick={finish} aria-label="Остановить запись">
+                        onClick={finish} aria-label={t('voice.stop')}>
                         <span className="voicenote__pulse" aria-hidden="true" />
-                        Стоп {mmss(elapsed)}
+                        {t('voice.stopShort')} {mmss(elapsed)}
                     </button>
                 ) : (
                     <button type="button" className="voicenote__button"
                         onClick={begin} disabled={busy || remaining <= 0}
-                        aria-label={label ? `Записать заметку: ${label}` : 'Записать заметку'}>
-                        {busy ? 'Загрузка…' : '● Записать'}
+                        aria-label={label ? t('voice.recordFor', { label }) : t('voice.record')}>
+                        {busy ? t('voice.loading') : t('voice.recordButton')}
                     </button>
                 )}
 
                 <span className="voicenote__budget">
-                    {remaining > 0 ? `осталось ${mmss(remaining)} из ${mmss(MAX_TOTAL_SECONDS)}` : 'лимит 5 минут исчерпан'}
+                    {remaining > 0 ? t('voice.remaining', { left: mmss(remaining), total: mmss(MAX_TOTAL_SECONDS) }) : t('voice.limitSpent')}
                 </span>
             </div>
 
@@ -121,7 +123,7 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
                             <span className="voicenote__length">{mmss(segment.duration)}</span>
                             <button type="button" className="voicenote__remove"
                                 onClick={() => remove(segment)}
-                                aria-label={`Удалить запись${label ? `: ${label}` : ''}`}>&times;</button>
+                                aria-label={label ? t('voice.deleteFor', { label }) : t('voice.delete')}>&times;</button>
                         </li>
                     ))}
                 </ul>

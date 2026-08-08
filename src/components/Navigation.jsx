@@ -7,18 +7,22 @@ import {
 	NavLink,
 } from "react-router-dom";
 import { usePopup } from './PopupContext.jsx';
+import { useT } from '../i18n/index.js';
 import SuggestionForm from './SuggestionForm.jsx';
 import VoiceGuide from './VoiceGuide.jsx';
 
+// The current page's name, shown beside the hamburger. Message keys, resolved
+// per language. Order matters: the first match wins, so the more specific
+// paths (form_submit, form_1) come before anything they are a prefix of.
 const PAGE_TITLES = [
-	['form_submit', 'Проверка формы'],
-	['form_1', 'Форма №1'],
-	['form_2', 'Форма №2'],
-	['profile', 'Профиль'],
-	['my_forms', 'Мои формы'],
-	['blog', 'Лента'],
-	['sign-up', 'Регистрация'],
-	['sign-in', 'Авторизация'],
+	['form_submit', 'page.formSubmit'],
+	['form_1', 'page.form1'],
+	['form_2', 'page.form2'],
+	['profile', 'nav.profile'],
+	['my_forms', 'nav.myForms'],
+	['blog', 'nav.feed'],
+	['sign-up', 'auth.signUp'],
+	['sign-in', 'auth.signIn'],
 ];
 
 // Thin line-art icons in the pale green of the site logo (outline style,
@@ -75,25 +79,26 @@ const ICONS = {
 	),
 };
 
+// Titles and labels are message keys, resolved per language at render time.
 const MENU_SECTIONS = [
 	{
-		title: 'Дегустация',
+		title: 'nav.tasting',
 		links: [
-			{ to: '/form_1', icon: 'leaf', label: 'Новая форма — этап 1' },
-			{ to: '/form_2', icon: 'drop', label: 'Проливы — этап 2' },
+			{ to: '/form_1', icon: 'leaf', label: 'nav.stage1' },
+			{ to: '/form_2', icon: 'drop', label: 'nav.stage2' },
 		],
 	},
 	{
-		title: 'Записи',
+		title: 'nav.records',
 		links: [
-			{ to: '/my_forms', icon: 'bowl', label: 'Мои формы' },
-			{ to: '/blog', icon: 'book', label: 'Лента' },
+			{ to: '/my_forms', icon: 'bowl', label: 'nav.myForms' },
+			{ to: '/blog', icon: 'book', label: 'nav.feed' },
 		],
 	},
 	{
-		title: 'Аккаунт',
+		title: 'nav.account',
 		links: [
-			{ to: '/profile', icon: 'user', label: 'Профиль' },
+			{ to: '/profile', icon: 'user', label: 'nav.profile' },
 		],
 	},
 ];
@@ -101,6 +106,7 @@ const MENU_SECTIONS = [
 function Navigation(props) {
 
 	const { openPopup } = usePopup();
+	const { t, url } = useT();
 	const [menuState, setMenuState] = useState(false)
 	const [currentLocation, setCurrentLocation] = useState('')
 
@@ -142,8 +148,8 @@ function Navigation(props) {
 	function navBtn() {
 		return (
 			<>
-				<h2 className="header__navigation">{currentLocation}</h2>
-				<button className='navigation__hamburger' aria-label="Открыть меню"
+				<h2 className="header__navigation">{currentLocation ? t(currentLocation) : ''}</h2>
+				<button className='navigation__hamburger' aria-label={t('nav.openMenu')}
 					onClick={() => setMenuState(!menuState)}></button>
 			</>
 		)
@@ -153,39 +159,39 @@ function Navigation(props) {
 		return (
 			<>
 				<div className="navigation__background" onClick={closeMenu}></div>
-				<nav className="navigation__side" ref={ref} aria-label="Главное меню">
+				<nav className="navigation__side" ref={ref} aria-label={t('nav.mainMenu')}>
 					<div className="navigation__side-head">
-						<span className="navigation__side-title">Меню</span>
+						<span className="navigation__side-title">{t('nav.menu')}</span>
 					</div>
 					{MENU_SECTIONS.map((section) => (
 						<div className="navigation__section" key={section.title}>
-							<span className="navigation__section-title">{section.title}</span>
+							<span className="navigation__section-title">{t(section.title)}</span>
 							{section.links.map((link) => (
-								<NavLink key={link.to} to={link.to} onClick={closeMenu}
+								<NavLink key={link.to} to={url(link.to)} onClick={closeMenu}
 									className={({ isActive }) => (isActive ? 'navigation__link navigation__link_active' : 'navigation__link')}>
 									{ICONS[link.icon]}
-									{link.label}
+									{t(link.label)}
 								</NavLink>
 							))}
 						</div>
 					))}
 					<div className="navigation__section">
-						<span className="navigation__section-title">Справка</span>
+						<span className="navigation__section-title">{t('nav.help')}</span>
 						<button type="button" className="navigation__link navigation__link_button"
 							onClick={() => { closeMenu(); openPopup(<VoiceGuide />); }}>
 							{ICONS.mic}
-							Голосовые заметки
+							{t('nav.voiceNotes')}
 						</button>
 					</div>
 					<div className="navigation__section">
-						<span className="navigation__section-title">Обратная связь</span>
+						<span className="navigation__section-title">{t('nav.feedback')}</span>
 						<button type="button" className="navigation__link navigation__link_button"
 							onClick={() => { closeMenu(); openPopup(<SuggestionForm />); }}>
 							{ICONS.bulb}
-							Предложить улучшение
+							{t('nav.suggest')}
 						</button>
 					</div>
-					<button className="navigation__close navigation__close_corner" aria-label="Закрыть меню"
+					<button className="navigation__close navigation__close_corner" aria-label={t('nav.closeMenu')}
 						onClick={closeMenu}>&times;</button>
 				</nav>
 			</>

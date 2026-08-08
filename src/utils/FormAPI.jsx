@@ -1,4 +1,5 @@
 import { readVoiceDraft } from './voiceDraft.js';
+import { localeFromPath } from '../i18n/index.js';
 
 // Autocomplete values are {label, value} objects, plain strings when typed
 // freely, or null when left empty. Returns undefined for anything unusable so
@@ -11,8 +12,19 @@ const label = (option) => {
 
 class FormApi {
     constructor(config) {
-        this._headers = config.headers;
+        this._staticHeaders = config.headers;
         this._usersApiUrl = config.usersApiUrl;
+    }
+
+    // Sent on every request so the API can answer in the reader's language.
+    // Read from the URL rather than passed in at construction: these clients are
+    // module singletons made once, while the locale changes on every navigation.
+    // Same source of truth the components use, so the two cannot disagree.
+    get _headers() {
+        return {
+            ...this._staticHeaders,
+            'X-Locale': localeFromPath(window.location.pathname),
+        };
     }
 
     async error(res) {

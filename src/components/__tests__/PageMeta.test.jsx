@@ -13,13 +13,18 @@
    which is in DEPLOY-SEO.md as a release check. */
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import PageMeta, { clamp } from '../PageMeta.jsx';
 import { plural } from '../../utils/utils.js';
 
 const head = (selector) => document.head.querySelector(selector);
 const content = (selector) => (head(selector) || {}).content;
 
-const renderMeta = (ui) => render(ui);
+// PageMeta reads the locale from the URL, so it needs router context — and
+// the entry decides which language the tags come out in.
+const renderMeta = (ui, path = '/') => render(
+    <MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>,
+);
 
 test('a tasting gets its own title, description, canonical and preview image', async () => {
     renderMeta(

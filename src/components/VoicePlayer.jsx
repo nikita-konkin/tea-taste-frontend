@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { mainApi } from '../utils/MainAPI.jsx';
+import { useT } from '../i18n/index.js';
 
-const LABEL = {
-    queued: 'В очереди на расшифровку…',
-    processing: 'Расшифровываем запись…',
-    error: 'Не удалось расшифровать запись',
+// Status -> catalogue key. The status itself is what the server stores, so it
+// stays English regardless of who is reading.
+const LABEL_KEY = {
+    queued: 'voice.queued',
+    processing: 'voice.processing',
+    error: 'voice.failed',
 };
 
 // Read-only playback of the merged voice track plus its transcript. Used on the
@@ -14,6 +17,7 @@ const LABEL = {
 // running, without it (the public page, where there is no owner endpoint) it
 // simply renders whatever the form already carries.
 function VoicePlayer({ voice, sessionId }) {
+    const { t } = useT();
     const [state, setState] = useState(voice || {});
     const [retrying, setRetrying] = useState(false);
 
@@ -25,7 +29,7 @@ function VoicePlayer({ voice, sessionId }) {
             .then(() => setState((prev) => ({ ...prev, status: 'queued', error: '' })))
             .catch((err) => setState((prev) => ({
                 ...prev,
-                error: err.message || 'Не удалось отправить повторно.',
+                error: err.message || t('voice.retryFailed'),
             })))
             .finally(() => setRetrying(false));
     };
@@ -64,12 +68,12 @@ function VoicePlayer({ voice, sessionId }) {
                 <audio className="voiceplayer__audio" src={track.url} controls preload="none" />
             )}
 
-            {pending && <p className="voiceplayer__status">{LABEL[state.status]}</p>}
+            {pending && <p className="voiceplayer__status">{t(LABEL_KEY[state.status])}</p>}
 
             {state.status === 'error' && (
                 <div className="voiceplayer__failure">
                     <p className="voiceplayer__status voiceplayer__status_error">
-                        {LABEL.error}{state.error ? `: ${state.error}` : ''}
+                        {t('voice.failed')}{state.error ? `: ${state.error}` : ''}
                     </p>
                     {/* Recognition is a network call to a third party, so most
                         failures are transient. The audio is still on the server —
@@ -77,7 +81,7 @@ function VoicePlayer({ voice, sessionId }) {
                     {sessionId && (
                         <button type="button" className="voicenote__button"
                             onClick={retry} disabled={retrying}>
-                            {retrying ? 'Отправляем…' : 'Повторить расшифровку'}
+                            {retrying ? t('voice.sending') : t('voice.retry')}
                         </button>
                     )}
                 </div>
@@ -88,7 +92,7 @@ function VoicePlayer({ voice, sessionId }) {
                 // and behind a collapsed summary it reads as "no transcript".
                 // Still collapsible, because a five-minute note is a wall of text.
                 <details className="voiceplayer__details" open>
-                    <summary className="voiceplayer__summary">Расшифровка записи</summary>
+                    <summary className="voiceplayer__summary">{t('voice.transcript')}</summary>
                     <p className="voiceplayer__transcript">{state.transcript}</p>
                 </details>
             )}

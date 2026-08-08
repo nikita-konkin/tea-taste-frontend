@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import Header from './Header.jsx';
 import PageMeta from './PageMeta.jsx';
 import SiteFooter from './SiteFooter.jsx';
-import { teaTypeSlugs } from '../utils/teaTypes.js';
+import { teaTypeSlugs, teaTypeShort } from '../utils/teaTypes.js';
+import { useT, LOCALE_TAG } from '../i18n/index.js';
 
 // The front page.
 //
@@ -13,16 +14,18 @@ import { teaTypeSlugs } from '../utils/teaTypes.js';
 // from a search landed straight in a wall of tasting cards with no sentence
 // saying what any of it was.
 function Landing() {
+    const { t, url, locale } = useT();
+
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'Форма чая',
+        name: t('site.name'),
         url: 'https://teaform.ru/',
-        inLanguage: 'ru-RU',
-        description: 'Дневник чайных дегустаций',
+        inLanguage: LOCALE_TAG[locale],
+        description: t('site.tagline'),
         publisher: {
             '@type': 'Organization',
-            name: 'Форма чая',
+            name: t('site.name'),
             url: 'https://teaform.ru/',
             logo: 'https://teaform.ru/logo512.png',
         },
@@ -30,39 +33,35 @@ function Landing() {
 
     return (
         <>
-            <PageMeta
-                path="/"
-                description="Дневник чайных дегустаций: аромат, вкус и проливы, фото и голосовые заметки. Ведите свои записи и читайте дегустации других."
-                jsonLd={jsonLd}
-            />
+            <PageMeta path="/" description={t('landing.description')} jsonLd={jsonLd} />
             <Header />
             <div className="myforms">
                 <section className="landing">
-                    <h1 className="landing__title">Форма чая — дневник чайных дегустаций</h1>
-                    <p className="landing__lead">
-                        Записывайте, как заварился чай: аромат и вкус по проливам, температура,
-                        посуда и время, фотографии сухого листа, настоя и мокрого листа.
-                        Надиктуйте заметку голосом — расшифровка и разбор по полям сделаются сами.
-                    </p>
+                    <h1 className="landing__title">{t('landing.title')}</h1>
+                    <p className="landing__lead">{t('landing.lead')}</p>
 
                     <div className="landing__actions">
-                        <Link className="landing__cta" to="/blog">Читать дегустации</Link>
-                        <Link className="landing__cta landing__cta_ghost" to="/sign-up">Завести свой дневник</Link>
+                        <Link className="landing__cta" to={url('/blog')}>{t('landing.readTastings')}</Link>
+                        <Link className="landing__cta landing__cta_ghost" to={url('/sign-up')}>
+                            {t('landing.startDiary')}
+                        </Link>
                     </div>
 
-                    <h2 className="landing__subtitle">Как это устроено</h2>
+                    <h2 className="landing__subtitle">{t('landing.howItWorks')}</h2>
                     <ol className="landing__steps">
-                        <li>Заводите форму на чай: название, тип, страна, вес, вода и посуда.</li>
-                        <li>Описываете каждый пролив — время, оценка, аромат и вкус по трём уровням.</li>
-                        <li>Прикладываете фотографии и голосовую заметку.</li>
-                        <li>Публикуете, если хотите, чтобы дегустацию прочитали другие.</li>
+                        <li>{t('landing.step1')}</li>
+                        <li>{t('landing.step2')}</li>
+                        <li>{t('landing.step3')}</li>
+                        <li>{t('landing.step4')}</li>
                     </ol>
 
-                    <h2 className="landing__subtitle">Дегустации по типу чая</h2>
+                    <h2 className="landing__subtitle">{t('landing.byType')}</h2>
                     <ul className="landing__types">
-                        {teaTypeSlugs.map(({ slug, short }) => (
-                            <li key={slug}>
-                                <Link className="landing__type" to={`/blog/type/${slug}`}>{short}</Link>
+                        {teaTypeSlugs.map((type) => (
+                            <li key={type.slug}>
+                                <Link className="landing__type" to={url(`/blog/type/${type.slug}`)}>
+                                    {teaTypeShort(type, locale)}
+                                </Link>
                             </li>
                         ))}
                     </ul>

@@ -1,7 +1,15 @@
 /* Tests for the three-slot tea photo picker: upload, replace, remove. */
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render as rtlRender, screen, fireEvent, waitFor } from '@testing-library/react';
 import TeaPhotos from '../TeaPhotos.jsx';
+
+import { MemoryRouter } from 'react-router-dom';
+
+// These components read the reader's language from the URL (useT -> useLocation),
+// so they need router context even in tests that have nothing to do with routing.
+// Shadowing render keeps every call below unchanged.
+const render = (ui, options) => rtlRender(ui, { wrapper: MemoryRouter, ...options });
+
 
 jest.mock('../../utils/MainAPI.jsx', () => ({
     mainApi: {

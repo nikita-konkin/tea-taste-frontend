@@ -1,7 +1,19 @@
+import { localeFromPath, translateHere } from '../i18n/index.js';
 class MainApi {
 	constructor(config) {
-		this._headers = config.headers;
+		this._staticHeaders = config.headers;
 		this._usersApiUrl = config.usersApiUrl
+	}
+
+	// Sent on every request so the API can answer in the reader's language.
+	// Read from the URL rather than passed in at construction: these clients are
+	// module singletons made once, while the locale changes on every navigation.
+	// Same source of truth the components use, so the two cannot disagree.
+	get _headers() {
+		return {
+			...this._staticHeaders,
+			'X-Locale': localeFromPath(window.location.pathname),
+		};
 	}
 
 	error(res) {
@@ -12,7 +24,12 @@ class MainApi {
 
 		// return Promise.reject({ error: res.json() })
 		return res.json().then((err) => {
-			// console.log(err)
+			// The API answers {status, message} — the HTTP code is not in the
+			// body, so a caller wanting to tell "not signed in" from "server
+			// broke" had nothing to branch on and matched the message text
+			// instead. That stopped working the moment the API learned to answer
+			// in three languages. Carried over from the response here, once.
+			err.statusCode = res.status;
 			throw err;
 		  });
 	}
@@ -134,7 +151,7 @@ class MainApi {
 			// nginx answers an over-limit upload itself, with an HTML body that
 			// error() would choke on — report the real cause instead.
 			if (res.status === 413) {
-				throw new Error('Файл слишком большой. Попробуйте фото поменьше.');
+				throw new Error(translateHere('photo.tooLarge'));
 			}
 			return this.error(res);
 		});
@@ -169,7 +186,7 @@ class MainApi {
 			body: formData
 		}).then(res => {
 			if (res.status === 413) {
-				throw new Error('Запись слишком длинная. Попробуйте записать покороче.');
+				throw new Error(translateHere('voice.tooLong'));
 			}
 			return this.error(res);
 		});

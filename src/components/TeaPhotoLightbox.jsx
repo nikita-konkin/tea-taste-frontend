@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PHOTO_SLOTS } from './TeaPhotos.jsx';
+import { useT } from '../i18n/index.js';
 
 const LABELS = PHOTO_SLOTS.reduce((acc, s) => ({ ...acc, [s.kind]: s.label }), {});
 
@@ -9,6 +10,7 @@ const LABELS = PHOTO_SLOTS.reduce((acc, s) => ({ ...acc, [s.kind]: s.label }), {
 // for fixed-position children — rendered in place, this would only fill the
 // popup instead of the screen.
 function TeaPhotoLightbox({ photos, startIndex = 0, onClose }) {
+    const { t } = useT();
     const list = (photos || []).filter((p) => p && p.url);
     const [index, setIndex] = useState(() =>
         Math.min(Math.max(Number(startIndex) || 0, 0), Math.max(list.length - 1, 0)));
@@ -57,13 +59,14 @@ function TeaPhotoLightbox({ photos, startIndex = 0, onClose }) {
     if (list.length === 0) return null;
 
     const photo = list[index];
-    const label = LABELS[photo.kind] || 'Фото чая';
+    // LABELS holds message keys (PHOTO_SLOTS), not text.
+    const label = LABELS[photo.kind] ? t(LABELS[photo.kind]) : t('photo.fallback');
     // Through the React tree these clicks still reach the popup overlay's own
     // click handler, which closes on any click outside its content.
     const contain = (e) => e.stopPropagation();
 
     return createPortal(
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Просмотр фото"
+        <div className="lightbox" role="dialog" aria-modal="true" aria-label={t('photo.viewer')}
             onClick={(e) => { contain(e); onClose(); }}>
 
             <figure className="lightbox__figure" onClick={contain}>
@@ -79,15 +82,15 @@ function TeaPhotoLightbox({ photos, startIndex = 0, onClose }) {
             {list.length > 1 && (
                 <>
                     <button type="button" className="lightbox__nav lightbox__nav_prev"
-                        aria-label="Предыдущее фото"
+                        aria-label={t('photo.prev')}
                         onClick={(e) => { contain(e); go(-1); }}>&#8249;</button>
                     <button type="button" className="lightbox__nav lightbox__nav_next"
-                        aria-label="Следующее фото"
+                        aria-label={t('photo.next')}
                         onClick={(e) => { contain(e); go(1); }}>&#8250;</button>
                 </>
             )}
 
-            <button type="button" className="lightbox__close" aria-label="Закрыть просмотр"
+            <button type="button" className="lightbox__close" aria-label={t('photo.closeViewer')}
                 onClick={(e) => { contain(e); onClose(); }}>&times;</button>
         </div>,
         document.body

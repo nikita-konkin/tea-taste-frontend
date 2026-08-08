@@ -14,6 +14,8 @@ import { mainApi } from '../utils/MainAPI.jsx';
 import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
 import { formatDateTime } from '../utils/utils.js';
 import { usePopup } from './PopupContext.jsx';
+import { useT } from '../i18n/index.js';
+import { optionLabel } from '../i18n/options.js';
 
 // import { useTeaFormContext } from './TeaFormContext.jsx';
 // import { use } from 'react';
@@ -23,6 +25,7 @@ import { usePopup } from './PopupContext.jsx';
 function MyFormInteraction(props) {
 
 	const { openPopup } = usePopup();
+	const { t, locale } = useT();
 
 	// Ordered the way the server will merge them: the general note (0) first,
 	// then the проливы, so what you hear here is what the track will be.
@@ -119,18 +122,18 @@ function MyFormInteraction(props) {
 		return (
 			<section className="myforminteraction__section" key={straitNum}>
 				<ul className="myform__list">
-					<li className="myforminteraction__row"><bdi>Пролив №</bdi>{straitNum + 1}</li>
+					<li className="myforminteraction__row"><bdi>{t('tasting.steep', { n: straitNum + 1 })}</bdi></li>
 					<li className="myforminteraction__row"><bdi><br /></bdi></li>
-					<li className="myforminteraction__row"><bdi>Аромат: </bdi></li>
+					<li className="myforminteraction__row"><bdi>{t('tasting.aroma')}: </bdi></li>
 					{aromasRender.current}
 					<li className="myforminteraction__row"><bdi><br /></bdi></li>
-					<li className="myforminteraction__row"><bdi>Вкус: </bdi></li>
+					<li className="myforminteraction__row"><bdi>{t('tasting.taste')}: </bdi></li>
 					{tastesRender.current}
 					<li className="myforminteraction__row"><bdi><br /></bdi></li>
-					<li className="myforminteraction__row"><bdi>Комментарий:</bdi></li>
+					<li className="myforminteraction__row"><bdi>{t('review.comment')}:</bdi></li>
 					<li className="myforminteraction__row"><bdi>{stage2Data.straits[straitNum].straitDescription}</bdi></li>
-					<li className="myforminteraction__row"><bdi>Время заваривания: </bdi>{stage2Data.straits[straitNum].straitTime}</li>
-					<li className="myforminteraction__row"><bdi>Рейтинг пролива: </bdi>{stage2Data.straits[straitNum].straitRaiting}/10 пиал</li>
+					<li className="myforminteraction__row"><bdi>{t('tasting.steepTime')}: </bdi>{stage2Data.straits[straitNum].straitTime}</li>
+					<li className="myforminteraction__row"><bdi>{t('wizard.steepRating')}: </bdi>{t('tasting.bowls', { n: stage2Data.straits[straitNum].straitRaiting })}</li>
 				</ul>
 			</section>
 		)
@@ -241,14 +244,9 @@ function MyFormInteraction(props) {
 		if (!teaName && !hasRecording) {
 			openPopup(
 				<div className="myforminteraction__section">
-					<h3>Не хватает данных</h3>
-					<p style={{ margin: '0 0 6px 0' }}>
-						Чтобы сохранить дегустацию, укажите название чая на первом шаге —
-						или запишите голосовую заметку, и название подставится из расшифровки.
-					</p>
-					<p style={{ margin: 0, color: '#d8f5cc' }}>
-						Остальные поля можно заполнить позже, в «Изменить».
-					</p>
+					<h3>{t('review.missingTitle')}</h3>
+					<p style={{ margin: '0 0 6px 0' }}>{t('review.missingBody')}</p>
+					<p style={{ margin: 0, color: '#d8f5cc' }}>{t('review.missingHint')}</p>
 				</div>
 			);
 			return;
@@ -266,11 +264,9 @@ function MyFormInteraction(props) {
 			console.log(error)
 			openPopup(
 				<div className="myforminteraction__section">
-					<h3>Не удалось сохранить дегустацию</h3>
-					<p style={{ margin: '0 0 8px 0' }}>{error.message || 'Попробуйте ещё раз.'}</p>
-					<p style={{ margin: 0, color: '#d8f5cc' }}>
-						Данные остались в форме — ничего не потеряно, можно повторить отправку.
-					</p>
+					<h3>{t('review.saveFailedTitle')}</h3>
+					<p style={{ margin: '0 0 8px 0' }}>{error.message || t('review.tryAgain')}</p>
+					<p style={{ margin: 0, color: '#d8f5cc' }}>{t('review.saveFailedHint')}</p>
 				</div>
 			);
 			return
@@ -286,7 +282,7 @@ function MyFormInteraction(props) {
 			const result2 = await postTasteData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
-			failed.push('вкусы')
+			failed.push(t('review.tastes'))
 		}
 
 		try {
@@ -294,14 +290,14 @@ function MyFormInteraction(props) {
 			const result2 = await postAromaData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
-			failed.push('ароматы')
+			failed.push(t('review.aromas'))
 		}
 
 		try {
 			await postStraitData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
-			failed.push('проливы')
+			failed.push(t('review.steeps'))
 		}
 
 		localStorage.removeItem('teaFormStage1');
@@ -312,28 +308,17 @@ function MyFormInteraction(props) {
 
 		openPopup(
 			<div className="myforminteraction__section">
-				<h3>Дегустация сохранена</h3>
+				<h3>{t('review.savedTitle')}</h3>
 				{failed.length > 0 && (
 					<p style={{ margin: '0 0 8px 0', color: '#ffb4b4' }}>
-						Не удалось сохранить: {failed.join(', ')}. Дегустация создана — недостающее
-						можно добавить через «Изменить».
+						{t('review.savedPartly', { what: failed.join(', ') })}
 					</p>
 				)}
-				<p style={{ margin: '0 0 8px 0' }}>
-					Запись появилась в разделе <b>«Мои формы»</b> — там её можно дополнить
-					кнопкой «Изменить» или посмотреть через «Просмотр».
-				</p>
+				<p style={{ margin: '0 0 8px 0' }}>{t('review.savedWhere')}</p>
 				{hasRecording && (
-					<p style={{ margin: '0 0 8px 0', color: '#d8f5cc' }}>
-						Голосовая заметка расшифровывается — на карточке будет видно, когда
-						она будет готова. После этого в «Изменить» появится кнопка
-						«Заполнить из расшифровки».
-					</p>
+					<p style={{ margin: '0 0 8px 0', color: '#d8f5cc' }}>{t('review.savedVoice')}</p>
 				)}
-				<p style={{ margin: 0, color: '#d8f5cc' }}>
-					В блог дегустация с записью не публикуется автоматически — включите это
-					в «Изменить», когда прослушаете запись.
-				</p>
+				<p style={{ margin: 0, color: '#d8f5cc' }}>{t('review.savedPrivacy')}</p>
 			</div>
 		);
 
@@ -342,7 +327,7 @@ function MyFormInteraction(props) {
 
 	return (
 		<>
-			<PageMeta title="Проверка формы" path="/form_submit" noIndex />
+			<PageMeta title={t('page.formSubmit')} path="/form_submit" noIndex />
 			<Header navigation={props.navigation} />
 			<div className="myforminteraction">
 
@@ -351,16 +336,17 @@ function MyFormInteraction(props) {
 
 					{voiceDraft.length > 0 && (
 						<div className="myforminteraction__section">
-							<h3>Голосовые заметки</h3>
+							<h3>{t('nav.voiceNotes')}</h3>
 							<p className="voicenote__budget" style={{ margin: '0 0 10px 0' }}>
-								{voiceDraft.length} шт., всего {mmss(voiceTotal)} из 5:00.
-								Записи склеятся в одну дорожку и уйдут на расшифровку после сохранения.
+								{t('review.voiceBudget', { n: voiceDraft.length, total: mmss(voiceTotal) })}
 							</p>
 							<ul className="voicenote__list">
 								{voiceDraft.map((segment) => (
 									<li className="voicenote__item" key={segment.url}>
 										<span className="voicenote__length" style={{ flex: '0 0 110px' }}>
-											{segment.brewingNumber ? `Пролив №${segment.brewingNumber}` : 'О чае'}
+											{segment.brewingNumber
+												? t('tasting.steep', { n: segment.brewingNumber })
+												: t('wizard.aboutTea')}
 										</span>
 										<audio className="voicenote__player" src={segment.url} controls preload="none" />
 										<span className="voicenote__length">{mmss(segment.duration)}</span>
@@ -370,19 +356,23 @@ function MyFormInteraction(props) {
 						</div>
 					)}
 					<ul className="myforminteraction__list">
-						<li className="myforminteraction__row"><bdi>Название: </bdi>{stage1Data.teaName != null ? stage1Data.teaName.label : ''}</li>
-						<li className="myforminteraction__row"><bdi>Тип чая: </bdi>{stage1Data.teaType != null ? stage1Data.teaType.label : ''}</li>
-						<li className="myforminteraction__row"><bdi>Магазин: </bdi>{stage1Data.teaShop != null ? stage1Data.teaShop.label : ''}</li>
-						<li className="myforminteraction__row"><bdi>Вес: </bdi>{stage1Data.teaWeight} г</li>
-						<li className="myforminteraction__row"><bdi>Вода: </bdi>{stage1Data.waterBrand != null ? stage1Data.waterBrand.label : ''}</li>
-						<li className="myforminteraction__row"><bdi>Объем воды: </bdi>{stage1Data.waterVolume} мл</li>
-						<li className="myforminteraction__row"><bdi>Температура воды: </bdi>{stage1Data.waterTemperature} oC</li>
-						<li className="myforminteraction__row"><bdi>Цена чая за грамм: </bdi>{stage1Data.teaPrice} ₽</li>
-						<li className="myforminteraction__row"><bdi>Посуда: </bdi>{stage1Data.teaWare != null ? stage1Data.teaWare.label : ''}</li>
-						<li className="myforminteraction__row"><bdi>Метод заваривания: </bdi>{stage1Data.brewingType != null ? stage1Data.brewingType.label : ''}</li>
-						<li className="myforminteraction__row"><bdi>Дата публикации: </bdi>{currentTimestamp}</li>
-						<li className="myforminteraction__row"><bdi>Итоговый рейтинг: </bdi>{avrRaiting}/10 пиал</li>
-						<li className="myforminteraction__row"><bdi>Опубликовать в блог: </bdi>{stage1Data.publicAccess ? 'да' : 'нет'}</li>
+						{/* The stored values are Russian by design, so the value
+						    side goes through optionLabel just as the wizard's own
+						    dropdowns do. The tea name is the user's own words and
+						    is never touched. */}
+						<li className="myforminteraction__row"><bdi>{t('card.name')}: </bdi>{stage1Data.teaName != null ? stage1Data.teaName.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>{t('card.teaType')}: </bdi>{optionLabel(stage1Data.teaType, locale)}</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.shop')}: </bdi>{stage1Data.teaShop != null ? stage1Data.teaShop.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.weight')}: </bdi>{stage1Data.teaWeight} {t('unit.gram')}</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.water')}: </bdi>{stage1Data.waterBrand != null ? stage1Data.waterBrand.label : ''}</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.volume')}: </bdi>{stage1Data.waterVolume} {t('unit.ml')}</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.temperature')}: </bdi>{stage1Data.waterTemperature} oC</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.price')}: </bdi>{stage1Data.teaPrice} ₽</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.teaware')}: </bdi>{optionLabel(stage1Data.teaWare, locale)}</li>
+						<li className="myforminteraction__row"><bdi>{t('tasting.brewingMethod')}: </bdi>{optionLabel(stage1Data.brewingType, locale)}</li>
+						<li className="myforminteraction__row"><bdi>{t('card.published')}: </bdi>{currentTimestamp}</li>
+						<li className="myforminteraction__row"><bdi>{t('review.finalRating')}: </bdi>{t('tasting.bowls', { n: avrRaiting })}</li>
+						<li className="myforminteraction__row"><bdi>{t('wizard.publish')}: </bdi>{stage1Data.publicAccess ? t('review.yes') : t('review.no')}</li>
 					</ul>
 				</section>
 
@@ -390,7 +380,7 @@ function MyFormInteraction(props) {
 
 				<div className="myforminteraction__buttons">
 					<FormButton
-						buttonName={'Удалить форму'}
+						buttonName={t('review.discard')}
 						width={'100%'}
 						margin={'0px'}
 						onClick={() => {
@@ -407,14 +397,14 @@ function MyFormInteraction(props) {
 						}}
 					/>
 					<FormButton
-						buttonName={'Назад'}
+						buttonName={t('wizard.back')}
 						width={'100%'}
 						margin={'0px'}
 						onClick={() => { history(-1) }}
 					/>
 
 					<FormButton
-						buttonName={'Отправить Форму'}
+						buttonName={t('review.submit')}
 						width={'100%'}
 						margin={'0px'}
 						onClick={onSubmit}

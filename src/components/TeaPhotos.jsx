@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { mainApi } from '../utils/MainAPI.jsx';
 import { downscaleImage } from '../utils/imageResize.js';
+import { useT } from '../i18n/index.js';
 
 // The classic tasting triptych. The order is also the order photos are stored
 // in, which keeps the feed thumbnail from changing when a later slot is filled.
 export const PHOTO_SLOTS = [
-    { kind: 'dry', label: 'Сухой лист' },
-    { kind: 'liquor', label: 'Настой' },
-    { kind: 'wet', label: 'Мокрый лист' },
+    { kind: 'dry', label: 'photo.dry' },
+    { kind: 'liquor', label: 'photo.liquor' },
+    { kind: 'wet', label: 'photo.wet' },
 ];
 
 const ACCEPT = 'image/png,image/jpeg,image/webp,image/gif';
@@ -27,6 +28,7 @@ export const orderPhotos = (photos) => PHOTO_SLOTS
 // dialog passes it so deletion can wait for a successful save (its urls are
 // live on the stored form); the wizard omits it and the file goes immediately.
 function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
+    const { t } = useT();
     const [busy, setBusy] = useState({});
     const [errors, setErrors] = useState({});
 
@@ -55,7 +57,7 @@ function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
                 { url: res.data.url, kind, ...(res.data.thumb ? { thumb: res.data.thumb } : {}) }]);
             if (previous) dropFile(previous.url);
         } catch (err) {
-            setErrors((prev) => ({ ...prev, [kind]: err.message || 'Не удалось загрузить фото.' }));
+            setErrors((prev) => ({ ...prev, [kind]: err.message || t('photo.uploadFailed') }));
         } finally {
             setBusy((prev) => ({ ...prev, [kind]: false }));
         }
@@ -69,7 +71,7 @@ function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
 
     return (
         <div className="teaphotos">
-            <span className="teaphotos__title">Фото чая — необязательно</span>
+            <span className="teaphotos__title">{t('photo.title')}</span>
             <div className="teaphotos__row">
                 {PHOTO_SLOTS.map(({ kind, label }) => {
                     const photo = byKind(kind);
@@ -78,16 +80,16 @@ function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
                         <div className="teaphotos__slot" key={kind}>
                             {photo ? (
                                 <div className="teaphotos__frame">
-                                    <img className="teaphotos__image" src={photo.thumb || photo.url} alt={label} />
+                                    <img className="teaphotos__image" src={photo.thumb || photo.url} alt={t(label)} />
                                     <button type="button" className="teaphotos__remove"
-                                        aria-label={`Удалить фото: ${label}`}
+                                        aria-label={t('photo.delete', { label: t(label) })}
                                         onClick={() => handleRemove(kind)}>&times;</button>
                                 </div>
                             ) : (
                                 <label className="teaphotos__frame teaphotos__frame_empty">
                                     <span className="teaphotos__plus" aria-hidden="true">+</span>
                                     <input type="file" accept={ACCEPT} className="teaphotos__input"
-                                        aria-label={`Добавить фото: ${label}`}
+                                        aria-label={t('photo.add', { label: t(label) })}
                                         disabled={isBusy}
                                         onChange={(e) => {
                                             const file = e.target.files && e.target.files[0];
@@ -97,7 +99,9 @@ function TeaPhotos({ value = [], onChange, onRemovedUrl }) {
                                         }} />
                                 </label>
                             )}
-                            <span className="teaphotos__caption">{isBusy ? 'Загрузка…' : label}</span>
+                            {/* `label` is a message key now, so it has to go
+                                through t() wherever it is shown. */}
+                            <span className="teaphotos__caption">{isBusy ? t('photo.loading') : t(label)}</span>
                             {errors[kind] && <span className="teaphotos__error">{errors[kind]}</span>}
                         </div>
                     );

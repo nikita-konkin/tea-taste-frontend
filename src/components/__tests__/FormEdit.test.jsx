@@ -1,9 +1,17 @@
 /* Tests for the tea-form edit dialog: Stage-1 fields and the brewings section. */
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render as rtlRender, screen, fireEvent, waitFor } from '@testing-library/react';
 import FormEdit from '../FormEdit.jsx';
 import { PopupProvider } from '../PopupContext.jsx';
 import { formApi } from '../../utils/FormAPI.jsx';
+
+import { MemoryRouter } from 'react-router-dom';
+
+// These components read the reader's language from the URL (useT -> useLocation),
+// so they need router context even in tests that have nothing to do with routing.
+// Shadowing render keeps every call below unchanged.
+const render = (ui, options) => rtlRender(ui, { wrapper: MemoryRouter, ...options });
+
 
 jest.mock('../../utils/FormAPI.jsx', () => ({
     formApi: {

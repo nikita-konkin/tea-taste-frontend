@@ -2,6 +2,7 @@ import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box, Typography, Rating } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useT } from '../i18n/index.js';
 
 const theme = createTheme({
     typography: {
@@ -74,6 +75,7 @@ const CustomRaiting = styled(Rating)({
 const TeaRaiting = React.forwardRef(({
     name, label, value, setValue, onChange,
 }, ref) => {
+    const { t } = useT();
     const legendStyle = {
         color: "#FFFFFF",
         margin: '10px 0 10px 0'
@@ -87,7 +89,7 @@ const TeaRaiting = React.forwardRef(({
     return (
         <ThemeProvider theme={theme}>
             <Box style={boxStyle}>
-                <Typography component="legend" style={legendStyle}>{label || 'Оценка'}</Typography>
+                <Typography component="legend" style={legendStyle}>{label || t('card.ratingLabel')}</Typography>
                 <CustomRaiting
                     name={name}
                     icon={<RaitingPial active />}

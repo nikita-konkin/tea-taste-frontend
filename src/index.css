@@ -26,6 +26,7 @@
 
 @import url(./blocks/landing/landing.css);
 @import url(./blocks/sitefooter/sitefooter.css);
+@import url(./blocks/localeswitcher/localeswitcher.css);
 
 @import url(./blocks/teaphotos/teaphotos.css);
 @import url(./blocks/lightbox/lightbox.css);

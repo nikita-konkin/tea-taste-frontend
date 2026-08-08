@@ -1,5 +1,6 @@
 import React from 'react';
 import { MAX_TOTAL_SECONDS } from './VoiceNote.jsx';
+import { useT } from '../i18n/index.js';
 
 // The recorder's own budget, not a number retyped into prose: if the cap ever
 // moves, the instructions move with it.
@@ -21,130 +22,63 @@ const Block = ({ title, children }) => (
     </section>
 );
 
+// Every bullet names real controls mid-sentence. Splitting each one into three
+// catalogue entries around the markup would hand a translator fragments and
+// freeze the Russian word order, so the entry keeps the whole sentence and
+// marks control names with [[...]] instead.
+const MARKED = /\[\[(.+?)\]\]/g;
+const withKeys = (text) => {
+    const parts = [];
+    let cursor = 0;
+    for (const match of text.matchAll(MARKED)) {
+        if (match.index > cursor) parts.push(text.slice(cursor, match.index));
+        parts.push(<Key key={match.index}>{match[1]}</Key>);
+        cursor = match.index + match[0].length;
+    }
+    if (cursor < text.length) parts.push(text.slice(cursor));
+    return parts;
+};
+
 // Short reference for the voice notes, opened from /my_forms and from the side
 // menu. Read-only and self-contained: it makes no requests, so it works while
 // the list is still loading and for a user who has no tastings yet.
 function VoiceGuide() {
+    const { t } = useT();
+    // The minute counts are the recorder's own budget, substituted rather than
+    // retyped into each language's prose.
+    const limits = { track: TRACK_MINUTES, month: MONTHLY_MINUTES };
+    const bullet = (key) => <li key={key}>{withKeys(t(key, limits))}</li>;
+
     return (
         <div className="voiceguide">
-            <h3 className="voiceguide__title">Голосовые заметки</h3>
-            <p className="voiceguide__lead">
-                Расскажите о чае вслух — сервис расшифрует запись и предложит,
-                чем заполнить поля формы.
-            </p>
+            <h3 className="voiceguide__title">{t('nav.voiceNotes')}</h3>
+            <p className="voiceguide__lead">{t('guide.lead')}</p>
 
-            <Block title="1. Записать">
-                <li>
-                    Кнопка <Key>● Записать</Key> есть на этапе 1 — общая заметка о чае —
-                    и в каждом проливе на этапе 2.
-                </li>
-                <li>
-                    Браузер спросит доступ к микрофону: без разрешения запись не начнётся.
-                </li>
-                <li>
-                    Записей может быть несколько. Рядом с кнопкой видно, сколько времени
-                    осталось: всего {TRACK_MINUTES} минут на одну дегустацию.
-                </li>
-                <li>
-                    Пока форма не сохранена, любую запись можно прослушать и удалить
-                    крестиком.
-                </li>
+            <Block title={t('guide.s1')}>
+                {['guide.s1a', 'guide.s1b', 'guide.s1c', 'guide.s1d'].map(bullet)}
             </Block>
 
-            <Block title="2. Что происходит после сохранения">
-                <li>
-                    Записи склеиваются в одну дорожку: сначала общая заметка, потом
-                    проливы по порядку.
-                </li>
-                <li>
-                    На карточке в «Моих формах» появится <Key>Расшифровка записи…</Key> —
-                    обычно это меньше минуты.
-                </li>
-                <li>
-                    Готовую запись и текст видно в <Key>Просмотре</Key> карточки, в блоке
-                    «Расшифровка записи».
-                </li>
+            <Block title={t('guide.s2')}>
+                {['guide.s2a', 'guide.s2b', 'guide.s2c'].map(bullet)}
             </Block>
 
-            <Block title="3. Заполнить поля из расшифровки">
-                <li>
-                    <Key>Изменить</Key> → <Key>Заполнить из расшифровки</Key>. Текст
-                    разбирает YandexGPT: он вытаскивает название, вид чая, навеску, объём,
-                    температуру и всё, что прозвучало вслух.
-                </li>
-                <li>
-                    Каждое значение предлагается отдельно, рядом показано, что оно заменит.
-                    Нажмите <Key>Применить</Key> у нужных или <Key>Применить всё</Key>.
-                </li>
-                <li>
-                    Подсказки по проливам — время, впечатление, ароматы и вкусы — ждут
-                    внутри блока своего пролива: <Key>Из записи</Key> → <Key>Применить</Key>.
-                </li>
-                <li>
-                    Ничего не заполняется само и ничего не сохраняется, пока вы не нажмёте{' '}
-                    <Key>Сохранить форму</Key>: распознавание и модель иногда ошибаются,
-                    поэтому последнее слово за вами.
-                </li>
-                <li>
-                    Разбор делается один раз и сохраняется: если закрыть диалог и открыть
-                    заново, предложения останутся теми же — они помечены как «сохранённый
-                    разбор».
-                </li>
+            <Block title={t('guide.s3')}>
+                {['guide.s3a', 'guide.s3b', 'guide.s3c', 'guide.s3d', 'guide.s3e'].map(bullet)}
             </Block>
 
-            <Block title="4. Приватность">
-                <li>
-                    Дегустация с записью никогда не публикуется сразу, даже если на этапе 1
-                    включён переключатель «Опубликовать в блог».
-                </li>
-                <li>
-                    Аудио и расшифровка попадут в ленту только после того, как вы сами
-                    включите <Key>Публиковать аудиозапись и расшифровку</Key> в{' '}
-                    <Key>Изменить</Key> — послушав запись целиком. Микрофон слышит всё,
-                    что было в комнате.
-                </li>
+            <Block title={t('guide.s4')}>
+                {['guide.s4a', 'guide.s4b'].map(bullet)}
             </Block>
 
-            <Block title="5. Лимиты">
-                <li>
-                    {TRACK_MINUTES} минут на одну дегустацию — это сумма всех её записей.
-                </li>
-                <li>
-                    {MONTHLY_MINUTES} минут расшифровки в месяц на аккаунт. Остаток виден
-                    на странице «Профиль».
-                </li>
-                <li>
-                    Если месячный лимит исчерпан, запись всё равно сохранится и её можно
-                    будет расшифровать в следующем месяце.
-                </li>
+            <Block title={t('guide.s5')}>
+                {['guide.s5a', 'guide.s5b', 'guide.s5c'].map(bullet)}
             </Block>
 
-            <Block title="Чтобы разбор получился точнее">
-                <li>
-                    Проговаривайте числа с названием: «навеска шесть грамм», «сто
-                    миллилитров», «девяносто градусов», «пролив номер два, двадцать секунд».
-                </li>
-                <li>
-                    Называйте вид чая вслух — «шэн пуэр», «улун», «красный». Это то поле,
-                    которое чаще всего теряется.
-                </li>
-                <li>
-                    Ароматы и вкусы называйте словами из списков формы («древесный, кора
-                    дуба») — тогда они встанут в нужные поля. Всё, чего нет в справочнике,
-                    не пропадёт: оно попадёт в описание пролива словами.
-                </li>
-                <li>
-                    Записывайте в тишине и ближе к микрофону: расшифровка идёт по звуку,
-                    а не по смыслу.
-                </li>
+            <Block title={t('guide.s6')}>
+                {['guide.s6a', 'guide.s6b', 'guide.s6c', 'guide.s6d'].map(bullet)}
             </Block>
 
-            <p className="voiceguide__note">
-                Если расшифровка не удалась, в «Просмотре» появится кнопка «Повторить
-                расшифровку» — само аудио при этом не теряется. А если запись оказалась
-                не о чае, поля не заполнятся: сервис скажет об этом прямо и оставит
-                запись как есть.
-            </p>
+            <p className="voiceguide__note">{t('guide.note')}</p>
         </div>
     );
 }

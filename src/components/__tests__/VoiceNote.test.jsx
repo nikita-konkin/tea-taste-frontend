@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render as rtlRender, screen, fireEvent, waitFor } from '@testing-library/react';
 import VoiceNote, { totalSeconds, MAX_TOTAL_SECONDS } from '../VoiceNote.jsx';
 import { mainApi } from '../../utils/MainAPI.jsx';
 import { isSupported, startRecording } from '../../utils/recorder.js';
+
+import { MemoryRouter } from 'react-router-dom';
+
+// These components read the reader's language from the URL (useT -> useLocation),
+// so they need router context even in tests that have nothing to do with routing.
+// Shadowing render keeps every call below unchanged.
+const render = (ui, options) => rtlRender(ui, { wrapper: MemoryRouter, ...options });
+
 
 // jsdom has neither MediaRecorder nor getUserMedia, so the wrapper is mocked
 // wholesale — that separation is the reason it lives in its own module.

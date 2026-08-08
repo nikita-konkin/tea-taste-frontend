@@ -7,13 +7,17 @@ import Header from './Header';
 import { mainApi } from '../utils/MainAPI.jsx';
 
 import PopupButton from './PopupButton.jsx';
+import { useT } from '../i18n/index.js';
 
-const vkAuthUrl = `${process.env.REACT_APP_API_URL || '/api'}/auth/vk`;
+// See Login.jsx: the locale has to travel as a query parameter because this
+// leaves the app entirely.
+const vkAuthUrl = (locale) => `${process.env.REACT_APP_API_URL || '/api'}/auth/vk?locale=${locale}`;
 
 function Registration({ auth, popupContent }) {
 
 
 	const { openPopup } = usePopup();
+	const { t, url, locale } = useT();
 	// null while unknown: assume open, because the server refuses on its own
 	// anyway. Hiding the form on a failed check would lock people out of a
 	// working site over one dropped request.
@@ -52,7 +56,7 @@ function Registration({ auth, popupContent }) {
 			})
 
 		} else {
-			openPopup('Пароли не совпадают');
+			openPopup(t('auth.passwordsDiffer'));
 		}
 
 	}
@@ -60,55 +64,54 @@ function Registration({ auth, popupContent }) {
 
 	return (
 		<>
-			<PageMeta title="Регистрация" path="/sign-up" noIndex
-				description="Заведите свой дневник чайных дегустаций." />
+			<PageMeta title={t('auth.signUp')} path="/sign-up" noIndex
+				description={t('auth.signUpDescription')} />
 			<Header />
 			<form className="registration" onSubmit={handleOnSubmit}>
-				<h1 className="registration__header">Регистрация</h1>
+				<h1 className="registration__header">{t('auth.signUp')}</h1>
 				<div className="registration__fields-box">
 					{registrationOpen === false ? (
 						<>
 							<h2 className="registration__check-text" style={{ lineHeight: 1.4 }}>
-								Регистрация новых аккаунтов временно закрыта.
-								Если у вас уже есть аккаунт — войдите.
+								{t('auth.signUpClosed')}
 							</h2>
-							<Link className="registration__check-text_link" to="/sign-in">Войти</Link>
+							<Link className="registration__check-text_link" to={url('/sign-in')}>{t('auth.signInAction')}</Link>
 						</>
 					) : (
 					<>
 					<input className="registration__name" type="text"
-						name="name" placeholder="Имя"
+						name="name" placeholder={t('auth.name')}
 						onChange={e => handleForm(e)}
 						minLength={2} maxLength={30} required />
 					<input className="registration__email" type="text"
-						name="email" placeholder="Email"
+						name="email" placeholder={t('auth.email')}
 						onChange={e => handleForm(e)}
 						minLength={2} maxLength={30} required />
 					<input className="registration__pass"
 						type="password" name="password1"
 						onChange={e => handleForm(e)}
-						placeholder="Пароль" required />
+						placeholder={t('auth.password')} required />
 					<input className="registration__pass"
 						type="password" name="password2"
 						onChange={e => handleForm(e)}
-						placeholder="Повторите пароль" required />
+						placeholder={t('auth.repeatPassword')} required />
 					{/* <Test/> */}
-					<button type="submit" className="registration__submit">Зарегистрироваться</button>
+					<button type="submit" className="registration__submit">{t('auth.signUpAction')}</button>
 					<button type="button" className="registration__submit"
 						style={{ background: 'rgba(0, 119, 255, 0.45)', border: '1px solid rgba(255, 255, 255, 0.35)', margin: '14px 0 0 0' }}
-						onClick={() => { window.location.href = vkAuthUrl; }}>
-						Продолжить с VK ID
+						onClick={() => { window.location.href = vkAuthUrl(locale); }}>
+						{t('auth.continueVk')}
 					</button>
 
-					<h2 className="registration__check-text">Уже зарегистрированы?</h2>
+					<h2 className="registration__check-text">{t('auth.haveAccount')}</h2>
 					<Link
-						className="registration__check-text_link" to="/sign-in">Войти</Link>
+						className="registration__check-text_link" to={url('/sign-in')}>{t('auth.signInAction')}</Link>
 					</>
 					)}
 
 				</div>
 
-				<PopupButton naviagteTo={'/blog'} content={'Лента'}/>
+				<PopupButton naviagteTo={url('/blog')} content={t('nav.feed')}/>
 				
 			</form>
 		</>

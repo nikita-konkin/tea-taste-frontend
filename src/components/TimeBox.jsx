@@ -11,6 +11,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import dayjs from 'dayjs';
 
 import timerSound from '../sounds/timer_30s.mp3';
+import { useT } from '../i18n/index.js';
 
 
 const theme = createTheme({
@@ -91,6 +92,7 @@ const btnStyle = {
 
 }
 const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, ref) => {
+    const { t } = useT();
     const isLessXs = useMediaQuery(theme.breakpoints.down('xs'));
     const [timeValue, setTimeValue] = useState(dayjs(value, timeFormat));
     const [timer, setTimer] = useState(null);
@@ -147,7 +149,7 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
                     <TimePicker
                         ampm={false}
                         views={['hours', 'minutes', 'seconds']}
-                        label={'Время пролива'}
+                        label={t('tasting.steepTime')}
                         name={name}
                         inputFormat={timeFormat}
                         mask="__:__:__"
@@ -173,7 +175,7 @@ const TimeBox = forwardRef(({ name, value, setValue, timeFormat = 'HH:mm:ss' }, 
                         onClick={handleStartStop}
                         style={btnStyle}
                     >
-                        {isRunning ? 'Остановить секундомер' : 'Запустить секундомер'}
+                        {isRunning ? t('wizard.stopTimer') : t('wizard.startTimer')}
                     </Button>
                 </Stack>
             </LocalizationProvider>

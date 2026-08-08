@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePopup } from './PopupContext.jsx';
+import { useT } from '../i18n/index.js';
 
 // Yes/no confirmation in the shared popup, for actions that cannot be undone by
 // the person who just clicked them.
@@ -11,13 +12,14 @@ import { usePopup } from './PopupContext.jsx';
 function ConfirmDialog({
     title,
     text,
-    confirmLabel = 'Да',
-    cancelLabel = 'Нет',
+    confirmLabel,
+    cancelLabel,
     danger = false,
     onConfirm,
     onDone,
 }) {
     const { closePopup } = usePopup();
+    const { t } = useT();
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
 
@@ -31,7 +33,7 @@ function ConfirmDialog({
                 if (onDone) onDone();
             })
             .catch((err) => {
-                setError(err.message || 'Не удалось выполнить действие.');
+                setError(err.message || t('confirm.failed'));
                 setBusy(false);
             });
     };
@@ -45,11 +47,11 @@ function ConfirmDialog({
                 <button type="button"
                     className={`voicenote__button${danger ? ' confirm__button_danger' : ''}`}
                     onClick={confirm} disabled={busy}>
-                    {busy ? 'Выполняем…' : confirmLabel}
+                    {busy ? t('confirm.working') : (confirmLabel || t('confirm.yes'))}
                 </button>
                 <button type="button" className="voicenote__button"
                     onClick={closePopup} disabled={busy}>
-                    {cancelLabel}
+                    {cancelLabel || t('confirm.no')}
                 </button>
             </div>
         </section>

@@ -55,8 +55,12 @@ const renderMyForms = (data) =>
 
 const openButton = () => screen.getByRole('button', { name: 'Как работают голосовые заметки' });
 
+// The guide reads its language from the URL like every other page, so it needs
+// a router even when rendered on its own. Bare path — these assert the Russian.
+const renderGuide = () => render(<MemoryRouter><VoiceGuide /></MemoryRouter>);
+
 test('covers recording, transcription, filling fields, privacy and limits', () => {
-    render(<VoiceGuide />);
+    renderGuide();
 
     expect(screen.getByText('Голосовые заметки')).toBeInTheDocument();
     expect(screen.getByText('1. Записать')).toBeInTheDocument();
@@ -76,7 +80,7 @@ test('covers recording, transcription, filling fields, privacy and limits', () =
 // which glued "нажмётеСохранить форму" together on the real page — invisible in
 // a query that matches either half on its own.
 test('keeps a space where a highlighted control name follows text', () => {
-    const { container } = render(<VoiceGuide />);
+    const { container } = renderGuide();
     const text = container.textContent;
 
     expect(text).toContain('нажмёте Сохранить форму');
@@ -84,7 +88,7 @@ test('keeps a space where a highlighted control name follows text', () => {
 });
 
 test('quotes the budget the recorder actually enforces', () => {
-    const { container } = render(<VoiceGuide />);
+    const { container } = renderGuide();
     const minutes = Math.round(MAX_TOTAL_SECONDS / 60);
 
     expect(container.textContent).toContain(`${minutes} минут на одну дегустацию`);

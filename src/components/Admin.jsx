@@ -5,6 +5,7 @@ import { mainApi } from '../utils/MainAPI.jsx';
 import { usePopup } from './PopupContext.jsx';
 import { formatMinutes, formatShortDateTime } from '../utils/utils.js';
 import QuotaBar from './QuotaBar.jsx';
+import { useT } from '../i18n/index.js';
 
 const cardStyle = {
 	background: 'rgba(255, 255, 255, 0.10)',
@@ -66,6 +67,7 @@ const warnBadgeStyle = {
 // error popup and an empty page.
 function Admin({ navigation }) {
 	const { openPopup } = usePopup();
+	const { t } = useT();
 	const [users, setUsers] = useState(null); // null = loading
 	const [suggestions, setSuggestions] = useState([]);
 	const [myId, setMyId] = useState(null);
@@ -91,7 +93,7 @@ function Admin({ navigation }) {
 			})
 			.catch((err) => {
 				setUsers([]);
-				openPopup(err.message || 'Нет доступа.');
+				openPopup(err.message || t('admin.noAccess'));
 			});
 		mainApi.adminGetSuggestions()
 			.then((res) => setSuggestions(res.data))
@@ -114,29 +116,29 @@ function Admin({ navigation }) {
 			.then((res) => {
 				setSettings(res.data);
 				openPopup(res.data.registrationOpen
-					? 'Регистрация открыта.'
-					: 'Регистрация закрыта. Существующие пользователи могут входить как обычно.');
+					? t('admin.regOpen')
+					: t('admin.regClosed'));
 			})
-			.catch((err) => openPopup(err.message || 'Не удалось изменить настройку.'))
+			.catch((err) => openPopup(err.message || t('admin.settingFailed')))
 			.finally(() => setSavingSettings(false));
 	};
 
 	const dismissSuggestion = (id) => {
 		mainApi.adminDeleteSuggestion(id)
 			.then(load)
-			.catch((err) => openPopup(err.message || 'Не удалось удалить.'));
+			.catch((err) => openPopup(err.message || t('admin.deleteFailed')));
 	};
 
 	const setRole = (u, role) => {
 		mainApi.adminSetUserRole(u._id, role)
 			.then(load)
-			.catch((err) => openPopup(err.message || 'Не удалось изменить роль.'));
+			.catch((err) => openPopup(err.message || t('admin.roleFailed')));
 	};
 
 	const remove = (u) => {
 		mainApi.adminDeleteUser(u._id)
 			.then(() => { setConfirmId(null); load(); })
-			.catch((err) => openPopup(err.message || 'Не удалось удалить пользователя.'));
+			.catch((err) => openPopup(err.message || t('admin.userDeleteFailed')));
 	};
 
 	const unblockForm = (form) => {
@@ -145,100 +147,99 @@ function Admin({ navigation }) {
 				load();
 				// Said out loud because nothing visible happens in the feed: the
 				// tasting stays private until its author publishes it again.
-				openPopup('Запись разблокирована. В ленту она вернётся, когда автор снова её опубликует.');
+				openPopup(t('admin.unblocked'));
 			})
-			.catch((err) => openPopup(err.message || 'Не удалось разблокировать запись.'));
+			.catch((err) => openPopup(err.message || t('admin.unblockFailed')));
 	};
 
 	const removeForm = (form) => {
 		mainApi.adminDeleteForm(form.sessionId)
 			.then(() => { setConfirmSession(null); load(); })
-			.catch((err) => openPopup(err.message || 'Не удалось удалить запись.'));
+			.catch((err) => openPopup(err.message || t('admin.formDeleteFailed')));
 	};
 
 	return (
 		<>
-			<PageMeta title="Админ-панель" path="/admin" noIndex />
+			<PageMeta title={t('admin.title')} path="/admin" noIndex />
 			<Header navigation={navigation} />
 			<div className="myforms">
-				<h2 className="header__myforms">Настройки сайта</h2>
+				<h2 className="header__myforms">{t('admin.siteSettings')}</h2>
 				<section style={cardStyle}>
 					<div style={{ ...rowStyle, justifyContent: 'space-between' }}>
 						<div style={{ minWidth: 0 }}>
 							<div style={{ fontWeight: 600 }}>
-								Регистрация новых пользователей{' '}
-								{settings && !settings.registrationOpen && <span style={warnBadgeStyle}>закрыта</span>}
+								{t('admin.registration')}{' '}
+								{settings && !settings.registrationOpen && <span style={warnBadgeStyle}>{t('admin.closed')}</span>}
 							</div>
 							<div style={{ fontSize: '14px', opacity: 0.85, marginTop: '4px' }}>
-								Закрывает и обычную форму, и вход через VK для новых аккаунтов.
-								Уже зарегистрированные пользователи продолжают входить как обычно.
+								{t('admin.regHint')}
 							</div>
 						</div>
 						{settings === null
-							? <span style={{ fontSize: '14px', opacity: 0.7 }}>Загружаем...</span>
+							? <span style={{ fontSize: '14px', opacity: 0.7 }}>{t('admin.loading')}</span>
 							: (
 								<button
 									style={settings.registrationOpen ? dangerBtnStyle : btnStyle}
 									disabled={savingSettings}
 									onClick={toggleRegistration}>
-									{settings.registrationOpen ? 'Закрыть регистрацию' : 'Открыть регистрацию'}
+									{settings.registrationOpen ? t('admin.closeReg') : t('admin.openReg')}
 								</button>
 							)}
 					</div>
 				</section>
 
-				<h2 className="header__myforms">Предложения {suggestions.length > 0 && `(${suggestions.length})`}</h2>
+				<h2 className="header__myforms">{t('admin.suggestions')} {suggestions.length > 0 && `(${suggestions.length})`}</h2>
 				{suggestions.length === 0 && (
-					<p style={{ color: '#ffffff', opacity: 0.7, margin: '0 0 14px 0' }}>Пока пусто.</p>
+					<p style={{ color: '#ffffff', opacity: 0.7, margin: '0 0 14px 0' }}>{t('admin.empty')}</p>
 				)}
 				{suggestions.map((s) => (
 					<section key={s._id} style={cardStyle}>
 						<div style={{ fontSize: '14px', opacity: 0.85, marginBottom: '6px' }}>
-							{s.owner ? `${s.owner.nickname || s.owner.name} · ${s.owner.email}` : 'Пользователь удалён'}
+							{s.owner ? `${s.owner.nickname || s.owner.name} · ${s.owner.email}` : t('admin.userDeleted')}
 							{' · '}
 							{formatShortDateTime(s.createdAt)}
 						</div>
 						<div style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{s.text}</div>
 						<div style={{ marginTop: '10px' }}>
-							<button style={btnStyle} onClick={() => dismissSuggestion(s._id)}>Обработано — убрать</button>
+							<button style={btnStyle} onClick={() => dismissSuggestion(s._id)}>{t('admin.processed')}</button>
 						</div>
 					</section>
 				))}
 
 				<h2 className="header__myforms">
-					Скрытые записи {blocked.length > 0 && `(${blocked.length})`}
+					{t('admin.hiddenForms')} {blocked.length > 0 && `(${blocked.length})`}
 				</h2>
 				{blocked.length === 0 && (
 					<p style={{ color: '#ffffff', opacity: 0.7, margin: '0 0 14px 0' }}>
-						Ничего не скрыто. Кнопки модерации — на карточках в ленте.
+						{t('admin.nothingHidden')}
 					</p>
 				)}
 				{blocked.map((f) => (
 					<section key={f.sessionId} style={cardStyle}>
 						<div style={{ fontWeight: 600 }}>
-							{f.nameRU} <span style={warnBadgeStyle}>скрыта</span>
+							{f.nameRU} <span style={warnBadgeStyle}>{t('admin.hidden')}</span>
 						</div>
 						<div style={{ fontSize: '14px', opacity: 0.85, margin: '6px 0' }}>
-							{f.owner ? `${f.owner.nickname || f.owner.name} · ${f.owner.email}` : 'Автор удалён'}
+							{f.owner ? `${f.owner.nickname || f.owner.name} · ${f.owner.email}` : t('admin.authorDeleted')}
 							{f.type ? ` · ${f.type}` : ''}
-							{f.blockedAt ? ` · скрыта ${formatShortDateTime(f.blockedAt)}` : ''}
+							{f.blockedAt ? ` ${t('admin.hiddenAt', { date: formatShortDateTime(f.blockedAt) })}` : ''}
 						</div>
 						<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-							<button style={btnStyle} onClick={() => unblockForm(f)}>Вернуть автору</button>
+							<button style={btnStyle} onClick={() => unblockForm(f)}>{t('admin.returnToAuthor')}</button>
 							{confirmSession === f.sessionId
 								? (
 									<>
-										<button style={dangerBtnStyle} onClick={() => removeForm(f)}>Точно удалить?</button>
-										<button style={btnStyle} onClick={() => setConfirmSession(null)}>Отмена</button>
+										<button style={dangerBtnStyle} onClick={() => removeForm(f)}>{t('admin.confirmDelete')}</button>
+										<button style={btnStyle} onClick={() => setConfirmSession(null)}>{t('admin.cancel')}</button>
 									</>
 								)
-								: <button style={dangerBtnStyle} onClick={() => setConfirmSession(f.sessionId)}>Удалить навсегда</button>}
+								: <button style={dangerBtnStyle} onClick={() => setConfirmSession(f.sessionId)}>{t('admin.deleteForever')}</button>}
 						</div>
 					</section>
 				))}
 
-				<h2 className="header__myforms">Пользователи</h2>
-				{users === null && <h2 className="header__myforms">Загружаем...</h2>}
+				<h2 className="header__myforms">{t('admin.users')}</h2>
+				{users === null && <h2 className="header__myforms">{t('admin.loading')}</h2>}
 				{users && users.map((u) => (
 					<section key={u._id} style={cardStyle}>
 						<div style={rowStyle}>
@@ -248,7 +249,7 @@ function Admin({ navigation }) {
 							<div style={{ minWidth: 0 }}>
 								<div style={{ fontWeight: 600 }}>
 									{u.nickname || u.name}{' '}
-									{u.role === 'admin' && <span style={badgeStyle}>админ</span>}{' '}
+									{u.role === 'admin' && <span style={badgeStyle}>{t('admin.adminBadge')}</span>}{' '}
 									{u.vkId && <span style={badgeStyle}>VK</span>}
 								</div>
 								<div style={{ fontSize: '14px', opacity: 0.85, overflowWrap: 'anywhere' }}>
@@ -257,29 +258,33 @@ function Admin({ navigation }) {
 							</div>
 						</div>
 						<div style={{ fontSize: '14px', opacity: 0.85, margin: '8px 0' }}>
-							Форм: {u.forms} · с {formatShortDateTime(u.createdAt)}
+							{t('admin.userForms', { n: u.forms, date: formatShortDateTime(u.createdAt) })}
 							{u.career ? ` · ${u.career}` : ''}
 						</div>
 						{voiceLimit > 0 && (
 							<div style={{ fontSize: '14px', opacity: 0.85, margin: '8px 0' }}>
-								Расшифровка за {voicePeriod}: {formatMinutes(u.voiceSeconds)} из {formatMinutes(voiceLimit)}
-								{u.voiceSeconds >= voiceLimit && <span style={{ marginLeft: '8px' }}><span style={warnBadgeStyle}>лимит исчерпан</span></span>}
+								{t('admin.userVoice', {
+									period: voicePeriod,
+									used: formatMinutes(u.voiceSeconds),
+									limit: formatMinutes(voiceLimit),
+								})}
+								{u.voiceSeconds >= voiceLimit && <span style={{ marginLeft: '8px' }}><span style={warnBadgeStyle}>{t('admin.limitSpent')}</span></span>}
 								<QuotaBar used={u.voiceSeconds || 0} limit={voiceLimit} />
 							</div>
 						)}
 						{u._id !== myId && (
 							<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
 								{u.role === 'admin'
-									? <button style={btnStyle} onClick={() => setRole(u, 'user')}>Снять админа</button>
-									: <button style={btnStyle} onClick={() => setRole(u, 'admin')}>Сделать админом</button>}
+									? <button style={btnStyle} onClick={() => setRole(u, 'user')}>{t('admin.demote')}</button>
+									: <button style={btnStyle} onClick={() => setRole(u, 'admin')}>{t('admin.promote')}</button>}
 								{u.role !== 'admin' && (confirmId === u._id
 									? (
 										<>
-											<button style={dangerBtnStyle} onClick={() => remove(u)}>Точно удалить?</button>
-											<button style={btnStyle} onClick={() => setConfirmId(null)}>Отмена</button>
+											<button style={dangerBtnStyle} onClick={() => remove(u)}>{t('admin.confirmDelete')}</button>
+											<button style={btnStyle} onClick={() => setConfirmId(null)}>{t('admin.cancel')}</button>
 										</>
 									)
-									: <button style={dangerBtnStyle} onClick={() => setConfirmId(u._id)}>Удалить</button>)}
+									: <button style={dangerBtnStyle} onClick={() => setConfirmId(u._id)}>{t('admin.delete')}</button>)}
 							</div>
 						)}
 					</section>

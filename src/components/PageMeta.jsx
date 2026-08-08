@@ -1,8 +1,14 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import {
+    LOCALES, LOCALE_TAG, DEFAULT_LOCALE, localeFromPath, localizePath, translate,
+} from '../i18n/index.js';
 
-const SITE = 'Форма чая';
 const ORIGIN = 'https://teaform.ru';
 const DEFAULT_IMAGE = `${ORIGIN}/logo512.png`;
+
+// Open Graph wants a language_TERRITORY pair, not a bare tag.
+const OG_LOCALE = { ru: 'ru_RU', en: 'en_US', zh: 'zh_CN' };
 
 // Trims a description to something a search result or a chat preview will
 // actually show, without cutting a word in half.
@@ -54,12 +60,21 @@ const removeTag = (selector) => {
 //
 // The app is client-rendered, so this is what a browser and Google's renderer
 // see; Yandex reads the server-rendered copy.
+// `path` is the BARE route ('/blog', '/blog/type/puer') — the locale prefix is
+// added here, so no caller has to remember it and the alternates below are
+// always the same page in each language.
 function PageMeta({
     title, description, image, path, type = 'website', noIndex, jsonLd,
 }) {
-    const fullTitle = title ? `${title} — ${SITE}` : `${SITE} — дневник чайных дегустаций`;
+    const { pathname } = useLocation();
+    const locale = localeFromPath(pathname);
+    const site = translate('site.name', locale);
+    const fullTitle = title
+        ? `${title} — ${site}`
+        : `${site} — ${translate('site.tagline', locale)}`;
     const text = clamp(description);
-    const url = path ? `${ORIGIN}${path}` : ORIGIN;
+    const bare = path || '/';
+    const url = `${ORIGIN}${localizePath(bare, locale)}`;
     // A relative upload path (/api/uploads/...) has to become absolute: a chat
     // preview resolves og:image against nothing.
     const preview = image
@@ -70,10 +85,14 @@ function PageMeta({
     useEffect(() => {
         document.title = fullTitle;
 
+        // The page's language, for a screen reader as much as for a crawler:
+        // the whole document changes language, not a fragment of it.
+        document.documentElement.setAttribute('lang', LOCALE_TAG[locale]);
+
         setTag('meta', { name: 'description', content: text }, 'name');
         setTag('meta', { property: 'og:type', content: type }, 'property');
-        setTag('meta', { property: 'og:site_name', content: SITE }, 'property');
-        setTag('meta', { property: 'og:locale', content: 'ru_RU' }, 'property');
+        setTag('meta', { property: 'og:site_name', content: site }, 'property');
+        setTag('meta', { property: 'og:locale', content: OG_LOCALE[locale] }, 'property');
         setTag('meta', { property: 'og:url', content: url }, 'property');
         setTag('meta', { property: 'og:title', content: fullTitle }, 'property');
         setTag('meta', { property: 'og:description', content: text }, 'property');
@@ -83,6 +102,31 @@ function PageMeta({
         setTag('meta', { name: 'twitter:description', content: text }, 'name');
         setTag('meta', { name: 'twitter:image', content: preview }, 'name');
         setTag('link', { rel: 'canonical', href: url }, 'rel');
+
+        // hreflang: the same page in each language, pointing at each other.
+        //
+        // Without these, three translations of one page look to a search engine
+        // like three competing pages, and it picks one — usually not the one
+        // matching the reader. x-default names the version to serve when none
+        // of the languages matches, which is the Russian original.
+        //
+        // Rebuilt from scratch each time rather than rewritten in place: the
+        // previous page's alternates point at the previous page.
+        document.head
+            .querySelectorAll(`link[${OWNED}][rel="alternate"]`)
+            .forEach((el) => el.remove());
+        if (!noIndex) {
+            const alternate = (hreflang, href) => {
+                const el = document.createElement('link');
+                el.setAttribute(OWNED, '');
+                el.setAttribute('rel', 'alternate');
+                el.setAttribute('hreflang', hreflang);
+                el.setAttribute('href', href);
+                document.head.appendChild(el);
+            };
+            LOCALES.forEach((l) => alternate(LOCALE_TAG[l], `${ORIGIN}${localizePath(bare, l)}`));
+            alternate('x-default', `${ORIGIN}${localizePath(bare, DEFAULT_LOCALE)}`);
+        }
 
         // Only ever present on the pages that ask for it, so it is added and
         // removed rather than rewritten — a stale noindex left behind on the
@@ -104,7 +148,7 @@ function PageMeta({
             script.textContent = schema;
             document.head.appendChild(script);
         }
-    }, [fullTitle, text, url, preview, type, noIndex, schema]);
+    }, [fullTitle, text, url, preview, type, noIndex, schema, locale, site, bare]);
 
     // Cleanup runs only on unmount: on a normal navigation the next page's
     // effect has already overwritten these, and removing them afterwards would

@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
+import { useT } from '../i18n/index.js';
 import { mainApi } from '../utils/MainAPI.jsx';
 
 // Only the fields the edit dialog actually owns, in the order they appear there.
+// The second element is a message key, not a label: this list is module-level,
+// where there is no hook to read the language from — it is translated at render.
 export const FIELDS = [
-    ['nameRU', 'Название'],
-    ['type', 'Вид чая'],
-    ['country', 'Страна'],
-    ['shop', 'Магазин'],
-    ['weight', 'Навеска, г'],
-    ['water', 'Вода'],
-    ['volume', 'Объём, мл'],
-    ['temperature', 'Температура, °C'],
-    ['price', 'Цена, ₽'],
-    ['teaware', 'Посуда'],
-    ['brewingtype', 'Способ'],
+    ['nameRU', 'extract.name'],
+    ['type', 'extract.teaKind'],
+    ['country', 'extract.country'],
+    ['shop', 'extract.shop'],
+    ['weight', 'extract.weight'],
+    ['water', 'extract.water'],
+    ['volume', 'extract.volume'],
+    ['temperature', 'extract.temperature'],
+    ['price', 'extract.price'],
+    ['teaware', 'extract.teaware'],
+    ['brewingtype', 'extract.method'],
 ];
 
 // Suggestions from the voice transcript, applied one field at a time.
@@ -23,6 +26,7 @@ export const FIELDS = [
 // pack weight into the dose. A rejected suggestion costs a tap; a silent
 // overwrite costs data the user typed correctly.
 function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
+    const { t } = useT();
     const [suggestions, setSuggestions] = useState(null);
     const [cached, setCached] = useState(false);
     const [offTopic, setOffTopic] = useState('');
@@ -38,13 +42,13 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
             .then(({ data, cached, offTopic: off, topic }) => {
                 setSuggestions(data || {});
                 setCached(Boolean(cached));
-                setOffTopic(off ? (topic || 'не удалось определить тему') : '');
+                setOffTopic(off ? (topic || t('extract.topicUnknown')) : '');
                 setBrewings((data && data.brewings) || []);
                 // The пролив suggestions are applied inside their own blocks
                 // further down the dialog, where the fields they target live.
                 if (onSuggestions) onSuggestions(data || {});
             })
-            .catch((err) => setError(err.message || 'Не удалось разобрать расшифровку.'))
+            .catch((err) => setError(err.message || t('extract.parseFailed')))
             .finally(() => setLoading(false));
     };
 
@@ -63,7 +67,7 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
         return (
             <div className="voiceextract">
                 <button type="button" className="voicenote__button" onClick={run} disabled={loading}>
-                    {loading ? 'Разбираем…' : 'Заполнить из расшифровки'}
+                    {loading ? t('extract.parsing') : t('extract.fill')}
                 </button>
                 {error && <p className="voicenote__error">{error}</p>}
             </div>
@@ -76,12 +80,9 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
     if (offTopic) {
         return (
             <div className="voiceextract">
-                <span className="voiceextract__title">Похоже, запись не о дегустации чая</span>
-                <span className="voiceextract__value">Тема записи: {offTopic}</span>
-                <p className="voicenote__hint">
-                    Поля не заполнены — запись и расшифровка сохранены, их можно послушать
-                    и прочитать выше.
-                </p>
+                <span className="voiceextract__title">{t('extract.offTopic')}</span>
+                <span className="voiceextract__value">{t('extract.offTopicTopic', { topic: offTopic })}</span>
+                <p className="voicenote__hint">{t('extract.offTopicHint')}</p>
             </div>
         );
     }
@@ -90,21 +91,21 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
         <div className="voiceextract">
             <div className="voiceextract__head">
                 <span className="voiceextract__title">
-                    Предложения из записи{cached ? ' (сохранённый разбор)' : ''}
+                    {t('extract.suggestions')}{cached ? ` ${t('extract.cached')}` : ''}
                 </span>
                 {offered.length > 0 && (
                     <button type="button" className="voiceextract__all" onClick={applyAll}>
-                        Применить всё
+                        {t('extract.applyAll')}
                     </button>
                 )}
             </div>
 
             {offered.length === 0 && (
-                <p className="voicenote__hint">В расшифровке не нашлось данных для полей.</p>
+                <p className="voicenote__hint">{t('extract.nothingFound')}</p>
             )}
 
             <ul className="voiceextract__list">
-                {offered.map(([key, label]) => {
+                {offered.map(([key, labelKey]) => {
                     const value = suggestions[key];
                     // Showing what it would replace is the whole point: the user
                     // is deciding between two values, not accepting a blank one.
@@ -112,15 +113,15 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
                     const same = String(current ?? '') === String(value);
                     return (
                         <li className="voiceextract__item" key={key}>
-                            <span className="voiceextract__label">{label}</span>
+                            <span className="voiceextract__label">{t(labelKey)}</span>
                             <span className="voiceextract__value">{String(value)}</span>
                             {current !== '' && current !== undefined && !same && (
-                                <span className="voiceextract__current">было: {String(current)}</span>
+                                <span className="voiceextract__current">{t('extract.wasValue', { value: String(current) })}</span>
                             )}
                             <button type="button" className="voiceextract__apply"
                                 onClick={() => apply(key, value)}
                                 disabled={applied[key] || same}>
-                                {applied[key] || same ? '✓' : 'Применить'}
+                                {applied[key] || same ? '✓' : t('extract.apply')}
                             </button>
                         </li>
                     );
@@ -129,7 +130,7 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
 
             {brewings.length > 0 && (
                 <p className="voicenote__hint">
-                    Проливов в записи: {brewings.length}. Каждый предлагается в своём блоке ниже.
+                    {t('extract.brewingsFound', { n: brewings.length })}
                 </p>
             )}
         </div>

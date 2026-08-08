@@ -12,7 +12,12 @@
 // page that describes itself differently to each is the definition of cloaking.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { plural } from './utils.js';
+import {
+    translate, pluralize, DEFAULT_LOCALE, LOCALE_TAG,
+} from '../i18n/index.js';
+import { PLURALS } from '../i18n/messages.js';
+import { teaTypeName } from './teaTypes.js';
+import { translateOption } from '../i18n/options.js';
 
 const ORIGIN = 'https://teaform.ru';
 
@@ -22,37 +27,44 @@ const filled = (value) =>
     value !== undefined && value !== null && value !== '' && value !== 'none';
 
 // What the page is actually about, in the order a reader would say it.
-export const formSummary = (form, brewings = []) => [
-    form.type,
-    form.country,
-    form.averageRating != null ? `оценка ${form.averageRating}/10` : '',
+//
+// The tea's name and the taster's own words stay exactly as written — only the
+// scaffolding around them is translated. A description that translated the
+// author's prose would be claiming they wrote something they did not.
+export const formSummary = (form, brewings = [], locale = DEFAULT_LOCALE) => [
+    teaTypeName(form.type, locale),
+    translateOption(form.country, locale),
+    form.averageRating != null
+        ? translate('meta.rating', locale, { n: form.averageRating })
+        : '',
     brewings.length
-        ? `${brewings.length} ${plural(brewings.length, ['пролив', 'пролива', 'проливов'])}`
+        ? `${brewings.length} ${pluralize(brewings.length, locale, PLURALS.steeps[locale] || PLURALS.steeps[DEFAULT_LOCALE])}`
         : '',
     (brewings.find((b) => filled(b.description)) || {}).description,
 ].filter(Boolean).join(' · ');
 
-export const formDescription = (form, brewings = []) => {
-    const summary = formSummary(form, brewings);
-    return `Дегустация чая «${form.nameRU}»${summary ? `. ${summary}` : ''}`;
+export const formDescription = (form, brewings = [], locale = DEFAULT_LOCALE) => {
+    const summary = formSummary(form, brewings, locale);
+    const head = translate('tasting.description', locale, { name: form.nameRU });
+    return `${head}${summary ? `. ${summary}` : ''}`;
 };
 
 // Schema.org for the tasting itself. A dated, authored, rated write-up of a
 // named product is a Review — the type search engines can actually show a
 // rating for.
-export const formJsonLd = (form, brewings = [], previewUrl) => {
+export const formJsonLd = (form, brewings = [], previewUrl, locale = DEFAULT_LOCALE) => {
     const author = Array.isArray(form.owner) ? form.owner[0] : form.owner;
     return {
         '@context': 'https://schema.org',
         '@type': 'Review',
         name: form.nameRU,
         datePublished: form.createdAt,
-        inLanguage: 'ru-RU',
+        inLanguage: LOCALE_TAG[locale],
         itemReviewed: {
             '@type': 'Product',
             name: form.nameRU,
-            category: form.type || 'Чай',
-            ...(form.country ? { countryOfOrigin: form.country } : {}),
+            category: teaTypeName(form.type, locale) || form.type,
+            ...(form.country ? { countryOfOrigin: translateOption(form.country, locale) } : {}),
         },
         ...(author ? { author: { '@type': 'Person', name: author.nickname || author.name } } : {}),
         ...(form.averageRating != null ? {

@@ -11,6 +11,7 @@ import Profile from './Profile.jsx';
 import Forms from './Forms.jsx';
 import PublicForm from './PublicForm.jsx';
 import Landing from './Landing.jsx';
+import { LOCALES, LOCALE_PREFIX, localizePath, useLocalizedNavigate } from '../i18n/index.js';
 import ResetPassword from './ResetPassword.jsx';
 import VkAuthDone from './VkAuthDone.jsx';
 import Admin from './Admin.jsx';
@@ -23,13 +24,19 @@ import { MyFormConextProvider, useMyFormConext } from './MyFormConext.jsx';
 
 function App() {
 
-  const navigate = useNavigate();
+  // Locale-aware: every navigate() below is written as a bare Russian path, and
+  // this is what keeps a reader in /en or /zh when the app moves them.
+  const navigate = useLocalizedNavigate();
+  // The raw one, for the single case that is deliberately changing language:
+  // the sign-in landing. Passing an already-localized path to `navigate` above
+  // would not work — it strips the prefix and re-applies the current one.
+  const navigateTo = useNavigate();
 
   return (
     <PopupProvider>
       <MyFormConextProvider>
 
-        <AppContent navigate={navigate} />
+        <AppContent navigate={navigate} navigateTo={navigateTo} />
         <PopupMsg />
 
       </MyFormConextProvider>
@@ -37,7 +44,7 @@ function App() {
   );
 }
 
-function AppContent({ navigate }) {
+function AppContent({ navigate, navigateTo }) {
   const { openPopup } = usePopup();
   const { updateAromasByIdCxt, updateTastesByIdCxt, updateBrewsByIdCxt, updateMyForms,
     updateRemovedFormById, updateRemovedBrewsByIdCxt, updateRemovedTastesByIdCxt, 
@@ -92,7 +99,16 @@ function AppContent({ navigate }) {
           localStorage.setItem('loggedIn', res.ok);
           // document.cookie = `jwt=${res.token}; path=/; secure; HttpOnly`;
           setLoggedIn(true)
-          navigate('/form_1');
+          // The one moment the saved language is applied. Signing in is a move
+          // into the account, so the account's language decides where it lands;
+          // reading a page is not, so no other navigation consults this. An
+          // account that never chose (`''` — everyone who predates the setting)
+          // stays in whatever language they were already reading.
+          if (res.language) {
+            navigateTo(localizePath('/form_1', res.language));
+          } else {
+            navigate('/form_1');
+          }
         }
       })
       .catch(err => {
@@ -310,80 +326,88 @@ function AppContent({ navigate }) {
   }
 
 
+  // The route table, written once and mounted once per language.
+  //
+  // Every path also exists under /en and /zh (LOCALE_PREFIX), so a language has
+  // real addresses that can be linked to and indexed — the same reason the
+  // feed's filters moved into the URL. Building it as an array rather than
+  // repeating the JSX three times keeps the prop lists in one place; getting
+  // them out of step between languages is exactly the bug this avoids.
+  const routes = [
+    /* A real page, not a redirect. `/` was <Navigate to="/blog">, which meant
+       the site's most important URL served no HTML, no text and no links —
+       nothing that does not run JavaScript could follow it, and a visitor
+       arriving from a search landed in a wall of tasting cards with no sentence
+       saying what any of it was. /blog is still the one address of the feed. */
+    { path: '/', element: <Landing /> },
+    { path: '/form_1', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} /> },
+    { path: '/form_2', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} /> },
+    { path: '/form_submit', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} /> },
+    { path: '/profile', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Profile} handleLogout={handleLogOut} /> },
+    { path: '/admin', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Admin} /> },
+    {
+      path: '/my_forms',
+      element: <ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}
+        loggedIn={loggedIn}
+        component={Forms}
+        isMyForms={true}
+        isBlog={false}
+        navigation={FormNavigateToInteracion}
+        forms={getAllMyForms}
+        brewingsById={getAllMyBrewingsById}
+        tastesById={getAllMyTastesById}
+        aromasById={getAllMyAromasById}
+        delFormById={delMyFormById}
+        delBrewsById={delMyBrewsById}
+        delTastesById={delMyTastesById}
+        delAromasById={delMyAromasById}
+        patchFormById={patchMyFormById}
+      />,
+    },
+    {
+      path: '/blog',
+      element: <Forms localStorageLoggedIn={localStorageLoggedIn}
+        isMyForms={false}
+        isBlog={true}
+        navigation={FormNavigatePrevSatge}
+        forms={getAllPublicForms}
+        brewingsById={getPublicBrewingsById}
+        tastesById={getPublicTastesById}
+        aromasById={getPublicAromasById}
+      />,
+    },
+    /* One page per tea type, with an address of its own — the feed's filter
+       used to be component state, so a type could not be linked to or indexed.
+       Declared before /blog/:sessionId so «type» matches as the literal segment
+       it is rather than as a tasting's slug. */
+    {
+      path: '/blog/type/:typeSlug',
+      element: <Forms localStorageLoggedIn={localStorageLoggedIn}
+        isMyForms={false}
+        isBlog={true}
+        navigation={FormNavigatePrevSatge}
+        forms={getAllPublicForms}
+        brewingsById={getPublicBrewingsById}
+        tastesById={getPublicTastesById}
+        aromasById={getPublicAromasById}
+      />,
+    },
+    { path: '/blog/:sessionId', element: <PublicForm /> },
+    { path: '/reset-password', element: <ResetPassword /> },
+    { path: '/oauth/vk', element: <VkAuthDone /> },
+    { path: '/sign-in', element: <Login auth={handleAuthorization} /> },
+    { path: '/sign-up', element: <Registration auth={handleRegistration} /> },
+  ];
+
   return (
     <div className="root">
       <Routes>
-        {/* A real page, not a redirect. `/` was <Navigate to="/blog">, which
-            meant the site's most important URL served no HTML, no text and no
-            links — nothing that does not run JavaScript could follow it, and a
-            visitor arriving from a search landed in a wall of tasting cards
-            with no sentence saying what any of it was. /blog is still the one
-            address of the feed. */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/form_1" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} />} />
-        <Route path="/form_2" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} />} />
-        <Route path="/form_submit" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} />} />
-        <Route path="/profile" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Profile} handleLogout={handleLogOut} />} />
-        <Route path="/admin" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Admin} />} />
-        <Route path="/my_forms" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}
-          loggedIn={loggedIn}
-          component={Forms}
-          isMyForms={true}
-          isBlog={false}
-          navigation={FormNavigateToInteracion}
-          forms={getAllMyForms}
-          brewingsById={getAllMyBrewingsById}
-          tastesById={getAllMyTastesById}
-          aromasById={getAllMyAromasById}
-          delFormById={delMyFormById}
-          delBrewsById={delMyBrewsById}
-          delTastesById={delMyTastesById}
-          delAromasById={delMyAromasById}
-          patchFormById={patchMyFormById}
-        />} />
-          
-          {/* <Route path="/blog" element={<ProtectedRoute localStorageLoggedIn={localStorageLoggedIn}
-          loggedIn={loggedIn}
-          component={Forms}
-          isMyForms={false}
-          isBlog={true}
-          navigation={FormNavigatePrevSatge}
-          forms={getAllPublicForms}
-          brewingsById={getPublicBrewingsById}
-          tastesById={getPublicTastesById}
-          aromasById={getPublicAromasById}
-        />} /> */}
-
-          <Route path="/blog" element={<Forms localStorageLoggedIn={localStorageLoggedIn}
-          isMyForms={false}
-          isBlog={true}
-          navigation={FormNavigatePrevSatge}
-          forms={getAllPublicForms}
-          brewingsById={getPublicBrewingsById}
-          tastesById={getPublicTastesById}
-          aromasById={getPublicAromasById}
-        />} />
-
-          {/* One page per tea type, with an address of its own — the feed's
-              filter used to be component state, so a type could not be linked
-              to or indexed. Declared before /blog/:sessionId so «type» matches
-              as the literal segment it is rather than as a tasting's slug. */}
-          <Route path="/blog/type/:typeSlug" element={<Forms localStorageLoggedIn={localStorageLoggedIn}
-          isMyForms={false}
-          isBlog={true}
-          navigation={FormNavigatePrevSatge}
-          forms={getAllPublicForms}
-          brewingsById={getPublicBrewingsById}
-          tastesById={getPublicTastesById}
-          aromasById={getPublicAromasById}
-        />} />
-
-        {/* <Route path="/blog" element={<ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Blog} />} /> */}
-        <Route path="/blog/:sessionId" element={<PublicForm />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/oauth/vk" element={<VkAuthDone />} />
-        <Route path="/sign-in" element={<Login auth={handleAuthorization} />} />
-        <Route path="/sign-up" element={<Registration auth={handleRegistration} />} />
+        {LOCALES.map((locale) => routes.map(({ path, element }) => {
+          // '/' under a prefix is '/en', not '/en/' — one address per page.
+          const prefix = LOCALE_PREFIX[locale];
+          const full = path === '/' ? (prefix || '/') : `${prefix}${path}`;
+          return <Route key={`${locale}:${path}`} path={full} element={element} />;
+        }))}
       </Routes>
     </div>
   );

@@ -1,7 +1,16 @@
 /* Tests for the single-field descriptor picker used in Stage 2. */
 import React from 'react';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render as rtlRender, screen, fireEvent, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import DescriptorPicker, { flattenDescriptorDB } from '../DescriptorPicker.jsx';
+
+// The picker shows descriptors in the reading language, which it takes from
+// the URL — so it needs a router. These tests stay on the Russian bare path,
+// where the displayed label is the stored one; the translated case lives in
+// i18n.test.jsx.
+const render = (ui, { route = '/form_2' } = {}) => rtlRender(
+    <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>,
+);
 
 const db = {
     response: [

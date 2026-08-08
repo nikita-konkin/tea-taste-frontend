@@ -1,6 +1,8 @@
 import { Autocomplete, TextField, createFilterOptions } from '@mui/material';
 import { forwardRef } from 'react';
 import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
+import { useT } from '../i18n/index.js';
+import { optionLabel } from '../i18n/options.js';
 
 
 // `required` defaults to false: it used to be hard-coded on the inner TextField,
@@ -8,6 +10,7 @@ import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 // then never be submitted from a voice note alone — react-hook-form never even
 // ran, because the native submit was rejected first.
 const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, value, StyledPopper, required = false }, ref) => {
+    const { t, locale } = useT();
 
     const filter = createFilterOptions();
 
@@ -41,7 +44,9 @@ const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, 
                 if (inputValue !== '' && !isExisting) {
                     filtered.push({
                         inputValue,
-                        label: `Добавить "${inputValue}"`,
+                        // Display only — `inputValue` is what gets stored, so the
+                        // wording around it never reaches the document.
+                        label: t('wizard.addOption', { value: inputValue }),
                     });
                 }
 
@@ -52,18 +57,10 @@ const AutocompleteBox = forwardRef(({ optionsObj, field, name, setValue, label, 
             handleHomeEndKeys
             id="free-solo-with-text-demo"
             options={optionsObj}
-            getOptionLabel={(option) => {
-                // Value selected with enter, right from the input
-                if (typeof option === 'string') {
-                    return option;
-                }
-                // Add "xxx" option created dynamically
-                if (option.inputValue) {
-                    return option.inputValue;
-                }
-                // Regular option
-                return option.label;
-            }}
+            // Handles the string / synthetic / object shapes the same way this
+            // did, and translates the list entries. A water brand or a shop name
+            // is not in any table and comes back unchanged, which is the point.
+            getOptionLabel={(option) => optionLabel(option, locale)}
             renderOption={(props, option) => {
                 const { key, ...optionProps } = props;
                 return (

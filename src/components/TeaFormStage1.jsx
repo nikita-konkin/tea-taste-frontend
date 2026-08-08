@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useMediaQuery, Autocomplete, TextField, Switch, Popper, Button, Stack, autocompleteClasses, FormControlLabel } from '@mui/material';
 import PageMeta from './PageMeta.jsx';
+import { useT } from '../i18n/index.js';
+import { optionLabel } from '../i18n/options.js';
 
 import Header from './Header.jsx'
 import SliderBox from './SliderBox.jsx';
@@ -364,6 +366,7 @@ const teaNamesOptions = teaNamesChina.concat(teaNamesRetail);
 
 
 const TeaFormStage1 = (props) => {
+	const { t, locale } = useT();
 
 	const matches = useMediaQuery('(min-width:300px)');
 	const isSmallScreen = useMediaQuery(theme.breakpoints.down('xs'));
@@ -414,7 +417,7 @@ const TeaFormStage1 = (props) => {
 		const teaName = (typeof rawName === 'string' ? rawName : (rawName && rawName.label) || '').trim();
 
 		if (!teaName && voiceSegments.length === 0) {
-			setGateError('Укажите название чая или запишите голосовую заметку — остальное можно заполнить позже.');
+			setGateError(t('wizard.needNameOrVoice'));
 			return;
 		}
 
@@ -442,8 +445,8 @@ const TeaFormStage1 = (props) => {
 			    the front page nor public. Behind a login and Disallowed in
 			    robots.txt, so it says noindex rather than competing with the
 			    feed for a search result. */}
-			<PageMeta title="Новая дегустация — этап 1" path="/form_1" noIndex
-				description="Основная информация о чае: название, тип, вес, вода и посуда." />
+			<PageMeta title={t('nav.stage1')} path="/form_1" noIndex
+				description={t('wizard.stage1Description')} />
 
 			<Header navigation={props.navigation} />
 
@@ -458,7 +461,7 @@ const TeaFormStage1 = (props) => {
 								<AutocompleteBox
 									optionsObj={teaNamesOptions}
 									name='teaName'
-									label='Название чая'
+									label={t('wizard.teaName')}
 									setValue={setValue}
 									value={field.value}
 									StyledPopper={StyledPopper}
@@ -473,10 +476,10 @@ const TeaFormStage1 = (props) => {
 								<Autocomplete
 									{...field}
 									options={teaCountryOptions}
-									getOptionLabel={(option) => option.label}
+									getOptionLabel={(option) => optionLabel(option, locale)}
 									renderInput={(params) =>
 										<TextField {...params}
-											label="Страна"
+											label={t('wizard.country')}
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>
@@ -495,7 +498,7 @@ const TeaFormStage1 = (props) => {
 								<AutocompleteBox
 									optionsObj={teaShopOptions}
 									name='teaShop'
-									label='Название магазина'
+									label={t('wizard.shopName')}
 									value={field.value}
 									setValue={setValue}
 									StyledPopper={StyledPopper}
@@ -508,10 +511,10 @@ const TeaFormStage1 = (props) => {
 							name="teaWeight"
 							render={({ field }) =>
 								<SliderBox
-									sliderName='Вес чая при заваривании'
+									sliderName={t('wizard.weightSlider')}
 									maxValue={50}
 									// defaultValue={5}
-									units='г'
+									units={t('unit.gram')}
 									marks={SLIDER_WEIGHT_DATA}
 									boxId='teaWeight'
 									setValue={setValue}
@@ -526,10 +529,10 @@ const TeaFormStage1 = (props) => {
 								<Autocomplete
 									{...field}
 									options={teaTypeOptions}
-									getOptionLabel={(option) => option.label}
+									getOptionLabel={(option) => optionLabel(option, locale)}
 									renderInput={(params) =>
 										<TextField {...params}
-											label="Тип чая"
+											label={t('wizard.teaType')}
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>}
@@ -546,7 +549,7 @@ const TeaFormStage1 = (props) => {
 								<AutocompleteBox
 									optionsObj={waterBrandOptions}
 									name='waterBrand'
-									label='Бренд воды'
+									label={t('wizard.waterBrand')}
 									value={field.value}
 									setValue={setValue}
 									StyledPopper={StyledPopper}
@@ -559,10 +562,10 @@ const TeaFormStage1 = (props) => {
 							name="waterVolume"
 							render={({ field }) =>
 								<SliderBox
-									sliderName='Объем воды'
+									sliderName={t('tasting.volume')}
 									maxValue={1000}
 									// defaultValue={5}
-									units='мл'
+									units={t('unit.ml')}
 									marks={SLIDER_WATER_DATA}
 									boxId='waterVolume'
 									setValue={setValue}
@@ -576,7 +579,7 @@ const TeaFormStage1 = (props) => {
 							name="waterTemperature"
 							render={({ field }) =>
 								<SliderBox
-									sliderName='Температура воды'
+									sliderName={t('tasting.temperature')}
 									maxValue={100}
 									// defaultValue={5}
 									units='°C'
@@ -593,7 +596,7 @@ const TeaFormStage1 = (props) => {
 							name="teaPrice"
 							render={({ field }) =>
 								<SliderBox
-									sliderName='Цена за грамм чая'
+									sliderName={t('wizard.priceSlider')}
 									maxValue={150}
 									// defaultValue={5}
 									units='₽'
@@ -612,10 +615,10 @@ const TeaFormStage1 = (props) => {
 								<Autocomplete
 									{...field}
 									options={brewingTypeOptions}
-									getOptionLabel={(option) => option.label}
+									getOptionLabel={(option) => optionLabel(option, locale)}
 									renderInput={(params) =>
 										<TextField {...params}
-											label="Способ заваривания"
+											label={t('wizard.brewMethod')}
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>}
@@ -631,10 +634,10 @@ const TeaFormStage1 = (props) => {
 								<Autocomplete
 									{...field}
 									options={teaWareOptions}
-									getOptionLabel={(option) => option.label}
+									getOptionLabel={(option) => optionLabel(option, locale)}
 									renderInput={(params) =>
 										<TextField {...params}
-											label="Посуда для заваривания"
+											label={t('wizard.teaware')}
 											error={!!error}
 											helperText={error ? error.message : ''}
 										/>}
@@ -654,7 +657,7 @@ const TeaFormStage1 = (props) => {
 							value={voiceSegments}
 							onChange={setVoiceSegments}
 							brewingNumber={0}
-							label="о чае"
+							label={t('wizard.aboutTea')}
 						/>
 						{gateError && <p className="voicenote__error">{gateError}</p>}
 						<Stack direction={isSmallScreen ? "column" : "row"} spacing={2} useFlexGap sx={{ width: '100%' }}>
@@ -669,7 +672,7 @@ const TeaFormStage1 = (props) => {
 												checked={field.value}
 												onChange={field.onChange}
 											/>}
-											label="Опубликовать в блог"
+											label={t('wizard.publish')}
 											labelPlacement="start"
 											sx={{
 												width: '100%',
@@ -693,7 +696,7 @@ const TeaFormStage1 = (props) => {
 								margin: '20px 0 20px 0',
 								width: '100%'
 							}}>
-								Далее
+								{t('wizard.next')}
 							</Button>
 						</Stack>
 

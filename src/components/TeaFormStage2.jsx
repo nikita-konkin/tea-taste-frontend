@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PageMeta from './PageMeta.jsx';
+import { useT } from '../i18n/index.js';
 
 import Header from './Header.jsx'
 import TeaRaiting from './TeaRaiting.jsx';
@@ -66,6 +67,7 @@ const lastBtnStyle = {
 }
 
 function TeaFormStage2(props) {
+	const { t } = useT();
 
 	const [optionsAroma, setOptionsAroma] = useState(() => {
 		const savedAromaDB = localStorage.getItem('aromaDB');
@@ -148,8 +150,8 @@ function TeaFormStage2(props) {
 
 	return (
 		<>
-			<PageMeta title="Новая дегустация — проливы" path="/form_2" noIndex
-				description="Вкус и аромат по проливам: время заваривания, оценка и описание каждого пролива." />
+			<PageMeta title={t('nav.stage2')} path="/form_2" noIndex
+				description={t('wizard.stage2Description')} />
 			<Header navigation={props.navigation} />
 
 			<ThemeProvider theme={theme}>
@@ -190,16 +192,16 @@ function TeaFormStage2(props) {
 								straitRaiting: 7
 							})}
 						>
-							Добавить пролив
+							{t('wizard.addSteep')}
 						</Button>
 
 
 						<Button type="button" variant="outlined" style={btnStyle} onClick={() => { props.prevStage() }} >
-							Назад
+							{t('wizard.back')}
 						</Button>
 
 						<Button type="submit" variant="outlined" style={lastBtnStyle}>
-							Далее (проверка формы)
+							{t('wizard.nextCheck')}
 						</Button>
 
 
@@ -213,6 +215,7 @@ function TeaFormStage2(props) {
 }
 
 function Straits({ control, straitField, straitIndex, straitsRemove, setValue, watch, optionsTaste, optionsAroma, topDescriptors }) {
+	const { t } = useT();
 
 
 	const { fields: tastesFields, append: tastesAppend, remove: tastesRemove } = useFieldArray({
@@ -231,7 +234,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 	return (
 
 		<section key={straitField.id} className="form_strait-stages">
-			<h3 className="form_strait-header">Пролив №{straitIndex + 1}</h3>
+			<h3 className="form_strait-header">{t('wizard.steepHeading', { n: straitIndex + 1 })}</h3>
 			<Stack direction="column" spacing={2}>
 
 				{/* Numbered from 1, so the merged track plays the general note
@@ -240,7 +243,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 					value={voiceSegments}
 					onChange={setVoiceSegments}
 					brewingNumber={straitIndex + 1}
-					label={`пролив №${straitIndex + 1}`}
+					label={t('wizard.steepLabel', { n: straitIndex + 1 })}
 				/>
 
 
@@ -279,7 +282,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 							aromaStage3: null
 						})
 					}}>
-					Добавить оттенок аромата
+					{t('wizard.addAroma')}
 				</Button>
 
 				{tastesFields.map((tasteField, tasteIndex) => (
@@ -307,7 +310,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 							tasteStage3: null,
 						})
 					}}>
-					Добавить оттенок вкуса
+					{t('wizard.addTaste')}
 				</Button>
 
 				<Controller
@@ -315,7 +318,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 					name={`straits[${straitIndex}].straitDescription`}
 					render={({ field }) =>
 
-						<TextField {...field} multiline label="Описание пролива" />
+						<TextField {...field} multiline label={t('wizard.steepDescription')} />
 
 					}
 				/>
@@ -326,7 +329,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 					render={({ field }) =>
 
 						<TeaRaiting {...field}
-							label="Оценка пролива"
+							label={t('wizard.steepRating')}
 							setValue={setValue}
 						/>
 
@@ -336,7 +339,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 
 				<Button type="button" variant="outlined" style={btnStyle}
 					onClick={() => straitsRemove(straitIndex)}	>
-					Удалить пролив
+					{t('wizard.deleteSteep')}
 				</Button>
 			</Stack>
 
@@ -348,6 +351,7 @@ function Straits({ control, straitField, straitIndex, straitsRemove, setValue, w
 
 
 function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, control, optionsAroma, setValue, quickPicks }) {
+	const { t } = useT();
 
 	const base = `straits[${straitIndex}].aromas[${aromaIndex}]`;
 	const stage1 = watch(`${base}.aromaStage1`);
@@ -362,9 +366,9 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 			background: 'rgba(255, 255, 255, 0.08)',
 			backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
 		}}>
-			<h4 className="form_stages-header">Аромат №{aromaIndex + 1}</h4>
+			<h4 className="form_stages-header">{t('wizard.aromaHeading', { n: aromaIndex + 1 })}</h4>
 			<DescriptorPicker
-				label="Аромат"
+				label={t('tasting.aroma')}
 				db={optionsAroma}
 				stage1={stage1}
 				stage2={stage2}
@@ -378,7 +382,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 			/>
 			<Button type="button" variant="outlined" style={btnStyle}
 				onClick={() => aromasRemove(aromaIndex)}	>
-				Удалить оттенок аромата
+				{t('wizard.deleteAroma')}
 			</Button>
 
 		</Stack>
@@ -389,6 +393,7 @@ function Aromas({ straitIndex, aromaField, aromaIndex, aromasRemove, watch, cont
 }
 
 function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, control, optionsTaste, setValue, quickPicks }) {
+	const { t } = useT();
 
 	const base = `straits[${straitIndex}].tastes[${tasteIndex}]`;
 	const stage1 = watch(`${base}.tasteStage1`);
@@ -403,9 +408,9 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 			background: 'rgba(255, 255, 255, 0.08)',
 			backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
 		}}>
-			<h4 className="form_stages-header">Вкус №{tasteIndex + 1}</h4>
+			<h4 className="form_stages-header">{t('wizard.tasteHeading', { n: tasteIndex + 1 })}</h4>
 			<DescriptorPicker
-				label="Вкус"
+				label={t('tasting.taste')}
 				db={optionsTaste}
 				stage1={stage1}
 				stage2={stage2}
@@ -419,7 +424,7 @@ function Tastes({ straitIndex, tasteField, tasteIndex, tastesRemove, watch, cont
 			/>
 			<Button type="button" variant="outlined" style={btnStyle}
 				onClick={() => tastesRemove(tasteIndex)}	>
-				Удалить оттенок вкуса
+				{t('wizard.deleteTaste')}
 			</Button>
 
 		</Stack>
