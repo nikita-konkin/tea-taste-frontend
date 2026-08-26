@@ -235,6 +235,38 @@ function Form({
         });
     };
 
+    // The dry leaf is smelled before the first pour, so its descriptors are
+    // stored against пролив 0 — a number no brewing has, which is why the loop
+    // above walks straight past them.
+    const dryLeafContent = () => {
+        const paths = ((aromasByIdCxt && aromasByIdCxt.data) || [])
+            .filter((a) => Number(a.brewingCount) === 0)
+            .sort((a, b) => a.aromaCount - b.aromaCount)
+            .map((a) => descriptorPath(a, 'aromaStage'))
+            .filter(Boolean);
+        const notes = formData.dryAromaDescription;
+        const hasNotes = Boolean(notes) && notes !== 'none';
+        if (!paths.length && !hasNotes) return null;
+
+        return (
+            <li key="dry-leaf" style={brewSectionStyle}>
+                <span style={accentStyle}>{t('tasting.dryAroma')}</span>
+                {paths.length > 0 && (
+                    <div style={{ margin: '6px 0 0 0' }}>
+                        {paths.map((p, i) => (
+                            <span key={`d-${i}`} style={chipStyle}>
+                                {translateDescriptorPath(p, locale)}
+                            </span>
+                        ))}
+                    </div>
+                )}
+                {hasNotes && (
+                    <div style={{ margin: '4px 0 0 0', fontStyle: 'italic' }}>{notes}</div>
+                )}
+            </li>
+        );
+    };
+
     const popupContent = (test) => {
         const metaRow = (label, value) =>
             value !== undefined && value !== null && value !== '' && value !== 'none' ? (
@@ -272,6 +304,13 @@ function Form({
                     {metaRow(t('tasting.teaware'), translateOption(formData.teaware, locale))}
                     {metaRow(t('tasting.brewingMethod'), translateOption(formData.brewingtype, locale))}
                     {metaRow(t('tasting.publicAccess'), formData.publicAccess ? t('review.yes') : t('review.no'))}
+                    {formData.description && formData.description !== 'none' && (
+                        <li key="description" style={brewSectionStyle}>
+                            <span style={accentStyle}>{t('tasting.generalDescription')}</span>
+                            <div style={{ margin: '4px 0 0 0', fontStyle: 'italic' }}>{formData.description}</div>
+                        </li>
+                    )}
+                    {dryLeafContent()}
                     {test}
                 </ul>
             </section>

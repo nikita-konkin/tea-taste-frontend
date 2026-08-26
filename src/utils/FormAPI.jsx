@@ -60,6 +60,11 @@ class FormApi {
                     teaware: label(data.teaWare),
                     brewingtype: label(data.brewingType),
                     averageRating: data.avrRaiting,
+                    // Free text, so no `label()`: these are the user's own words
+                    // rather than an option picked off a list. Sent as '' when
+                    // empty instead of being dropped, so clearing one clears it.
+                    description: data.teaDescription || '',
+                    dryAromaDescription: data.dryAromaDescription || '',
                     publicAccess: data.publicAccess,
                     photos: data.teaPhotos || [],
                     // Voice segments are not a field of either wizard step — both

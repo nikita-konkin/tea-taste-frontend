@@ -126,6 +126,15 @@ function PublicForm() {
 
     const preview = orderPhotos(form.photos)[0];
 
+    // Aromas of the dry leaf carry пролив 0 — a number no brewing has, so the
+    // per-пролив loop below leaves them alone.
+    const dryAromaPaths = aromas
+        .filter((a) => Number(a.brewingCount) === 0)
+        .sort((a, b) => a.aromaCount - b.aromaCount)
+        .map((a) => descriptorPath(a, 'aromaStage'))
+        .filter(Boolean);
+    const hasDryNotes = Boolean(form.dryAromaDescription) && form.dryAromaDescription !== 'none';
+
     // Derived in utils/formMeta.js, which the API's renderer mirrors: the HTML a
     // crawler is served and the page a reader sees have to make the same claims.
     const jsonLd = formJsonLd(form, brewings, preview && preview.url, locale);
@@ -168,6 +177,27 @@ function PublicForm() {
                         {metaRow(t('tasting.price'), form.price != null ? `${form.price} ₽` : null)}
                         {metaRow(t('tasting.teaware'), translateOption(form.teaware, locale))}
                         {metaRow(t('tasting.brewingMethod'), translateOption(form.brewingtype, locale))}
+                        {form.description && form.description !== 'none' && (
+                            <li key="description" style={brewSectionStyle}>
+                                <span style={accentStyle}>{t('tasting.generalDescription')}</span>
+                                <div style={{ margin: '4px 0 0 0', fontStyle: 'italic' }}>{form.description}</div>
+                            </li>
+                        )}
+                        {(dryAromaPaths.length > 0 || hasDryNotes) && (
+                            <li key="dry-leaf" style={brewSectionStyle}>
+                                <span style={accentStyle}>{t('tasting.dryAroma')}</span>
+                                {dryAromaPaths.length > 0 && (
+                                    <div style={{ margin: '6px 0 0 0' }}>
+                                        {dryAromaPaths.map((p, i) => (
+                                            <span key={`d-${i}`} style={chipStyle}>{translateDescriptorPath(p, locale)}</span>
+                                        ))}
+                                    </div>
+                                )}
+                                {hasDryNotes && (
+                                    <div style={{ margin: '4px 0 0 0', fontStyle: 'italic' }}>{form.dryAromaDescription}</div>
+                                )}
+                            </li>
+                        )}
                         {brewings.map((brew) => {
                             const aromaPaths = aromas
                                 .filter((a) => a.brewingCount === brew.brewingCount)

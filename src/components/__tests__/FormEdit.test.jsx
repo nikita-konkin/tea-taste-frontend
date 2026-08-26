@@ -25,6 +25,7 @@ jest.mock('../../utils/FormAPI.jsx', () => ({
         patchAromaStages: jest.fn(),
         patchTasteStages: jest.fn(),
         postFormStage2Brew: jest.fn(),
+        postAromaStages: jest.fn(),
         delBrewSelective: jest.fn(),
     },
 }));
@@ -63,9 +64,19 @@ const aroma = {
     aromaStage2: 'Жасмин',
 };
 
+// The dry leaf: an aroma on пролив 0, a number no brewing has. Everything that
+// walks the проливы skips it, which is exactly why it needs its own coverage.
+const dryAroma = {
+    _id: 'a0',
+    aromaCount: 1,
+    brewingCount: 0,
+    aromaStage1: 'Древесный',
+    aromaStage2: 'Дуб',
+};
+
 beforeEach(() => {
     formApi.getAllMyBrewingsById.mockResolvedValue({ data: [brewing] });
-    formApi.getAllMyAromasById.mockResolvedValue({ data: [aroma] });
+    formApi.getAllMyAromasById.mockResolvedValue({ data: [aroma, dryAroma] });
     formApi.getAllMyTastesById.mockResolvedValue({ data: [] });
     // These two endpoints answer with `response`, unlike every other call here —
     // the mock has to mirror that or it hides the bug it should catch.
@@ -76,6 +87,7 @@ beforeEach(() => {
     formApi.patchFormStage2Brew.mockResolvedValue({ data: {} });
     formApi.patchAromaStages.mockResolvedValue({ data: {} });
     formApi.patchTasteStages.mockResolvedValue({ data: {} });
+    formApi.postAromaStages.mockResolvedValue({ data: {} });
 });
 
 afterEach(() => {
@@ -130,8 +142,71 @@ test('submits the full Stage-1 body with edited values and correct types', async
         teaware: 'Гайвань',
         brewingtype: 'Проливы',
         averageRating: 9.5,
+        // Untouched here, but still sent: '' is what clears a stored value, and
+        // omitting the key would leave an emptied box unsaved.
+        description: '',
+        dryAromaDescription: '',
         photos: [],
         publicAccess: true,
+    });
+});
+
+describe('the dry leaf and the tasting as a whole', () => {
+    test('prefills both free-text fields', async () => {
+        render(
+            <PopupProvider>
+                <FormEdit
+                    formData={{
+                        ...formData,
+                        description: 'Плотный и маслянистый.',
+                        dryAromaDescription: 'Из пакета — тёплая выпечка.',
+                    }}
+                    patchFormById={jest.fn()}
+                />
+            </PopupProvider>
+        );
+
+        expect(screen.getByDisplayValue('Плотный и маслянистый.')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('Из пакета — тёплая выпечка.')).toBeInTheDocument();
+        await screen.findByTestId('brew-edit-1');
+    });
+
+    test('the пролив-0 aroma is editable outside the проливы, not inside one', async () => {
+        renderFormEdit();
+
+        // Both rows are on screen, and the dry one is not in пролив №1's block.
+        expect(await screen.findByDisplayValue('Древесный → Дуб')).toBeInTheDocument();
+        const brewBlock = await screen.findByTestId('brew-edit-1');
+        expect(brewBlock).not.toHaveTextContent('Древесный');
+    });
+
+    test('saving the tasting saves the dry-leaf aroma with it', async () => {
+        const patchFormById = jest.fn().mockResolvedValue({ data: {} });
+        renderFormEdit(patchFormById);
+        await screen.findByTestId('brew-edit-1');
+
+        fireEvent.submit(screen.getByTestId('form-edit'));
+
+        await waitFor(() => expect(formApi.patchAromaStages).toHaveBeenCalled());
+        const dryCall = formApi.patchAromaStages.mock.calls
+            .find(([, brewId]) => brewId === 0);
+        expect(dryCall).toBeDefined();
+        expect(dryCall[2]).toBe(1); // aromaCount
+        expect(dryCall[3].aromaStage1).toBe('Древесный');
+    });
+
+    test('adding one posts a new row against пролив 0', async () => {
+        renderFormEdit();
+        await screen.findByTestId('brew-edit-1');
+
+        fireEvent.click(screen.getByText('Добавить оттенок аромата'));
+
+        await waitFor(() => expect(formApi.postAromaStages).toHaveBeenCalled());
+        const [sessionId, brewId, aromaId] = formApi.postAromaStages.mock.calls[0];
+        expect(sessionId).toBe(formData.sessionId);
+        expect(brewId).toBe(0);
+        // Next free index after the one that is already there.
+        expect(aromaId).toBe(2);
     });
 });
 

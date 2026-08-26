@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useFieldArray } from 'react-hook-form';
 import { useMediaQuery, Autocomplete, TextField, Switch, Popper, Button, Stack, autocompleteClasses, FormControlLabel } from '@mui/material';
 import PageMeta from './PageMeta.jsx';
 import { useT } from '../i18n/index.js';
@@ -10,7 +10,9 @@ import SliderBox from './SliderBox.jsx';
 import AutocompleteBox from './AutocompleteBox.jsx';
 import TeaPhotos from './TeaPhotos.jsx';
 import VoiceNote from './VoiceNote.jsx';
+import DescriptorPicker from './DescriptorPicker.jsx';
 import { useVoiceDraft } from '../utils/voiceDraft.js';
+import { formApi } from '../utils/FormAPI.jsx';
 
 import { styled } from "@mui/material/styles";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -95,6 +97,16 @@ const StyledPopper = styled(Popper)({
 		},
 	},
 });
+
+// Same outlined glass button stage 2 gives its «Добавить оттенок» controls.
+const pickerBtnStyle = {
+	color: '#ffffff',
+	borderColor: 'rgba(255, 255, 255, 0.35)',
+	backgroundColor: 'rgba(255, 255, 255, 0.12)',
+	backdropFilter: 'blur(8px)',
+	WebkitBackdropFilter: 'blur(8px)',
+	borderRadius: '10px',
+};
 
 const StyledSwitch = styled(Switch)({
 	'& .MuiSwitch-switchBase': {
@@ -365,6 +377,45 @@ const teaNamesRetail = [
 const teaNamesOptions = teaNamesChina.concat(teaNamesRetail);
 
 
+// One dry-leaf descriptor row. The twin of stage 2's Aromas, over the same
+// dictionary and the same three stages — only the path it writes to differs.
+function DryAroma({ aromaIndex, remove, watch, setValue, optionsAroma, quickPicks }) {
+	const { t } = useT();
+
+	const base = `dryAromas[${aromaIndex}]`;
+	const stage1 = watch(`${base}.aromaStage1`);
+	const stage2 = watch(`${base}.aromaStage2`);
+	const stage3 = watch(`${base}.aromaStage3`);
+
+	return (
+		<Stack direction="column" spacing={2} style={{
+			border: '1px solid rgba(255, 255, 255, 0.25)',
+			borderRadius: '10px', padding: '8px',
+			background: 'rgba(255, 255, 255, 0.08)',
+			backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+		}}>
+			<h4 className="form_stages-header">{t('wizard.aromaHeading', { n: aromaIndex + 1 })}</h4>
+			<DescriptorPicker
+				label={t('tasting.dryAroma')}
+				db={optionsAroma}
+				stage1={stage1}
+				stage2={stage2}
+				stage3={stage3}
+				quickPicks={quickPicks}
+				onStagesChange={([s1, s2, s3]) => {
+					setValue(`${base}.aromaStage1`, s1 ? { label: s1 } : null);
+					setValue(`${base}.aromaStage2`, s2 ? { label: s2 } : null);
+					setValue(`${base}.aromaStage3`, s3 ? { label: s3 } : null);
+				}}
+			/>
+			<Button type="button" variant="outlined" style={pickerBtnStyle}
+				onClick={() => remove(aromaIndex)}>
+				{t('wizard.deleteAroma')}
+			</Button>
+		</Stack>
+	);
+}
+
 const TeaFormStage1 = (props) => {
 	const { t, locale } = useT();
 
@@ -372,9 +423,24 @@ const TeaFormStage1 = (props) => {
 	const isSmallScreen = useMediaQuery(theme.breakpoints.down('xs'));
 	// const filter = createFilterOptions();
 
+	// The dry-leaf picker reads the same aroma dictionary stage 2 uses. This step
+	// is the one that fetches it for both, so on a first visit the cache is still
+	// empty when the picker first renders — hence the refresh once it lands.
+	const [optionsAroma, setOptionsAroma] = useState(() => {
+		const savedAromaDB = localStorage.getItem('aromaDB');
+		return savedAromaDB ? JSON.parse(savedAromaDB) : [];
+	});
+	const [topAromas, setTopAromas] = useState([]);
+
 	useEffect(() => {
-		props.getAllFromAromaDB()
+		Promise.resolve(props.getAllFromAromaDB()).then(() => {
+			const savedAromaDB = localStorage.getItem('aromaDB');
+			if (savedAromaDB) setOptionsAroma(JSON.parse(savedAromaDB));
+		}).catch(() => { /* the picker still works, just without suggestions */ });
 		props.getAllFromTasteDB()
+		formApi.getTopDescriptors()
+			.then((res) => setTopAromas(res.aromas || []))
+			.catch(() => { /* chips are optional */ });
 	}, [])
 
 	const [formValues, setFormValues] = useState(() => {
@@ -393,11 +459,21 @@ const TeaFormStage1 = (props) => {
 			brewingType: null,
 			teaWare: null,
 			teaPhotos: [],
+			dryAromas: [{ aromaStage1: null, aromaStage2: null, aromaStage3: null }],
+			dryAromaDescription: '',
+			teaDescription: '',
 			publicAccess: true,
 		};
-		// Drafts saved before photos existed have no teaPhotos key.
+		// Drafts saved before photos — or before the dry leaf and the overall
+		// description — existed have none of those keys.
 		const saved = savedValues ? JSON.parse(savedValues) : null;
-		return saved ? { ...saved, teaPhotos: saved.teaPhotos ?? [] } : defaults;
+		return saved ? {
+			...saved,
+			teaPhotos: saved.teaPhotos ?? [],
+			dryAromas: saved.dryAromas ?? defaults.dryAromas,
+			dryAromaDescription: saved.dryAromaDescription ?? '',
+			teaDescription: saved.teaDescription ?? '',
+		} : defaults;
 	});
 
 	// Kept outside react-hook-form: stage 2 records into the same list, and a
@@ -408,6 +484,10 @@ const TeaFormStage1 = (props) => {
 	const { control, handleSubmit, setValue, watch } = useForm({
 		defaultValues: formValues,
 	});
+
+	const {
+		fields: dryAromaFields, append: dryAromaAppend, remove: dryAromaRemove,
+	} = useFieldArray({ name: 'dryAromas', control });
 
 	const onSubmit = (data) => {
 		// The fields are no longer individually required — a tasting is often
@@ -653,6 +733,54 @@ const TeaFormStage1 = (props) => {
 								<TeaPhotos value={field.value} onChange={field.onChange} />
 							)}
 						/>
+
+						{/* The dry leaf is smelled before any water touches it, so it
+						    belongs to this step rather than to a пролив. Saved as
+						    ordinary aroma records on пролив 0 — the same dictionary
+						    and the same pickers as stage 2. */}
+						<section className="form_strait-stages">
+							<h3 className="form_strait-header">{t('tasting.dryAroma')}</h3>
+							<Stack direction="column" spacing={2}>
+								{dryAromaFields.map((dryAromaField, aromaIndex) => (
+									<DryAroma
+										key={dryAromaField.id}
+										aromaIndex={aromaIndex}
+										remove={dryAromaRemove}
+										watch={watch}
+										setValue={setValue}
+										optionsAroma={optionsAroma}
+										quickPicks={topAromas}
+									/>
+								))}
+								<Button type="button" variant="outlined" style={pickerBtnStyle}
+									onClick={() => dryAromaAppend({
+										aromaStage1: null,
+										aromaStage2: null,
+										aromaStage3: null,
+									})}>
+									{t('wizard.addAroma')}
+								</Button>
+								<Controller
+									control={control}
+									name="dryAromaDescription"
+									render={({ field }) =>
+										<TextField {...field} multiline label={t('tasting.dryAromaNotes')} />
+									}
+								/>
+							</Stack>
+						</section>
+
+						{/* The tasting as a whole. Every free-text box until now
+						    belonged to one пролив, so an impression of the tea
+						    itself had nowhere to go but пролив №1. */}
+						<Controller
+							control={control}
+							name="teaDescription"
+							render={({ field }) =>
+								<TextField {...field} multiline label={t('tasting.generalDescription')} />
+							}
+						/>
+
 						<VoiceNote
 							value={voiceSegments}
 							onChange={setVoiceSegments}

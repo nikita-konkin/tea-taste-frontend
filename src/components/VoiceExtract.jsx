@@ -17,6 +17,8 @@ export const FIELDS = [
     ['price', 'extract.price'],
     ['teaware', 'extract.teaware'],
     ['brewingtype', 'extract.method'],
+    ['dryAromaDescription', 'extract.dryAromaNotes'],
+    ['description', 'extract.description'],
 ];
 
 // Suggestions from the voice transcript, applied one field at a time.

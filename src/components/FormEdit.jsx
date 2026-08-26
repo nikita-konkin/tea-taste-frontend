@@ -103,6 +103,8 @@ function FormEdit({ formData, patchFormById }) {
         teaware: formData.teaware || '',
         brewingtype: formData.brewingtype || '',
         averageRating: formData.averageRating ?? 1,
+        description: formData.description || '',
+        dryAromaDescription: formData.dryAromaDescription || '',
         // Mapped rather than passed through: anything beyond {url, kind} would
         // be rejected by the API when sent back on save.
         photos: (formData.photos || []).map(({ url, kind }) => ({ url, kind })),
@@ -200,6 +202,8 @@ function FormEdit({ formData, patchFormById }) {
             teaware: values.teaware,
             brewingtype: values.brewingtype,
             averageRating: Number(values.averageRating),
+            description: values.description,
+            dryAromaDescription: values.dryAromaDescription,
             photos: values.photos,
             publicAccess: values.publicAccess,
             // Only the flag: segments and transcript are not ours to resend, and
@@ -208,6 +212,9 @@ function FormEdit({ formData, patchFormById }) {
         };
 
         patchFormById(formData.sessionId, body)
+            // The dry leaf hangs off no пролив, so the loop below would never
+            // save it. Same button, same save.
+            .then(() => saveDryAromas())
             // Проливы are saved by the same button. They used to need a separate
             // "Сохранить пролив" per block, so edits made here were silently lost
             // by anyone who assumed the main button saved the whole dialog.
@@ -337,6 +344,30 @@ function FormEdit({ formData, patchFormById }) {
             .then((b) => setBrewings((b.data || []).map((x) => ({ ...x }))))
             .catch((err) => setError(err.message || t('edit.addBrewFailed')));
     };
+
+    // Aromas of the dry leaf: ordinary Aroma documents on пролив 0, a number no
+    // Brewing has. Everything that walks the проливы therefore skips them, and
+    // they need their own add and save here.
+    const dryAromas = () => aromas.filter((a) => Number(a.brewingCount) === 0);
+
+    const addDryAroma = () => {
+        const next = dryAromas()
+            .reduce((max, a) => Math.max(max, Number(a.aromaCount) || 0), 0) + 1;
+        formApi.postAromaStages(formData.sessionId, 0, next, {
+            // A real category from the dictionary rather than invented filler:
+            // the row has to hold something the picker can read back, and the
+            // user replaces it with the actual descriptor in the next tap.
+            aromaStage1: 'Другое', aromaStage2: '', aromaStage3: '',
+        }, values.publicAccess)
+            .then(() => formApi.getAllMyAromasById(formData.sessionId))
+            .then((a) => setAromas((a.data || []).map((x) => ({ ...x }))))
+            .catch((err) => setError(err.message || t('edit.descriptorsFailed')));
+    };
+
+    const saveDryAromas = () => Promise.all(dryAromas().map((a) => formApi.patchAromaStages(
+        formData.sessionId, 0, a.aromaCount,
+        { ...a, publicAccess: values.publicAccess },
+    )));
 
     const saveBrewing = (brew) => {
         const bc = brew.brewingCount;
@@ -547,6 +578,33 @@ function FormEdit({ formData, patchFormById }) {
             );
         });
 
+    // The dictionary paths the recording gave for the dry leaf. The free-text
+    // half is offered by VoiceExtract with the other flat fields; descriptors
+    // are rows the server has to create, which is what this applies.
+    const dryLeafSuggestion = () => {
+        const paths = (voiceSuggestions || {}).dryAroma || [];
+        if (!paths.length) return null;
+
+        return (
+            <div className="voiceextract" style={{ margin: '0 0 12px 0' }}>
+                <div className="voiceextract__head">
+                    <span className="voiceextract__title">{t('edit.fromRecording')}</span>
+                    <button type="button" className="voiceextract__apply"
+                        onClick={() => {
+                            createDescriptors(0, { aromas: paths });
+                            setAppliedBrews((prev) => ({ ...prev, dry: true }));
+                        }}
+                        disabled={Boolean(appliedBrews.dry)}>
+                        {appliedBrews.dry ? '✓' : t('extract.apply')}
+                    </button>
+                </div>
+                <span className="voiceextract__tags">
+                    {t('tasting.aroma')}: {paths.join('; ')}
+                </span>
+            </div>
+        );
+    };
+
     // Shown inside the пролив it belongs to, so the user sees the suggestion
     // next to the fields it would change rather than in a list somewhere above.
     const brewSuggestion = (bc) => {
@@ -697,6 +755,38 @@ function FormEdit({ formData, patchFormById }) {
                             onChange={(photos) => setValues((prev) => ({ ...prev, photos }))}
                             onRemovedUrl={(url) => setRemovedUrls((prev) => [...prev, url])}
                         />
+                        {/* The dry leaf, and then the tea as a whole — the same
+                            order the wizard asks for them in. */}
+                        <div style={brewBlockStyle}>
+                            <p style={{ color: '#d8f5cc', fontWeight: 600, margin: '0 0 4px 0' }}>
+                                {t('tasting.dryAroma')}
+                            </p>
+                            {dryLeafSuggestion()}
+                            {stageInputs(dryAromas(), setAromas, 'aromaStage', t('tasting.dryAroma'))}
+                            {brewStatus[0] && brewStatus[0] !== 'saving' && brewStatus[0] !== 'saved' && (
+                                <p style={{ color: '#ffb4a8', margin: '8px 0 0 0' }}>{brewStatus[0]}</p>
+                            )}
+                            <FormButton buttonName={t('wizard.addAroma')}
+                                width={'100%'} margin={'12px 0 0 0'}
+                                onClick={(e) => { e.preventDefault(); addDryAroma(); }} />
+                            <TextField
+                                label={t('tasting.dryAromaNotes')}
+                                name="dryAromaDescription"
+                                multiline
+                                minRows={2}
+                                style={{ margin: '12px 0 0 0' }}
+                                value={values.dryAromaDescription}
+                                onChange={handleChange}
+                                inputProps={{ maxLength: 2000 }} />
+                        </div>
+                        <TextField
+                            label={t('tasting.generalDescription')}
+                            name="description"
+                            multiline
+                            minRows={3}
+                            value={values.description}
+                            onChange={handleChange}
+                            inputProps={{ maxLength: 2000 }} />
                         <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <bdi>{t('tasting.publicAccess')}: </bdi>
                             <input type="checkbox" name="publicAccess"

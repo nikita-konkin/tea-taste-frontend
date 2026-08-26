@@ -129,6 +129,9 @@ const ru = {
     'tasting.steepTime': 'Время заваривания',
     'tasting.aroma': 'Аромат',
     'tasting.taste': 'Вкус',
+    'tasting.dryAroma': 'Аромат сухого чая',
+    'tasting.dryAromaNotes': 'Характеристика аромата сухого чая',
+    'tasting.generalDescription': 'Общая характеристика чая',
     'tasting.bowls': '{n}/10 пиал',
     'tasting.backToFeed': '← Все публичные формы',
     'tasting.backToBlog': '← Вернуться в блог',
@@ -375,6 +378,8 @@ const ru = {
     'extract.price': 'Цена, ₽',
     'extract.teaware': 'Посуда',
     'extract.method': 'Способ',
+    'extract.description': 'Общая характеристика',
+    'extract.dryAromaNotes': 'Аромат сухого чая',
 
     // ── Wizard ───────────────────────────────────────────────────────────────
     'wizard.teaName': 'Название чая',
@@ -587,6 +592,9 @@ const en = {
     'tasting.steepTime': 'Steeping time',
     'tasting.aroma': 'Aroma',
     'tasting.taste': 'Taste',
+    'tasting.dryAroma': 'Dry leaf aroma',
+    'tasting.dryAromaNotes': 'Notes on the dry leaf aroma',
+    'tasting.generalDescription': 'Overall character of the tea',
     'tasting.bowls': '{n}/10 bowls',
     'tasting.backToFeed': '← All public tastings',
     'tasting.backToBlog': '← Back to the feed',
@@ -825,6 +833,8 @@ const en = {
     'extract.price': 'Price, ₽',
     'extract.teaware': 'Teaware',
     'extract.method': 'Method',
+    'extract.description': 'Overall character',
+    'extract.dryAromaNotes': 'Dry leaf aroma',
 
     // ── Wizard ───────────────────────────────────────────────────────────────
     'wizard.teaName': 'Name of the tea',
@@ -1031,6 +1041,9 @@ const zh = {
     'tasting.steepTime': '冲泡时间',
     'tasting.aroma': '香气',
     'tasting.taste': '滋味',
+    'tasting.dryAroma': '干茶香气',
+    'tasting.dryAromaNotes': '干茶香气描述',
+    'tasting.generalDescription': '茶的整体评价',
     'tasting.bowls': '{n}／10 杯',
     'tasting.backToFeed': '← 全部公开记录',
     'tasting.backToBlog': '← 返回记录列表',
@@ -1269,6 +1282,8 @@ const zh = {
     'extract.price': '价格（₽）',
     'extract.teaware': '茶器',
     'extract.method': '方式',
+    'extract.description': '整体评价',
+    'extract.dryAromaNotes': '干茶香气',
 
     // ── Wizard ───────────────────────────────────────────────────────────────
     'wizard.teaName': '茶名',

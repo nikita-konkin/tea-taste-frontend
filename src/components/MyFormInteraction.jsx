@@ -11,6 +11,7 @@ import Header from './Header.jsx'
 import PageMeta from './PageMeta.jsx';
 import TeaPhotoGallery from './TeaPhotoGallery.jsx';
 import { mainApi } from '../utils/MainAPI.jsx';
+import { formApi } from '../utils/FormAPI.jsx';
 import { clearVoiceDraft, readVoiceDraft } from '../utils/voiceDraft.js';
 import { formatDateTime } from '../utils/utils.js';
 import { usePopup } from './PopupContext.jsx';
@@ -41,6 +42,15 @@ function MyFormInteraction(props) {
 	const stage2Data = JSON.parse(localStorage.getItem('teaFormStage2')) != null ? JSON.parse(localStorage.getItem('teaFormStage2')) : [];
 
 	const [formId, setFormId] = useState(uuidv4());
+
+	// Same " → " path the пролив descriptors are shown as, so the dry leaf reads
+	// the way the rest of the review does. Untouched pickers drop out.
+	const dryAromaRows = (stage1Data.dryAromas || [])
+		.map((row) => [row.aromaStage1, row.aromaStage2, row.aromaStage3]
+			.map((s) => (s && s.label) || '')
+			.filter(Boolean)
+			.join(' → '))
+		.filter(Boolean);
 
 	// console.log(stage1Data)
 	// console.log(stage2Data)
@@ -207,6 +217,31 @@ function MyFormInteraction(props) {
 
 	}
 
+	// The dry leaf, stored as aromas on пролив 0 — a number no brewing has, so
+	// nothing that walks the проливы picks these up by accident.
+	//
+	// Called through formApi rather than through a props.* wrapper: those do not
+	// return their promise, which is why the пролив descriptors above are posted
+	// twice to paper over the race. One call is enough when the await is real.
+	async function postDryAromaData(formId, publicAccess) {
+		const rows = stage1Data.dryAromas || [];
+		let index = 0;
+
+		for (const row of rows) {
+			const stage = (value) => (value && value.label ? value.label : 'none');
+			// An untouched picker is three nulls. Posting it would store an aroma
+			// that says nothing and read back as an empty chip.
+			if (stage(row.aromaStage1) === 'none') continue;
+
+			index += 1;
+			await formApi.postAromaStages(formId, 0, index, {
+				aromaStage1: stage(row.aromaStage1),
+				aromaStage2: stage(row.aromaStage2),
+				aromaStage3: stage(row.aromaStage3),
+			}, publicAccess);
+		}
+	}
+
 	function postStraitData(formId, publicAccess) {
 
 		for (let straitNum = 0; straitNum < stage2Data.straits.length; straitNum++) {
@@ -300,6 +335,13 @@ function MyFormInteraction(props) {
 			failed.push(t('review.steeps'))
 		}
 
+		try {
+			await postDryAromaData(formId, publicAccess)
+		} catch (error) {
+			console.log(error)
+			failed.push(t('tasting.dryAroma'))
+		}
+
 		localStorage.removeItem('teaFormStage1');
 		localStorage.removeItem('teaFormStage2');
 		// The voice draft is its own key, so clearing the two form drafts left the
@@ -374,6 +416,26 @@ function MyFormInteraction(props) {
 						<li className="myforminteraction__row"><bdi>{t('review.finalRating')}: </bdi>{t('tasting.bowls', { n: avrRaiting })}</li>
 						<li className="myforminteraction__row"><bdi>{t('wizard.publish')}: </bdi>{stage1Data.publicAccess ? t('review.yes') : t('review.no')}</li>
 					</ul>
+					{dryAromaRows.length > 0 && (
+						<ul className="myforminteraction__list">
+							<li className="myforminteraction__row"><bdi>{t('tasting.dryAroma')}: </bdi></li>
+							{dryAromaRows.map((path, index) => (
+								<li className="myforminteraction__row" key={path}><bdi>{index + 1})</bdi> {path}</li>
+							))}
+						</ul>
+					)}
+					{stage1Data.dryAromaDescription && (
+						<ul className="myforminteraction__list">
+							<li className="myforminteraction__row"><bdi>{t('tasting.dryAromaNotes')}:</bdi></li>
+							<li className="myforminteraction__row"><bdi>{stage1Data.dryAromaDescription}</bdi></li>
+						</ul>
+					)}
+					{stage1Data.teaDescription && (
+						<ul className="myforminteraction__list">
+							<li className="myforminteraction__row"><bdi>{t('tasting.generalDescription')}:</bdi></li>
+							<li className="myforminteraction__row"><bdi>{stage1Data.teaDescription}</bdi></li>
+						</ul>
+					)}
 				</section>
 
 				{straits}
