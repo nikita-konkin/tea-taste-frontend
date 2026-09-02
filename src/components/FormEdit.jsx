@@ -253,25 +253,52 @@ function FormEdit({ formData, patchFormById }) {
     // Applies one пролив's suggestion into that пролив's own fields. Only the
     // three the section actually owns: an aroma or taste would need a new
     // descriptor row, and those are created server-side with their own ids.
-    const applyBrewingSuggestion = (bc, suggestion) => {
+    const applyBrewingFields = (bc, suggestion) => {
         if (suggestion.description) changeBrewing(bc, 'description', suggestion.description);
         if (suggestion.time) changeBrewing(bc, 'brewingTime', asBrewingTime(suggestion.time));
         if (suggestion.rating !== undefined && suggestion.rating !== null) {
             changeBrewing(bc, 'brewingRating', suggestion.rating);
         }
         setAppliedBrews((prev) => ({ ...prev, [bc]: true }));
-        createDescriptors(bc, suggestion);
+    };
+
+    const applyBrewingSuggestion = (bc, suggestion) => {
+        applyBrewingFields(bc, suggestion);
+        createDescriptors([{ bc, suggestion }]);
+    };
+
+    // What «Применить всё» reaches. It used to stop at the tea's own fields,
+    // leaving every пролив to its own button further down — so the obvious
+    // sequence (заполнить → применить всё → сохранить) saved a form with no
+    // пролив notes in it at all.
+    //
+    // Only проливы that exist: a suggestion numbered higher than any пролив on
+    // the form is still listed by unmatchedBrewings() rather than conjuring one.
+    const applyAllBrewings = () => {
+        const suggested = (voiceSuggestions || {}).brewings || [];
+        const have = new Set((brewings || []).map((brew) => Number(brew.brewingCount)));
+        const entries = suggested
+            .filter((suggestion) => have.has(Number(suggestion.number)))
+            .map((suggestion) => ({ bc: Number(suggestion.number), suggestion }));
+
+        entries.forEach(({ bc, suggestion }) => applyBrewingFields(bc, suggestion));
+        // One call for all of them: a POST-and-refetch per пролив would race,
+        // and the refetch that landed last would drop the rows the others had
+        // just created.
+        createDescriptors(entries);
     };
 
     // A descriptor is three columns server-side, not a path string, and each row
     // is addressed by its own index within the brewing. So each extracted path is
     // split, given the next free index, and posted — then everything is refetched
     // so the new rows arrive with the _id the pickers and the save path need.
-    const createDescriptors = (bc, suggestion) => {
+    // Takes a list rather than a single пролив so that applying everything at
+    // once posts the lot and refetches exactly once.
+    const createDescriptors = (entries) => {
         const sessionId = formData.sessionId;
         const isPublic = Boolean(values.publicAccess);
 
-        const plan = (paths, rows, countField, stagePrefix) => {
+        const plan = (paths, rows, countField, stagePrefix, bc) => {
             const used = rows.filter((row) => row.brewingCount === bc);
             let next = used.reduce((max, row) => Math.max(max, Number(row[countField]) || 0), 0);
             return (paths || []).map((path) => {
@@ -288,15 +315,20 @@ function FormEdit({ formData, patchFormById }) {
             });
         };
 
-        const jobs = [
-            ...plan(suggestion.aromas, aromas, 'aromaCount', 'aromaStage')
+        const jobs = entries.flatMap(({ bc, suggestion }) => [
+            ...plan(suggestion.aromas, aromas, 'aromaCount', 'aromaStage', bc)
                 .map((job) => formApi.postAromaStages(sessionId, bc, job.index, job.stages, isPublic)),
-            ...plan(suggestion.tastes, tastes, 'tasteCount', 'tasteStage')
+            ...plan(suggestion.tastes, tastes, 'tasteCount', 'tasteStage', bc)
                 .map((job) => formApi.postTasteStages(sessionId, bc, job.index, job.stages, isPublic)),
-        ];
+        ]);
         if (!jobs.length) return;
 
-        setBrewStatus((prev) => ({ ...prev, [bc]: 'saving' }));
+        const touched = entries.map(({ bc }) => bc);
+        const mark = (value) => setBrewStatus((prev) => touched.reduce(
+            (acc, bc) => ({ ...acc, [bc]: value }), { ...prev },
+        ));
+
+        mark('saving');
         Promise.all(jobs)
             .then(() => Promise.all([
                 formApi.getAllMyAromasById(sessionId),
@@ -307,12 +339,9 @@ function FormEdit({ formData, patchFormById }) {
                 // a silent no-op, so the only proof is what comes back.
                 setAromas((a.data || []).map((x) => ({ ...x })));
                 setTastes((t.data || []).map((x) => ({ ...x })));
-                setBrewStatus((prev) => ({ ...prev, [bc]: undefined }));
+                mark(undefined);
             })
-            .catch(() => setBrewStatus((prev) => ({
-                ...prev,
-                [bc]: t('edit.descriptorsFailed'),
-            })));
+            .catch(() => mark(t('edit.descriptorsFailed')));
     };
 
     const changeStage = (setter, id, field, value) => {
@@ -591,7 +620,7 @@ function FormEdit({ formData, patchFormById }) {
                     <span className="voiceextract__title">{t('edit.fromRecording')}</span>
                     <button type="button" className="voiceextract__apply"
                         onClick={() => {
-                            createDescriptors(0, { aromas: paths });
+                            createDescriptors([{ bc: 0, suggestion: { aromas: paths } }]);
                             setAppliedBrews((prev) => ({ ...prev, dry: true }));
                         }}
                         disabled={Boolean(appliedBrews.dry)}>
@@ -748,6 +777,7 @@ function FormEdit({ formData, patchFormById }) {
                                 values={values}
                                 onApply={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
                                 onSuggestions={setVoiceSuggestions}
+                                onApplyBrewings={applyAllBrewings}
                             />
                         )}
                         <TeaPhotos

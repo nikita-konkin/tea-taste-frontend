@@ -4,6 +4,7 @@ import { render as rtlRender, screen, fireEvent, waitFor } from '@testing-librar
 import FormEdit from '../FormEdit.jsx';
 import { PopupProvider } from '../PopupContext.jsx';
 import { formApi } from '../../utils/FormAPI.jsx';
+import { mainApi } from '../../utils/MainAPI.jsx';
 
 import { MemoryRouter } from 'react-router-dom';
 
@@ -26,7 +27,16 @@ jest.mock('../../utils/FormAPI.jsx', () => ({
         patchTasteStages: jest.fn(),
         postFormStage2Brew: jest.fn(),
         postAromaStages: jest.fn(),
+        postTasteStages: jest.fn(),
         delBrewSelective: jest.fn(),
+    },
+}));
+
+// VoiceExtract fetches the suggestions; the dialog is what applies them.
+jest.mock('../../utils/MainAPI.jsx', () => ({
+    mainApi: {
+        extractVoice: jest.fn(),
+        deleteTeaPhoto: jest.fn(),
     },
 }));
 
@@ -207,6 +217,71 @@ describe('the dry leaf and the tasting as a whole', () => {
         expect(brewId).toBe(0);
         // Next free index after the one that is already there.
         expect(aromaId).toBe(2);
+    });
+});
+
+// The sequence a user actually performs: заполнить из расшифровки → применить
+// всё → сохранить форму. Apply-all used to stop at the tea's own fields, so the
+// проливы kept their old text and every пролив note from the recording was lost.
+describe('«Применить всё» reaches the проливы', () => {
+    const suggestion = {
+        data: {
+            isTeaTasting: true,
+            // No tea-level fields at all: every note was recorded against a
+            // пролив. That is exactly what a per-пролив tasting now returns, and
+            // it used to leave the button unrendered and the panel claiming
+            // nothing had been found.
+            brewings: [{ number: 1, description: 'первый: чабрец' }],
+        },
+        cached: false,
+    };
+
+    const renderWithVoice = () => render(
+        <PopupProvider>
+            <FormEdit
+                formData={{ ...formData, voice: { transcript: 'Пролив 1. чабрец' } }}
+                patchFormById={jest.fn().mockResolvedValue({ data: {} })}
+            />
+        </PopupProvider>
+    );
+
+    test('the button is offered even when only проливы were suggested', async () => {
+        mainApi.extractVoice.mockResolvedValue(suggestion);
+        renderWithVoice();
+        await screen.findByTestId('brew-edit-1');
+
+        fireEvent.click(screen.getByText('Заполнить из расшифровки'));
+
+        expect(await screen.findByText('Применить всё')).toBeInTheDocument();
+        expect(screen.queryByText('В расшифровке не нашлось данных для полей.')).toBeNull();
+    });
+
+    test('one click fills the пролив, not just the fields above it', async () => {
+        mainApi.extractVoice.mockResolvedValue(suggestion);
+        renderWithVoice();
+        await screen.findByTestId('brew-edit-1');
+
+        fireEvent.click(screen.getByText('Заполнить из расшифровки'));
+        fireEvent.click(await screen.findByText('Применить всё'));
+
+        await waitFor(() => expect(screen.getByDisplayValue('первый: чабрец')).toBeInTheDocument());
+    });
+
+    test('a suggestion for a пролив the form does not have is not invented', async () => {
+        mainApi.extractVoice.mockResolvedValue({
+            data: { isTeaTasting: true, brewings: [{ number: 7, description: 'седьмой' }] },
+            cached: false,
+        });
+        renderWithVoice();
+        await screen.findByTestId('brew-edit-1');
+
+        fireEvent.click(screen.getByText('Заполнить из расшифровки'));
+        fireEvent.click(await screen.findByText('Применить всё'));
+
+        // Пролив 7 does not exist here, so nothing is created for it and пролив 1
+        // keeps what it had.
+        await waitFor(() => expect(screen.getByDisplayValue('Первый пролив')).toBeInTheDocument());
+        expect(screen.queryByDisplayValue('седьмой')).toBeNull();
     });
 });
 

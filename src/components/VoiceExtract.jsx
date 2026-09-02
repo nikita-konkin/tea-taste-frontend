@@ -27,7 +27,7 @@ export const FIELDS = [
 // conversational speech and is occasionally confidently wrong — it once put the
 // pack weight into the dose. A rejected suggestion costs a tap; a silent
 // overwrite costs data the user typed correctly.
-function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
+function VoiceExtract({ sessionId, values, onApply, onSuggestions, onApplyBrewings }) {
     const { t } = useT();
     const [suggestions, setSuggestions] = useState(null);
     const [cached, setCached] = useState(false);
@@ -63,7 +63,19 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
         ? FIELDS.filter(([key]) => suggestions[key] !== undefined && suggestions[key] !== '')
         : [];
 
-    const applyAll = () => offered.forEach(([key]) => apply(key, suggestions[key]));
+    // The проливы live further down the dialog, which owns them, so applying
+    // them is a callback. They are applied here all the same: «Применить всё»
+    // has to mean all of it. It used to mean "the tea's own fields", and the
+    // проливы were quietly left behind with their own buttons.
+    const applyAll = () => {
+        offered.forEach(([key]) => apply(key, suggestions[key]));
+        if (onApplyBrewings) onApplyBrewings();
+    };
+
+    // A tasting where every note was recorded against a пролив yields exactly
+    // this: no tea-level fields and six проливы. Keying the button and the
+    // "nothing found" line off `offered` alone called that an empty result.
+    const hasSomething = offered.length > 0 || brewings.length > 0;
 
     if (!suggestions) {
         return (
@@ -95,14 +107,14 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions }) {
                 <span className="voiceextract__title">
                     {t('extract.suggestions')}{cached ? ` ${t('extract.cached')}` : ''}
                 </span>
-                {offered.length > 0 && (
+                {hasSomething && (
                     <button type="button" className="voiceextract__all" onClick={applyAll}>
                         {t('extract.applyAll')}
                     </button>
                 )}
             </div>
 
-            {offered.length === 0 && (
+            {!hasSomething && (
                 <p className="voicenote__hint">{t('extract.nothingFound')}</p>
             )}
 
