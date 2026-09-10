@@ -20,7 +20,16 @@ const mmss = (seconds) => {
 // onRemovedUrl decides who deletes the file: the wizard passes nothing and the
 // file goes immediately, while the edit dialog collects the urls and unlinks
 // them only once the PATCH has succeeded — the same contract as TeaPhotos.
-function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUrl }) {
+function VoiceNote({
+    value = [], onChange, brewingNumber = 0, label, onRemovedUrl,
+    // `whole`: this instance owns imported recordings of the entire tasting —
+    // one file with every пролив inside it, split later by the numbers the
+    // taster spoke. Such a segment is not пролив 0 and must not be listed as
+    // one, which is why it is filtered on its own flag rather than its number.
+    // `importOnly`: no record button. You cannot record "the whole session" in
+    // the app — that is what the per-пролив notes are.
+    whole = false, importOnly = false,
+}) {
 	const { t } = useT();
     const [recording, setRecording] = useState(false);
     const [elapsed, setElapsed] = useState(0);
@@ -28,7 +37,9 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
     const [error, setError] = useState('');
     const handle = useRef(null);
 
-    const mine = value.filter((segment) => (segment.brewingNumber || 0) === brewingNumber);
+    const mine = value.filter((segment) => (whole
+        ? Boolean(segment.whole)
+        : !segment.whole && (Number(segment.brewingNumber) || 0) === brewingNumber));
     const used = totalSeconds(value);
     const remaining = Math.max(0, MAX_TOTAL_SECONDS - used);
     const supported = isSupported();
@@ -79,24 +90,46 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
         }
     };
 
+    // A recording made outside the app — a phone voice memo, a file from a
+    // recorder. It goes through the same upload endpoint, which already accepts
+    // m4a/mp3/wav/ogg/aac and transcodes whatever arrives, so nothing about the
+    // pipeline changes: the пролив is decided by which block the file was
+    // dropped into, exactly as it is for a recording made here.
+    const importFile = async (event) => {
+        const file = event.target.files && event.target.files[0];
+        // Cleared so picking the same file twice still fires a change event.
+        event.target.value = '';
+        if (!file) return;
+
+        setError('');
+        setBusy(true);
+        try {
+            const { data } = await mainApi.uploadVoice(file);
+            onChange([...value, {
+                url: data.url,
+                brewingNumber,
+                duration: Number(data.duration) || 0,
+                ...(whole ? { whole: true } : {}),
+            }]);
+        } catch (err) {
+            setError(err.message || t('voice.uploadFailed'));
+        } finally {
+            setBusy(false);
+        }
+    };
+
     const remove = (segment) => {
         onChange(value.filter((item) => item.url !== segment.url));
         if (onRemovedUrl) onRemovedUrl(segment.url);
         else mainApi.deleteVoice(segment.url);
     };
 
-    if (!supported) {
-        return (
-            <p className="voicenote__hint">
-                {t('voice.unsupported')}
-            </p>
-        );
-    }
+    const canRecord = supported && !importOnly;
 
     return (
         <div className="voicenote">
             <div className="voicenote__row">
-                {recording ? (
+                {canRecord && (recording ? (
                     <button type="button" className="voicenote__button voicenote__button_stop"
                         onClick={finish} aria-label={t('voice.stop')}>
                         <span className="voicenote__pulse" aria-hidden="true" />
@@ -108,6 +141,20 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
                         aria-label={label ? t('voice.recordFor', { label }) : t('voice.record')}>
                         {busy ? t('voice.loading') : t('voice.recordButton')}
                     </button>
+                ))}
+
+                {/* A label rather than a button: a file input cannot be styled,
+                    and wrapping it keeps the keyboard and screen-reader
+                    behaviour a real control has. */}
+                {!recording && (
+                    <label className="voicenote__button"
+                        aria-label={label ? t('voice.importFor', { label }) : t('voice.import')}>
+                        {busy ? t('voice.loading') : t('voice.import')}
+                        <input type="file" hidden
+                            accept="audio/*,.m4a,.mp3,.wav,.ogg,.aac,.webm"
+                            disabled={busy || remaining <= 0}
+                            onChange={importFile} />
+                    </label>
                 )}
 
                 <span className="voicenote__budget">
@@ -127,6 +174,10 @@ function VoiceNote({ value = [], onChange, brewingNumber = 0, label, onRemovedUr
                         </li>
                     ))}
                 </ul>
+            )}
+
+            {!supported && !importOnly && (
+                <p className="voicenote__hint">{t('voice.unsupported')}</p>
             )}
 
             {error && <p className="voicenote__error">{error}</p>}

@@ -778,6 +778,7 @@ function FormEdit({ formData, patchFormById }) {
                                 onApply={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
                                 onSuggestions={setVoiceSuggestions}
                                 onApplyBrewings={applyAllBrewings}
+                                brewingCount={(brewings || []).length}
                             />
                         )}
                         <TeaPhotos

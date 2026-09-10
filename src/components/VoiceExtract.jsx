@@ -27,7 +27,9 @@ export const FIELDS = [
 // conversational speech and is occasionally confidently wrong — it once put the
 // pack weight into the dose. A rejected suggestion costs a tap; a silent
 // overwrite costs data the user typed correctly.
-function VoiceExtract({ sessionId, values, onApply, onSuggestions, onApplyBrewings }) {
+function VoiceExtract({
+    sessionId, values, onApply, onSuggestions, onApplyBrewings, brewingCount = 0,
+}) {
     const { t } = useT();
     const [suggestions, setSuggestions] = useState(null);
     const [cached, setCached] = useState(false);
@@ -143,8 +145,14 @@ function VoiceExtract({ sessionId, values, onApply, onSuggestions, onApplyBrewin
             </ul>
 
             {brewings.length > 0 && (
+                // Against the проливы the form actually has, because the usual
+                // way this goes wrong is silent: a number that was not spoken,
+                // or was misheard, simply merges its пролив into the one before
+                // it and nothing says so.
                 <p className="voicenote__hint">
-                    {t('extract.brewingsFound', { n: brewings.length })}
+                    {brewingCount > brewings.length
+                        ? t('extract.brewingsMissing', { n: brewings.length, total: brewingCount })
+                        : t('extract.brewingsFound', { n: brewings.length })}
                 </p>
             )}
         </div>

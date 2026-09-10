@@ -787,6 +787,22 @@ const TeaFormStage1 = (props) => {
 							brewingNumber={0}
 							label={t('wizard.aboutTea')}
 						/>
+
+						{/* One file covering the whole tasting, recorded outside
+						    the app. It is not a note about пролив 0 — the проливы
+						    are inside it, named out loud — so it is imported as
+						    its own kind and split later on those numbers. */}
+						<section className="form_strait-stages">
+							<h3 className="form_strait-header">{t('voice.wholeSession')}</h3>
+							<p className="voicenote__hint">{t('voice.wholeSessionHint')}</p>
+							<VoiceNote
+								value={voiceSegments}
+								onChange={setVoiceSegments}
+								whole
+								importOnly
+								label={t('voice.wholeSession')}
+							/>
+						</section>
 						{gateError && <p className="voicenote__error">{gateError}</p>}
 						<Stack direction={isSmallScreen ? "column" : "row"} spacing={2} useFlexGap sx={{ width: '100%' }}>
 							<Controller

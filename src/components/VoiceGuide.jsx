@@ -55,7 +55,7 @@ function VoiceGuide() {
             <p className="voiceguide__lead">{t('guide.lead')}</p>
 
             <Block title={t('guide.s1')}>
-                {['guide.s1a', 'guide.s1b', 'guide.s1c', 'guide.s1d'].map(bullet)}
+                {['guide.s1a', 'guide.s1b', 'guide.s1c', 'guide.s1d', 'guide.s1e', 'guide.s1f'].map(bullet)}
             </Block>
 
             <Block title={t('guide.s2')}>
