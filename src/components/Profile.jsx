@@ -83,6 +83,8 @@ function Profile(props) {
 			})
 			.catch((err) => openPopup(err.message || t('profile.loadFailed')))
 			.finally(() => setLoading(false));
+	// Mount only: loads the profile once; every later write updates state directly.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleProfileChange = (e) => {

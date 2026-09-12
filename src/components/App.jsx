@@ -75,6 +75,8 @@ function AppContent({ navigate, navigateTo }) {
       localStorage.setItem('loggedIn', false);
       setLoggedIn(false);
     }
+  // Mount only: this is the session check that decides whether the app starts logged in.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

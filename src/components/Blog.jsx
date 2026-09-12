@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef
-} from 'react'
+import React from 'react'
 
 import Header from './Header.jsx'
 

@@ -22,6 +22,8 @@ function VkAuthDone() {
 			.catch(() => {
 				window.location.replace(`${url('/sign-in')}?vk_error=1`);
 			});
+	// Mount only: completes the OAuth exchange and leaves the page.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

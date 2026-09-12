@@ -1,6 +1,5 @@
 import { Autocomplete, TextField, createFilterOptions } from '@mui/material';
 import { forwardRef } from 'react';
-import { ThemeProvider, createTheme, styled } from '@mui/material/styles';
 import { useT } from '../i18n/index.js';
 import { optionLabel } from '../i18n/options.js';
 

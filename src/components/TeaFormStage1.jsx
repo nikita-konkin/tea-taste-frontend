@@ -442,6 +442,8 @@ const TeaFormStage1 = (props) => {
 		formApi.getTopDescriptors()
 			.then((res) => setTopAromas(res.aromas || []))
 			.catch(() => { /* chips are optional */ });
+	// Mount only: restores the draft. `props` as a dependency would rerun it on every parent render and overwrite what is being typed.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	const [formValues, setFormValues] = useState(() => {

@@ -1,7 +1,6 @@
 import React, {
 	useState,
-	useEffect,
-	useRef
+	useEffect
 } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
@@ -161,6 +160,8 @@ function Forms({ forms, navigation,
 		} else {
 			forms()
 		}
+	// `forms` is a prop function rebuilt on every render of the parent, so listing it here would refetch the feed in a loop.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isMyForms, isBlog, page, typeFilter, sortOrder])
 
 	useEffect(() => {
@@ -182,6 +183,8 @@ function Forms({ forms, navigation,
 			setCheckLS(true)
 			prepareFormsRender(myForms)
 		}
+	// `prepareFormsRender` is redefined each render; the state it reads is already in the deps.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [myForms, mySort, isAdmin])
 
 	useEffect(() => {

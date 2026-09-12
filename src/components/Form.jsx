@@ -17,7 +17,6 @@ import { useT } from '../i18n/index.js';
 import { translateDescriptorPath } from '../i18n/descriptors.js';
 import { translateOption } from '../i18n/options.js';
 import { v4 as uuidv4 } from 'uuid';
-import { set } from 'react-hook-form';
 
 function Form({
     formData,
@@ -84,6 +83,8 @@ function Form({
             brewsRender.current = brewingsContent(formData.sessionId);
             openPopup(popupContent(brewsRender.current));
         }
+    // Mount only: opens the tasting the route asked for. Re-running on every render would reopen the popup under the reader.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [aromasByIdCxt, tastesByIdCxt, brewsByIdCxt]);
 
     // Card thumbnail: always the first filled slot in dry -> liquor -> wet

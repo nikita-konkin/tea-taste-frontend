@@ -137,28 +137,6 @@ function FormEdit({ formData, patchFormById }) {
     }, []);
 
     // Cascades: category -> its subcategories -> that subcategory's descriptors.
-    // Falls back to the whole level when the field above holds something the
-    // dictionary does not know — which is common, because the extraction writes
-    // whatever the transcript said. An unrecognised parent must not leave the
-    // next field with an empty list.
-    const stageOptions = (prefix, rec, stage) => {
-        const tree = prefix.startsWith('aroma') ? aromaTree : tasteTree;
-        if (!tree.length) return [];
-
-        if (stage === 1) return tree.map((c) => c.category);
-
-        const category = tree.find((c) => c.category === rec[`${prefix}1`]);
-        const subs = category ? category.subcategories || [] : [];
-
-        if (stage === 2) {
-            if (subs.length) return subs.map((s) => s.name);
-            return tree.flatMap((c) => (c.subcategories || []).map((s) => s.name));
-        }
-
-        const pool = subs.length ? subs : tree.flatMap((c) => c.subcategories || []);
-        const sub = pool.find((s) => s.name === rec[`${prefix}2`]);
-        return sub ? sub.descriptors || [] : [];
-    };
     const [appliedBrews, setAppliedBrews] = useState({});
     const [aromas, setAromas] = useState([]);
     const [tastes, setTastes] = useState([]);

@@ -106,6 +106,8 @@ function Admin({ navigation }) {
 	useEffect(() => {
 		mainApi.getProfile().then((res) => setMyId(res.data._id)).catch(() => {});
 		load();
+	// Mount only: the admin page loads its lists once and reloads them through load() on demand.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const toggleRegistration = () => {

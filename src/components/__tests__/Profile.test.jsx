@@ -81,16 +81,15 @@ test('saving the profile sends PATCH /profile/me with the edited values', async 
     fireEvent.change(screen.getByDisplayValue('Тестер'), { target: { value: 'Новое Имя' } });
     fireEvent.click(screen.getByText('Сохранить профиль'));
 
-    await waitFor(() => {
-        const patchCall = global.fetch.mock.calls.find(
-            ([url, opts]) => url.endsWith('/profile/me') && opts && opts.method === 'PATCH'
-        );
-        expect(patchCall).toBeTruthy();
-        const body = JSON.parse(patchCall[1].body);
-        expect(body.name).toBe('Новое Имя');
-        expect(body.email).toBe('tester@example.com');
-        expect(body.about).toBe('Люблю улуны');
-    });
+    const findPatch = () => global.fetch.mock.calls.find(
+        ([url, opts]) => url.endsWith('/profile/me') && opts && opts.method === 'PATCH',
+    );
+    await waitFor(() => expect(findPatch()).toBeTruthy());
+
+    const body = JSON.parse(findPatch()[1].body);
+    expect(body.name).toBe('Новое Имя');
+    expect(body.email).toBe('tester@example.com');
+    expect(body.about).toBe('Люблю улуны');
 });
 
 test('changing the password sends PATCH /profile/password', async () => {
@@ -105,13 +104,12 @@ test('changing the password sends PATCH /profile/password', async () => {
     });
     fireEvent.click(screen.getByText('Изменить пароль'));
 
-    await waitFor(() => {
-        const pwCall = global.fetch.mock.calls.find(([url]) => url.endsWith('/profile/password'));
-        expect(pwCall).toBeTruthy();
-        expect(JSON.parse(pwCall[1].body)).toEqual({
-            oldPassword: 'Old1!abc',
-            newPassword: 'New2@def',
-        });
+    const findPassword = () => global.fetch.mock.calls.find(([url]) => url.endsWith('/profile/password'));
+    await waitFor(() => expect(findPassword()).toBeTruthy());
+
+    expect(JSON.parse(findPassword()[1].body)).toEqual({
+        oldPassword: 'Old1!abc',
+        newPassword: 'New2@def',
     });
 });
 

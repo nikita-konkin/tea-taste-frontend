@@ -29,6 +29,8 @@ function Login(props) {
 		} else if (vkError) {
 			openPopup(t('auth.vkFailed'));
 		}
+	// Mount only: reports the vk_error the redirect arrived with, once.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	function handlePass(e) {

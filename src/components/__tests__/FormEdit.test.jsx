@@ -264,7 +264,7 @@ describe('«Применить всё» reaches the проливы', () => {
         fireEvent.click(screen.getByText('Заполнить из расшифровки'));
         fireEvent.click(await screen.findByText('Применить всё'));
 
-        await waitFor(() => expect(screen.getByDisplayValue('первый: чабрец')).toBeInTheDocument());
+        expect(await screen.findByDisplayValue('первый: чабрец')).toBeInTheDocument();
     });
 
     test('a suggestion for a пролив the form does not have is not invented', async () => {
@@ -280,7 +280,7 @@ describe('«Применить всё» reaches the проливы', () => {
 
         // Пролив 7 does not exist here, so nothing is created for it and пролив 1
         // keeps what it had.
-        await waitFor(() => expect(screen.getByDisplayValue('Первый пролив')).toBeInTheDocument());
+        expect(await screen.findByDisplayValue('Первый пролив')).toBeInTheDocument();
         expect(screen.queryByDisplayValue('седьмой')).toBeNull();
     });
 });

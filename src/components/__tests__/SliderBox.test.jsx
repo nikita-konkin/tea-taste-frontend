@@ -2,7 +2,7 @@
    are, and a wide slider keeps them all. Reproduces the phone-width case the
    labels were unreadable at. */
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import SliderBox, { alignmentOf } from '../SliderBox.jsx';
 import {
     SLIDER_WEIGHT_DATA,

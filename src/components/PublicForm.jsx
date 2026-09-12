@@ -80,6 +80,8 @@ function PublicForm() {
             })
             .catch((err) => { if (!cancelled) setError(err.message || t('tasting.notFound')); });
         return () => { cancelled = true; };
+    // Mount only: fetches the published tasting named by the URL.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slugOrId]);
 
     // An old /blog/<uuid> link lands on the right tasting but under the wrong

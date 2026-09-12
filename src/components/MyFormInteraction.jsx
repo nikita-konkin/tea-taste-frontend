@@ -4,7 +4,6 @@ import {
 	useRef,
 } from 'react'
 import { v4 as uuidv4 } from 'uuid';
-import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import FormButton from './FormButton.jsx';
 import Header from './Header.jsx'
@@ -41,7 +40,7 @@ function MyFormInteraction(props) {
 	const stage1Data = JSON.parse(localStorage.getItem('teaFormStage1')) != null ? JSON.parse(localStorage.getItem('teaFormStage1')) : [];
 	const stage2Data = JSON.parse(localStorage.getItem('teaFormStage2')) != null ? JSON.parse(localStorage.getItem('teaFormStage2')) : [];
 
-	const [formId, setFormId] = useState(uuidv4());
+	const [formId] = useState(uuidv4());
 
 	// Same " → " path the пролив descriptors are shown as, so the dry leaf reads
 	// the way the rest of the review does. Untouched pickers drop out.
@@ -91,6 +90,8 @@ function MyFormInteraction(props) {
 			addStraitStage(stage2Data.straits.length)
 			setStraits(stages)
 		}
+	// Mount only: seeds the review screen from the saved draft.
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 
@@ -158,19 +159,19 @@ function MyFormInteraction(props) {
 				for (const [key, value] of Object.entries(aromaDataObj)) {
 					let aromaStage = Number(key.split('').slice(-1))
 					let data = value != null ? value.label : 'none'
-					data = data != '' ? data : 'none'
+					data = data !== '' ? data : 'none'
 					if (stage2Data.straits[straitNum].aromas.length > 0) {
-						if (aromaStage == 1) {
+						if (aromaStage === 1) {
 							// props.postFormStage2Aroma(data, formId, straitNum+1, aromaNum+1)
 							try {
-								const result = await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, publicAccess);
+								await props.postFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, publicAccess);
 								// console.log('Aroms data posted successfully:', result);
 							} catch (error) {
 								console.error('Error submitting form:', error);
 							}
 						} else {
 							try {
-								const result1 = await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage, publicAccess);
+								await props.patchFormStage2Aroma(data, formId, straitNum + 1, aromaNum + 1, aromaStage, publicAccess);
 
 							} catch (error) {
 								console.error('Error submitting form:', error);
@@ -192,18 +193,18 @@ function MyFormInteraction(props) {
 				for (const [key, value] of Object.entries(tasteDataObj)) {
 					let tasteStage = Number(key.split('').slice(-1))
 					let data = value != null ? value.label : 'none'
-					data = data != '' ? data : 'none'
+					data = data !== '' ? data : 'none'
 					if (stage2Data.straits[straitNum].tastes.length > 0) {
-						if (tasteStage == 1) {
+						if (tasteStage === 1) {
 							try {
-								const result = await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, publicAccess);
+								await props.postFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, publicAccess);
 								// console.log('Taste data posted successfully:', result);
 							} catch (error) {
 								console.error('Error submitting form:', error);
 							}
 						} else {
 							try {
-								const result = await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage, publicAccess);
+								await props.patchFormStage2Taste(data, formId, straitNum + 1, tasteNum + 1, tasteStage, publicAccess);
 								// console.log('Taste data posted successfully:', result);
 							} catch (error) {
 								console.error('Error submitting form:', error);
@@ -313,16 +314,16 @@ function MyFormInteraction(props) {
 		const failed = []
 
 		try {
-			const result1 = await postTasteData(formId, publicAccess)
-			const result2 = await postTasteData(formId, publicAccess)
+			await postTasteData(formId, publicAccess)
+			await postTasteData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
 			failed.push(t('review.tastes'))
 		}
 
 		try {
-			const result1 = await postAromaData(formId, publicAccess)
-			const result2 = await postAromaData(formId, publicAccess)
+			await postAromaData(formId, publicAccess)
+			await postAromaData(formId, publicAccess)
 		} catch (error) {
 			console.log(error)
 			failed.push(t('review.aromas'))

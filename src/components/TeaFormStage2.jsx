@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import PageMeta from './PageMeta.jsx';
 import { useT } from '../i18n/index.js';
 
@@ -69,11 +69,11 @@ const lastBtnStyle = {
 function TeaFormStage2(props) {
 	const { t } = useT();
 
-	const [optionsAroma, setOptionsAroma] = useState(() => {
+	const [optionsAroma] = useState(() => {
 		const savedAromaDB = localStorage.getItem('aromaDB');
 		return savedAromaDB ? JSON.parse(savedAromaDB) : [];
 	});
-	const [optionsTaste, setOptionsTate] = useState(() => {
+	const [optionsTaste] = useState(() => {
 		const savedTasteDB = localStorage.getItem('tasteDB');
 		return savedTasteDB ? JSON.parse(savedTasteDB) : [];
 	});
@@ -121,7 +121,7 @@ function TeaFormStage2(props) {
 		};
 	});
 
-	const { control, handleSubmit, setValue, watch, getFieldState } = useForm({
+	const { control, handleSubmit, setValue, watch } = useForm({
 		defaultValues: formValues
 	});
 
