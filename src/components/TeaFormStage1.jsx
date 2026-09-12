@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useForm, useFieldArray } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { useMediaQuery, Autocomplete, TextField, Switch, Popper, Button, Stack, autocompleteClasses, FormControlLabel } from '@mui/material';
 import PageMeta from './PageMeta.jsx';
 import { useT } from '../i18n/index.js';
@@ -417,7 +418,7 @@ function DryAroma({ aromaIndex, remove, watch, setValue, optionsAroma, quickPick
 }
 
 const TeaFormStage1 = (props) => {
-	const { t, locale } = useT();
+	const { t, locale, url } = useT();
 
 	const matches = useMediaQuery('(min-width:300px)');
 	const isSmallScreen = useMediaQuery(theme.breakpoints.down('xs'));
@@ -789,20 +790,14 @@ const TeaFormStage1 = (props) => {
 						/>
 
 						{/* One file covering the whole tasting, recorded outside
-						    the app. It is not a note about пролив 0 — the проливы
-						    are inside it, named out loud — so it is imported as
-						    its own kind and split later on those numbers. */}
-						<section className="form_strait-stages">
-							<h3 className="form_strait-header">{t('voice.wholeSession')}</h3>
-							<p className="voicenote__hint">{t('voice.wholeSessionHint')}</p>
-							<VoiceNote
-								value={voiceSegments}
-								onChange={setVoiceSegments}
-								whole
-								importOnly
-								label={t('voice.wholeSession')}
-							/>
-						</section>
+						    the app, is imported on its own page: the requirements
+						    it has to meet are several sentences, and this step is
+						    long enough. A line rather than nothing, so somebody
+						    already in the wizard need not know the menu item is
+						    there. The file lands in the same draft either way. */}
+						<Link className="voicenote__hint voicenote__link" to={url('/voice_import')}>
+							{t('voice.wholeSessionLink')}
+						</Link>
 						{gateError && <p className="voicenote__error">{gateError}</p>}
 						<Stack direction={isSmallScreen ? "column" : "row"} spacing={2} useFlexGap sx={{ width: '100%' }}>
 							<Controller

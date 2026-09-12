@@ -32,6 +32,7 @@
 @import url(./blocks/lightbox/lightbox.css);
 @import url(./blocks/voicenote/voicenote.css);
 @import url(./blocks/voiceguide/voiceguide.css);
+@import url(./blocks/voiceimport/voiceimport.css);
 @import url(./blocks/confirm/confirm.css);
 @import url(./blocks/sliderbox/sliderbox.css);
 

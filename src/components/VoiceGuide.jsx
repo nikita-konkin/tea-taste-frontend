@@ -9,13 +9,16 @@ const TRACK_MINUTES = Math.round(MAX_TOTAL_SECONDS / 60);
 // Mirrors MONTHLY_LIMIT_SECONDS in the API's utils/voiceQuota.js. Deliberately a
 // constant rather than a fetch: this is help text, and the live balance is on
 // /profile, where it is read from the server and shown as a bar.
-const MONTHLY_MINUTES = 30;
+export const MONTHLY_MINUTES = 30;
 
 // Names of real controls, highlighted so they can be found on the page instead
 // of read as ordinary prose.
 const Key = ({ children }) => <span className="voiceguide__key">{children}</span>;
 
-const Block = ({ title, children }) => (
+// Exported for the import page, which states the same kind of requirements in
+// the same shape. Two copies of this markup would drift apart the first time
+// either is restyled.
+export const Block = ({ title, children }) => (
     <section className="myforminteraction__section voiceguide__block">
         <h4 className="voiceguide__block-title">{title}</h4>
         <ul className="voiceguide__list">{children}</ul>
@@ -27,7 +30,7 @@ const Block = ({ title, children }) => (
 // freeze the Russian word order, so the entry keeps the whole sentence and
 // marks control names with [[...]] instead.
 const MARKED = /\[\[(.+?)\]\]/g;
-const withKeys = (text) => {
+export const withKeys = (text) => {
     const parts = [];
     let cursor = 0;
     for (const match of text.matchAll(MARKED)) {

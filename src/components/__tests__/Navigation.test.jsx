@@ -34,6 +34,9 @@ test('shows grouped sections with all the app links', () => {
 
     expect(screen.getByText('Новая форма — этап 1').closest('a')).toHaveAttribute('href', '/form_1');
     expect(screen.getByText('Проливы — этап 2').closest('a')).toHaveAttribute('href', '/form_2');
+    // Importing a recording is an action that produces data, so it sits with
+    // the tasting steps rather than under «Справка» beside the voice guide.
+    expect(screen.getByText('Загрузить запись').closest('a')).toHaveAttribute('href', '/voice_import');
     expect(screen.getByText('Мои формы').closest('a')).toHaveAttribute('href', '/my_forms');
     expect(screen.getByText('Лента').closest('a')).toHaveAttribute('href', '/blog');
     expect(screen.getByText('Профиль').closest('a')).toHaveAttribute('href', '/profile');

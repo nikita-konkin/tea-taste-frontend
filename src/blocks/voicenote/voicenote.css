@@ -146,6 +146,19 @@
 	opacity: 0.8;
 }
 
+/* The way from the wizard to the import page. Underlined, because a hint-styled
+   line that happens to be clickable is not discoverable as a link. */
+.voicenote__link {
+	display: inline-block;
+	opacity: 1;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.voicenote__link:hover {
+	color: #a8f493;
+}
+
 .voiceplayer {
 	display: flex;
 	flex-direction: column;

@@ -4,6 +4,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import { mainApi } from "../utils/MainAPI.jsx";
 import { formApi } from "../utils/FormAPI.jsx";
 import TeaFormStage1 from './TeaFormStage1.jsx';
+import VoiceImport from './VoiceImport.jsx';
 import TeaFormStage2 from './TeaFormStage2.jsx';
 import Login from './Login.jsx';
 import Registration from './Registration.jsx';
@@ -342,6 +343,10 @@ function AppContent({ navigate, navigateTo }) {
     { path: '/', element: <Landing /> },
     { path: '/form_1', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage1} nextStage={FormNavigateNextSatge} navigation={Navigation} getAllFromAromaDB={getAllFromAromaDB} getAllFromTasteDB={getAllFromTasteDB} /> },
     { path: '/form_2', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={TeaFormStage2} nextStage={FormNavigateToFormInteraction} prevStage={FormNavigatePrevSatge} navigation={Navigation} /> },
+    /* Importing a recording made outside the app. Its own page rather than a
+       block on stage 1: the requirements a file has to meet are several
+       sentences, and the wizard's first step is already long. */
+    { path: '/voice_import', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={VoiceImport} /> },
     { path: '/form_submit', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={MyFormInteraction} navigateAfterSubmit={FormNavigatePrevSatge} postFormStage1={postFormStage1} postFormStage2Aroma={postFormStage2Aroma} patchFormStage2Aroma={patchFormStage2Aroma} postFormStage2Taste={postFormStage2Taste} patchFormStage2Taste={patchFormStage2Taste} postFormStage2Brew={postFormStage2Brew} patchFormStage2Brew={patchFormStage2Brew} /> },
     { path: '/profile', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Profile} handleLogout={handleLogOut} /> },
     { path: '/admin', element: <ProtectedRoute loggedIn={loggedIn} localStorageLoggedIn={localStorageLoggedIn} component={Admin} /> },

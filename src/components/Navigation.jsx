@@ -15,6 +15,7 @@ import VoiceGuide from './VoiceGuide.jsx';
 // per language. Order matters: the first match wins, so the more specific
 // paths (form_submit, form_1) come before anything they are a prefix of.
 const PAGE_TITLES = [
+	['voice_import', 'voice.wholeSession'],
 	['form_submit', 'page.formSubmit'],
 	['form_1', 'page.form1'],
 	['form_2', 'page.form2'],
@@ -77,6 +78,12 @@ const ICONS = {
 			<path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3" />
 		</NavIcon>
 	),
+	upload: (
+		<NavIcon>
+			<path d="M12 16V4M8.5 7.5 12 4l3.5 3.5" />
+			<path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15" />
+		</NavIcon>
+	),
 };
 
 // Titles and labels are message keys, resolved per language at render time.
@@ -86,6 +93,9 @@ const MENU_SECTIONS = [
 		links: [
 			{ to: '/form_1', icon: 'leaf', label: 'nav.stage1' },
 			{ to: '/form_2', icon: 'drop', label: 'nav.stage2' },
+			// An action that produces data, so it belongs with the tasting
+			// steps rather than under «Справка» beside the voice guide.
+			{ to: '/voice_import', icon: 'upload', label: 'nav.voiceImport' },
 		],
 	},
 	{
